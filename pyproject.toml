@@ -1,0 +1,33 @@
+[project]
+name = "piservo0"
+version = "0.1.0"
+description = "Python library for servo motor control."
+readme = "README.md"
+authors = [
+    { name = "Yoichi Tanibayashi", email = "yoichi@tanibayashi.jp" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "click",
+    "pigpio"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff"
+]
+
+[project.scripts]
+piservo1 = "piservo1.__main__:cli"
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.pytest.ini_options]
+pythonpath = "."
