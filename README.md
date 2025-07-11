@@ -7,6 +7,7 @@
 
 - シンプルなAPIで簡単にサーボモーターを操作
 - 角度ではなく、パルス幅を直接指定して制御
+- パルス幅の範囲制限（MINからMAX）を自動的に適用
 - 複数のサーボモーターを独立して管理可能
 
 ## 準備
@@ -34,7 +35,7 @@ uv pip install -e .
 まず、`pigpio`をインストールし、デーモンを起動してください。
 
 ```bash
-# pigpioのインストール (Raspberry Pi OSにはプリインストールされていることが多いです)
+# pigpioのインストール (Raspberry Pi OSにはプリインス��ールされていることが多いです)
 sudo apt-get update
 sudo apt-get install pigpio
 
@@ -47,10 +48,15 @@ sudo systemctl start pigpiod
 `samples/sample.py`
 ```python
 import time
+import pigpio
 from piservo0 import PiServo
 
+pi = pigpio.pi()
+if not pi.connected:
+    exit()
+
 # GPIO 18番ピンに接続されたサーボを操作する
-servo = PiServo(18, debug=True)
+servo = PiServo(pi, 18, debug=True)
 
 try:
     # 中央位置に移動
@@ -72,6 +78,7 @@ try:
 finally:
     # サーボの電源をオフにする
     servo.off()
+    pi.stop()
 ```
 
 実行するには、`uv run` を使用します。
@@ -90,9 +97,10 @@ pinout
 ### 2. 公式サイト情報
 [Raspberry Pi Pinout](pinout.xyz)
 
-## 詳細
+## APIリファレンス
 
-より詳しいクラスの仕様については、[`REFERENCE.md`](REFERENCE.md) をご覧ください。
+より詳しいクラスやメソッドの仕様については、ソースコード内のdocstringを参照してください。
+または、Sphinxなどのツールで生成されたAPIドキュメントを参照してください。
 
 ## 依存ライブラリ
 

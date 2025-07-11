@@ -1,8 +1,13 @@
 import time
+import pigpio
 from piservo0 import PiServo
 
+pi = pigpio.pi()
+if not pi.connected:
+    exit()
+
 # GPIO 18番ピンに接続されたサーボを操作する
-servo = PiServo(18, debug=True)
+servo = PiServo(pi, 18, debug=True)
 
 try:
     # 中央位置に移動
@@ -24,3 +29,4 @@ try:
 finally:
     # サーボの電源をオフにする
     servo.off()
+    pi.stop()

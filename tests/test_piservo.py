@@ -1,21 +1,20 @@
-
-import pytest
 from piservo0 import PiServo
 
 def test_init(mocker):
     """
     __init__()
     """
-    mocker.patch('pigpio.pi')
-    servo = PiServo(18, debug=True)
-    assert servo.pi.set_servo_pulsewidth.call_count == 0
+    mock_pi = mocker.Mock()
+    servo = PiServo(mock_pi, 18, debug=True)
+    assert servo.pi is mock_pi
+    assert not hasattr(servo, 'mypi')
 
 def test_move(mocker):
     """
     move()
     """
-    mock_pi = mocker.patch('pigpio.pi')
-    servo = PiServo(18, debug=True)
+    mock_pi = mocker.Mock()
+    servo = PiServo(mock_pi, 18, debug=True)
 
     # move to center
     servo.move(PiServo.CENTER)
@@ -33,8 +32,8 @@ def test_move_limit(mocker):
     """
     move() limit
     """
-    mock_pi = mocker.patch('pigpio.pi')
-    servo = PiServo(18, debug=True)
+    mock_pi = mocker.Mock()
+    servo = PiServo(mock_pi, 18, debug=True)
 
     # move under min
     servo.move(PiServo.MIN - 100)
@@ -48,7 +47,7 @@ def test_off(mocker):
     """
     off()
     """
-    mock_pi = mocker.patch('pigpio.pi')
-    servo = PiServo(18, debug=True)
+    mock_pi = mocker.Mock()
+    servo = PiServo(mock_pi, 18, debug=True)
     servo.off()
     servo.pi.set_servo_pulsewidth.assert_called_with(18, PiServo.OFF)
