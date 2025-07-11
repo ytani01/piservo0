@@ -54,19 +54,19 @@ servo = PiServo(18, debug=True)
 
 try:
     # 中央位置に移動
-    servo.move(PiServo.PULSE_CENTER)
+    servo.move(PiServo.CENTER)
     time.sleep(1)
 
     # 最小位置に移動
-    servo.move(PiServo.PULSE_MIN)
+    servo.move(PiServo.MIN)
     time.sleep(1)
 
     # 最大位置に移動
-    servo.move(PiServo.PULSE_MAX)
+    servo.move(PiServo.MAX)
     time.sleep(1)
 
     # 中央位置に移動
-    servo.move(PiServo.PULSE_CENTER)
+    servo.move(PiServo.CENTER)
     time.sleep(1)
 
 finally:
