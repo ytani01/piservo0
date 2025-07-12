@@ -24,7 +24,7 @@ dev = [
 ]
 
 [project.scripts]
-piservo1 = "piservo1.__main__:cli"
+piservo0 = "piservo0.__main__:cli"
 
 [tool.ruff]
 line-length = 88
