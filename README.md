@@ -87,6 +87,33 @@ finally:
 uv run python samples/sample.py
 ```
 
+### コマンドラインからの操作
+
+`piservo0` は、コマンドラインから直接サーボを操作する機能も提供します。
+`uv run` を使って、以下のように実行できます。
+
+**書式:**
+```bash
+uv run piservo0 servo <PIN> <PULSE>
+```
+
+**実行例:**
+
+- GPIO 18番ピンのサーボを中央位置 (pulse: 1500) に動かす
+  ```bash
+  uv run piservo0 servo 18 1500
+  ```
+
+- GPIO 18番ピンのサーボを最小位置 (`min`) に動かす
+  ```bash
+  uv run piservo0 servo 18 min
+  ```
+
+- ヘルプを表示する
+  ```bash
+  uv run piservo0 --help
+  ```
+
 ## 使用するピンについて
 
 ### 1. コマンドで確認
