@@ -1,6 +1,5 @@
 from .my_logger import get_logger
 
-DEF_PIN = 18
 
 class PiServo:
     """Raspberry PiのGPIOピンを介してサーボモーターを制御するクラス。
@@ -16,10 +15,10 @@ class PiServo:
     """
     OFF = 0
     MIN = 500
-    MAX = 2500
-    CENTER = 1500
+    MAX = 2400
+    CENTER = 1450
 
-    def __init__(self, pi, pin=DEF_PIN, debug=False):
+    def __init__(self, pi, pin, debug=False):
         """PiServoクラスのコンストラクタ。
 
         Args:
@@ -27,7 +26,6 @@ class PiServo:
                 pigpio.piのインスタンス。サーボモーターを制御するために必要です。
             pin (int, optional):
                 サーボモーターが接続されているGPIOピン番号。
-                デフォルトはDEF_PIN (18) です。
             debug (bool, optional):
                 デバッグログを有効にするかどうかのフラグ。
                 Trueの場合、詳細なログが出力されます。デフォルトはFalse。

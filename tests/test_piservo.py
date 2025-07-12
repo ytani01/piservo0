@@ -18,7 +18,7 @@ def test_move(mocker):
 
     # move to center
     servo.move(PiServo.CENTER)
-    servo.pi.set_servo_pulsewidth.assert_called_with(18, 1500)
+    servo.pi.set_servo_pulsewidth.assert_called_with(18, 1450)
 
     # move to min
     servo.move(PiServo.MIN)
@@ -26,7 +26,7 @@ def test_move(mocker):
 
     # move to max
     servo.move(PiServo.MAX)
-    servo.pi.set_servo_pulsewidth.assert_called_with(18, 2500)
+    servo.pi.set_servo_pulsewidth.assert_called_with(18, 2400)
 
 def test_move_limit(mocker):
     """
