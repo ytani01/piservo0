@@ -20,7 +20,7 @@ def end_test(pi):
     """
     pi.stop()
 
-def test_create():
+def test_new():
     """
     """
     pi, servo = new_servo(TEST_PIN)
@@ -76,7 +76,7 @@ def test_max():
     (2000, 2000),
     (PiServo.MIN, PiServo.MIN),
     (PiServo.MAX, PiServo.MAX),
-    (10, PiServo.MIN),
+    (0, PiServo.MIN),
     (5000, PiServo.MAX),
     (PiServo.CENTER, PiServo.CENTER),
 ])
