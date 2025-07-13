@@ -1,53 +1,95 @@
+import pytest
+import time
+import pigpio
 from piservo0 import PiServo
 
-def test_init(mocker):
-    """
-    __init__()
-    """
-    mock_pi = mocker.Mock()
-    servo = PiServo(mock_pi, 18, debug=True)
-    assert servo.pi is mock_pi
-    assert not hasattr(servo, 'mypi')
+SLEEP_SEC = 0.8
+TEST_PIN = 18
 
-def test_move(mocker):
+def new_servo(pin):
     """
-    move()
     """
-    mock_pi = mocker.Mock()
-    servo = PiServo(mock_pi, 18, debug=True)
+    pi = pigpio.pi()
 
-    # move to center
-    servo.move(PiServo.CENTER)
-    servo.pi.set_servo_pulsewidth.assert_called_with(18, 1450)
+    servo = PiServo(pi, pin, debug=True)
 
-    # move to min
-    servo.move(PiServo.MIN)
-    servo.pi.set_servo_pulsewidth.assert_called_with(18, 500)
+    return (pi, servo)
 
-    # move to max
-    servo.move(PiServo.MAX)
-    servo.pi.set_servo_pulsewidth.assert_called_with(18, 2400)
-
-def test_move_limit(mocker):
+def end_test(pi):
     """
-    move() limit
     """
-    mock_pi = mocker.Mock()
-    servo = PiServo(mock_pi, 18, debug=True)
+    pi.stop()
 
-    # move under min
-    servo.move(PiServo.MIN - 100)
-    servo.pi.set_servo_pulsewidth.assert_called_with(18, PiServo.MIN)
-
-    # move over max
-    servo.move(PiServo.MAX + 100)
-    servo.pi.set_servo_pulsewidth.assert_called_with(18, PiServo.MAX)
-
-def test_off(mocker):
+def test_create():
     """
-    off()
     """
-    mock_pi = mocker.Mock()
-    servo = PiServo(mock_pi, 18, debug=True)
-    servo.off()
-    servo.pi.set_servo_pulsewidth.assert_called_with(18, PiServo.OFF)
+    pi, servo = new_servo(TEST_PIN)
+
+    assert type(servo) is PiServo
+
+    end_test(pi)
+
+def test_center():
+    """
+    """
+    pi, servo = new_servo(TEST_PIN)
+
+    servo.center()
+    time.sleep(SLEEP_SEC)
+
+    pulse_res = servo.get()
+
+    assert pulse_res == PiServo.CENTER
+
+    end_test(pi)
+
+def test_min():
+    """
+    """
+    pi, servo = new_servo(TEST_PIN)
+
+    servo.min()
+    time.sleep(SLEEP_SEC)
+
+    pulse_res = servo.get()
+
+    assert pulse_res == PiServo.MIN
+
+    end_test(pi)
+
+def test_max():
+    """
+    """
+    pi, servo = new_servo(TEST_PIN)
+
+    servo.max()
+    time.sleep(SLEEP_SEC)
+
+    pulse_res = servo.get()
+
+    assert pulse_res == PiServo.MAX
+
+    end_test(pi)
+
+@pytest.mark.parametrize(('pulse', "expected"), [
+    (1000, 1000),
+    (2000, 2000),
+    (PiServo.MIN, PiServo.MIN),
+    (PiServo.MAX, PiServo.MAX),
+    (10, PiServo.MIN),
+    (5000, PiServo.MAX),
+    (PiServo.CENTER, PiServo.CENTER),
+])
+def test_move(pulse, expected):
+    """
+    """
+    pi, servo = new_servo(TEST_PIN)
+
+    servo.move(pulse)
+    time.sleep(SLEEP_SEC)
+
+    pulse_res = servo.get()
+
+    assert pulse_res == expected
+
+    end_test(pi)

@@ -102,6 +102,7 @@ class PiServo:
     def get(self):
         """
         """
-        self._log.debug('')
+        pulse = self.pi.get_servo_pulsewidth(self.pin)
+        self._log.debug(f'pulse={pulse}')
 
-        return self.pi.get_servo_pulsewidth(self.pin)
+        return pulse

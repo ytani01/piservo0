@@ -41,7 +41,7 @@ def servo(pin, pulse, sec, debug):
     """ servo command
     """
     log = get_logger(__name__, debug)
-    log.debug(f'pin={pin}, pulse={pulse}, sec={sec}')
+    log.debug(f'pin={pin}, pulse="{pulse}", sec={sec}')
 
     pi = pigpio.pi()
 
@@ -49,8 +49,7 @@ def servo(pin, pulse, sec, debug):
 
     try:
         pulse_int = int(pulse)
-    except ValueError as e:
-        log.debug(f'"{pulse}": {e}')
+    except ValueError:
 
         if pulse == "min":
             pulse_int = PiServo.MIN
@@ -59,6 +58,7 @@ def servo(pin, pulse, sec, debug):
         elif pulse == "center":
             pulse_int = PiServo.CENTER
         else:
+            log.warning(f'"{pulse}": invalid pulse string')
             pulse_int = -1
 
         log.debug(f'pulse_int={pulse_int}')
@@ -66,5 +66,7 @@ def servo(pin, pulse, sec, debug):
     if pulse_int >= 0:
         servo.move(pulse_int)
         time.sleep(sec)
+    else:
+        log.warning('do nothing')
 
     servo.off()
