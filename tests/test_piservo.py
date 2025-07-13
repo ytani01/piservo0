@@ -15,9 +15,10 @@ def new_servo(pin):
 
     return (pi, servo)
 
-def end_test(pi):
+def end_test(pi, servo):
     """
     """
+    servo.off()
     pi.stop()
 
 def test_new():
@@ -27,7 +28,7 @@ def test_new():
 
     assert type(servo) is PiServo
 
-    end_test(pi)
+    end_test(pi, servo)
 
 def test_center():
     """
@@ -41,7 +42,7 @@ def test_center():
 
     assert pulse_res == PiServo.CENTER
 
-    end_test(pi)
+    end_test(pi, servo)
 
 def test_min():
     """
@@ -55,7 +56,7 @@ def test_min():
 
     assert pulse_res == PiServo.MIN
 
-    end_test(pi)
+    end_test(pi, servo)
 
 def test_max():
     """
@@ -69,7 +70,7 @@ def test_max():
 
     assert pulse_res == PiServo.MAX
 
-    end_test(pi)
+    end_test(pi, servo)
 
 @pytest.mark.parametrize(('pulse', "expected"), [
     (1000, 1000),
@@ -92,4 +93,4 @@ def test_move(pulse, expected):
 
     assert pulse_res == expected
 
-    end_test(pi)
+    end_test(pi, servo)
