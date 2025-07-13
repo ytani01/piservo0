@@ -33,13 +33,15 @@ def cli(ctx, debug):
 servo command""")
 @click.argument('pin', type=int, nargs=1)
 @click.argument('pulse', type=str, nargs=1)
-@click.option('--debug', '-d', 'debug', is_flag=True, default=False,
+@click.option('--sec', '-t', '-s', type=float, default=1,
+    help='sec')
+@click.option('--debug', '-d', is_flag=True, default=False,
     help='debug flag')
-def servo(pin, pulse, debug):
+def servo(pin, pulse, sec, debug):
     """ servo command
     """
     log = get_logger(__name__, debug)
-    log.debug(f'pin={pin}, pulse={pulse}')
+    log.debug(f'pin={pin}, pulse={pulse}, sec={sec}')
 
     pi = pigpio.pi()
 
@@ -63,6 +65,6 @@ def servo(pin, pulse, debug):
             
     if pulse_int >= 0:
         servo.move(pulse_int)
-        time.sleep(1)
+        time.sleep(sec)
 
     servo.off()
