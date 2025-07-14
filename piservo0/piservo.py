@@ -82,7 +82,7 @@ class PiServo:
         self.move(self.MAX)
 
     def move_center(self):
-        """サーボモーターを中央位置に移動させる。
+        """サーボモ��ターを中央位置に移動させる。
 
         パルス幅をCENTERに設定します。
         """
