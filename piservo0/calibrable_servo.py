@@ -60,7 +60,28 @@ class CalibrableServo(PiServo):
 
         self.save_conf()
 
-    def set_center(self, pulse):
+    def nomalize_pulse1(self, pulse):
+        """
+        """
+        self._log.debug(f'pulse={pulse}')
+
+        # `pulse`が指定されなければ、現在のパルス値を使う
+        if pulse is None:
+            pulse = self.get()
+
+        # 範囲をチェックして、パルスの範囲を修正
+        if pulse < super().MIN:
+            self._log.warning(f'pulse({pulse}) < {super().MIN}')
+            pulse = super().MIN
+
+        if pulse > super().MAX:
+            self._log.warning(f'pulse({pulse}) > {super().MAX}')
+            pulse = super().MAX
+
+        self._log.debug(f'pulse={pulse}')
+        return pulse
+
+    def set_center(self, pulse=None):
         """中央位置のパルス幅を設定し、設定ファイルに保存します。
 
         Args:
@@ -69,22 +90,17 @@ class CalibrableServo(PiServo):
         Returns:
             int: 設定��れた中央位置のパルス幅。
         """
-        if pulse < super().MIN:
-            self._log.warning(f'pulse({pulse}) < {super().MIN}')
-            pulse = super().MIN
 
-        if pulse > super().MAX:
-            self._log.warning(f'pulse({pulse}) > {super().MAX}')
-            pulse = super().MAX
-
+        pulse = self.nomalize_pulse1(pulse)
         self._log.debug(f'pulse={pulse}')
+
         self.center = pulse
 
         self.save_conf()
 
         return self.center
 
-    def set_min(self, pulse):
+    def set_min(self, pulse=None):
         """最小位置のパルス幅を設定し、設定ファイルに保存します。
 
         Args:
@@ -93,22 +109,17 @@ class CalibrableServo(PiServo):
         Returns:
             int: 設定された最小位置のパルス幅。
         """
-        if pulse < super().MIN:
-            self._log.warning(f'pulse({pulse}) < {super().MIN}')
-            pulse = super().MIN
 
-        if pulse > super().MAX:
-            self._log.warning(f'pulse({pulse}) > {super().MAX}')
-            pulse = super().MAX
-
+        pulse = self.nomalize_pulse1(pulse)
         self._log.debug(f'pulse={pulse}')
+
         self.min = pulse
 
         self.save_conf()
 
         return self.min
 
-    def set_max(self, pulse):
+    def set_max(self, pulse=None):
         """最大位置のパルス幅を設定し、設定ファイルに保存します。
 
         Args:
@@ -117,15 +128,10 @@ class CalibrableServo(PiServo):
         Returns:
             int: 設定された最大位置のパルス幅。
         """
-        if pulse < super().MIN:
-            self._log.warning(f'pulse({pulse}) < {super().MIN}')
-            pulse = super().MIN
 
-        if pulse > super().MAX:
-            self._log.warning(f'pulse({pulse}) > {super().MAX}')
-            pulse = super().MAX
-
+        pulse = self.nomalize_pulse1(pulse)
         self._log.debug(f'pulse={pulse}')
+
         self.max = pulse
 
         self.save_conf()
@@ -289,8 +295,8 @@ class CalibrableServo(PiServo):
         # append my element
         data.append({
             'pin': self.pin,
-            'center': self.center,
             'min': self.min,
+            'center': self.center,
             'max': self.max
         })
         self._log.debug(f'data={data}')
