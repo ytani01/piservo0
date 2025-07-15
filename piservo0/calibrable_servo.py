@@ -10,8 +10,8 @@ class CalibrableServo(PiServo):
     """PiServoを拡張し、キャリブレーション機能を追加したクラス。
 
     JSONファイルから各サーボモーターの最小・最大・中央位置のパルス幅を読み込み、
-    設定を永続化することができます。
-    これにより、個々のサーボモーターの物理的な特性に合わせた微調整が可能です。
+    設定を永続化できる。
+    これにより、個々のサーボモーターの物理的な特性に合わせた微調整が可能。
 
     Attributes:
         DEF_CONF_FILE (str): デフォルトの設定ファイル名。
@@ -22,14 +22,18 @@ class CalibrableServo(PiServo):
     """
     DEF_CONF_FILE = './servo.json'
 
+    ANGLE_MIN = -90.0
+    ANGLE_MAX = 90.0
+    ANGLE_CENTER = 0.0
+
     def __init__(self, pi, pin,
                  conf_file=DEF_CONF_FILE,
                  debug=False):
-        """CalibrableServoオブジェクトを初期化します。
+        """CalibrableServoオブジェクトを初期化する。
 
         親クラスのPiServoを初期化した後、設定ファイルを読み込み、
-        キャリブレーション値を適用します。
-        設定ファイルが存在しない場合は、デフォルト値で作成します。
+        キャリブレーション値を適用する。
+        設定ファイルが存在しない場合は、デフォルト値で作成される。
 
         Args:
             pi (pigpio.pi): pigpio.piのインスタンス。
@@ -60,16 +64,26 @@ class CalibrableServo(PiServo):
 
         self.save_conf()
 
-    def nomalize_pulse1(self, pulse):
-        """
+    def _normalize_pulse(self, pulse):
+        """パルス幅を正規化する。
+
+        指定されたパルス幅が `None` の場合は現在のパルス幅を使用し、
+        `PiServo.MIN` と `PiServo.MAX` の範囲に収まるように調整する。
+
+        Args:
+            pulse (int | None): 正規化するパルス幅。Noneの場合は現在の値を取得する。
+
+        Returns:
+            int: 正規化されたパルス幅。
         """
         self._log.debug(f'pulse={pulse}')
 
         # `pulse`が指定されなければ、現在のパルス値を使う
         if pulse is None:
-            pulse = self.get()
+            pulse = self.get_pulse()
 
         # 範囲をチェックして、パルスの範囲を修正
+        #   範囲: super().MIN <= pulse <= super().MAX
         if pulse < super().MIN:
             self._log.warning(f'pulse({pulse}) < {super().MIN}')
             pulse = super().MIN
@@ -82,16 +96,16 @@ class CalibrableServo(PiServo):
         return pulse
 
     def set_center(self, pulse=None):
-        """中央位置のパルス幅を設定し、設定ファイルに保存します。
+        """中央位置のパルス幅を設定し、設定ファイルに保存する。
 
         Args:
             pulse (int): 新しい中央位置のパルス幅。
 
         Returns:
-            int: 設定��れた中央位置のパルス幅。
+            int: 設定された中央位置のパルス幅。
         """
 
-        pulse = self.nomalize_pulse1(pulse)
+        pulse = self._normalize_pulse(pulse)
         self._log.debug(f'pulse={pulse}')
 
         self.center = pulse
@@ -101,7 +115,7 @@ class CalibrableServo(PiServo):
         return self.center
 
     def set_min(self, pulse=None):
-        """最小位置のパルス幅を設定し、設定ファイルに保存します。
+        """最小位置のパルス幅を設定し、設定ファイルに保存する。
 
         Args:
             pulse (int): 新しい最小位置のパルス幅。
@@ -110,7 +124,7 @@ class CalibrableServo(PiServo):
             int: 設定された最小位置のパルス幅。
         """
 
-        pulse = self.nomalize_pulse1(pulse)
+        pulse = self._normalize_pulse(pulse)
         self._log.debug(f'pulse={pulse}')
 
         self.min = pulse
@@ -120,7 +134,7 @@ class CalibrableServo(PiServo):
         return self.min
 
     def set_max(self, pulse=None):
-        """最大位置のパルス幅を設定し、設定ファイルに保存します。
+        """最大位置のパルス幅を設定し、設定ファイルに保存する。
 
         Args:
             pulse (int): 新し��最大位置のパルス幅。
@@ -129,7 +143,7 @@ class CalibrableServo(PiServo):
             int: 設定された最大位置のパルス幅。
         """
 
-        pulse = self.nomalize_pulse1(pulse)
+        pulse = self._normalize_pulse(pulse)
         self._log.debug(f'pulse={pulse}')
 
         self.max = pulse
@@ -139,10 +153,10 @@ class CalibrableServo(PiServo):
         return self.max
 
     def move(self, pulse):
-        """サーボモーターを、キャリブレーション値を考慮して移動させます。
+        """サーボモーターを、キャリブレーション値を考慮して移動させる。
 
-        指定されたパルス幅がキャリブレーションされた最小値(self.min)と
-        最大値(self.max)の範囲を超える場合、範囲内に制限されます。
+        指定されたパルス幅がキャリブレーションされた最小値(`self.min`)と
+        最大値(`self.max`)の範囲外の場合、モーターは動かない。
 
         Args:
             pulse (int): 設定するパルス幅 (マイクロ秒)。
@@ -151,41 +165,92 @@ class CalibrableServo(PiServo):
 
         if pulse < self.min:
             self._log.warning(f'pulse({pulse}) < self.min({self.min})')
-            pulse = self.min
+            return
 
         if pulse > self.max:
             self._log.warning(f'pulse({pulse}) > self.max({self.max})')
+            return
             pulse = self.max
 
         self._log.debug(f'pulse={pulse}')
         super().move(pulse)
 
     def move_center(self):
-        """サーボモーターをキャリブレーションされた中央位置に移動させます。
+        """サーボモーターをキャリブレーションされた中央位置に移動させる。
         """
         self._log.debug(f'pin={self.pin}')
         
         self.move(self.center)
         
     def move_min(self):
-        """サーボモーターをキャリブレーションされた最小位置に移動させます。
+        """サーボモーターをキャリブレーションされた最小位置に移動させる。
         """
         self._log.debug(f'pin={self.pin}')
         
         self.move(self.min)
         
     def move_max(self):
-        """サーボモーターをキャリブレーションされた最大位置に移動させます。
+        """サーボモーターをキャリブレーションされた最大位置に移動させる。
         """
         self._log.debug(f'pin={self.pin}')
         
         self.move(self.max)
+
+    def deg2pulse(self, deg:float) -> int:
+        """角度をパルス幅に変換する。
+
+        キャリブレーションされた中央、最小、最大のパルス幅に基づいて、
+        指定された角度(-90.0から90.0度)を対応するパルス幅に変��する。
+
+        Args:
+            deg (float): 変換する角度。
+
+        Returns:
+            int: 変換されたパルス幅。
+        """
+        if deg >= self.ANGLE_CENTER:
+            d = self.max - self.center
+        else:
+            d = self.center - self.min
+
+        pulse_float = d / self.ANGLE_MAX * deg + self.center
+        pulse_int = int(round(pulse_float))
+
+        self._log.debug(
+            f'deg={deg},d={d},' +
+            f'pulse_float={pulse_float},' +
+            f'pulse_int={pulse_int}'
+        )
+
+        return pulse_int
+
+    def move_angle(self, deg: float):
+        """指定された角度にサーボモーターを移動させる。
+
+        角度は-90.0から90.0度の範囲で指定する。
+        範囲外の値が指定された場合は警告ログが出力される。
+
+        Args:
+            deg (float): 目標の角度。
+        """
+        self._log.debug(f'pin={self.pin}, deg={deg}')
+
+        if deg < self.ANGLE_MIN:
+            self._log.warning(f'deg({deg}) < ANGLE_MIN({self.ANGLE_MIN})')
+
+        if deg > self.ANGLE_MAX:
+            self._log.warning(f'deg({deg}) < ANGLE_MAX({self.ANGLE_MAX})')
+
+        pulse = self.deg2pulse(deg)
+        self._log.debug(f'pulse={pulse}')
+
+        self.move(pulse)
         
     def read_jsonfile(self, conf_file=None):
-        """設定ファイルを読み込み、内容を返します。
+        """設定ファイルを読み込み、内容を返す。
 
         ファイルが存在しない、または読み込みに失敗した場合は、
-        空のリストを返します。
+        空のリストを返す。
 
         Args:
             conf_file (str, optional): 読み込む設定ファイルへのパス。
@@ -212,7 +277,7 @@ class CalibrableServo(PiServo):
         return data
 
     def load_conf(self, conf_file=None):
-        """設定ファイルからこのサーボのキャリブレーション値を読み込みます。
+        """設定ファイルからこのサーボのキャリブレーション値を読み込む。
 
         Args:
             conf_file (str, optional): 読み込む設定ファイルへのパス。
@@ -268,11 +333,11 @@ class CalibrableServo(PiServo):
         return self.center, self.min, self.max
 
     def save_conf(self, conf_file=None):
-        """現在のキャリブレーション値を設定ファイルに保存します。
+        """現在のキャリブレーション値を設定ファイルに保存する。
 
-        既存の設定ファイルから一度すべてのピンのデー��を読み込み、
+        既存の設定ファイルから一度すべてのピンのデータを読み込み、
         このインスタンスのピンのデータのみを更新（または新規追加）してから、
-        ピン番号でソートして書き戻します。
+        ピン番号でソートして書き戻す。
 
         Args:
             conf_file (str, optional): 保存する設定ファイルへのパス。
