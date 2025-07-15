@@ -14,20 +14,20 @@ servo = CalibrableServo(pi, 18, debug=True)
 try:
     # --- キャリブレーションされた位置へ移動 ---
     print("Move to calibrated positions")
-    servo.move_center()
-    time.sleep(1)
     servo.move_min()
     time.sleep(1)
     servo.move_max()
+    time.sleep(1)
+    servo.move_center()
     time.sleep(1)
 
     # --- 角度を指定して移動 ---
     print("Move by angle")
     servo.move_angle(-90)
     time.sleep(1)
-    servo.move_angle(0)
-    time.sleep(1)
     servo.move_angle(90)
+    time.sleep(1)
+    servo.move_angle(0)
     time.sleep(1)
 
 finally:

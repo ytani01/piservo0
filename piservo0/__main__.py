@@ -63,10 +63,11 @@ def servo(pin, pulse, sec, debug):
 
         log.debug(f'pulse_int={pulse_int}')
             
-    if pulse_int >= 0:
+    if PiServo.MIN <= pulse_int <= PiServo.MAX:
         servo.move(pulse_int)
         time.sleep(sec)
     else:
-        log.warning('do nothing')
+        log.error(f'pulse_int={pulse_int}: invalid value. do nothing')
 
     servo.off()
+    pi.stop()

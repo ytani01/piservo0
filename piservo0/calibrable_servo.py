@@ -115,14 +115,17 @@ class CalibrableServo(PiServo):
 
     def move_center(self):
         """サーボモーターをキャリブレーションされた中央位置に移動させる。"""
+        self._log.debug('')
         self.move(self.center)
         
     def move_min(self):
         """サーボモーターをキャリブレーションされた最小位置に移動させる。"""
+        self._log.debug('')
         self.move(self.min)
         
     def move_max(self):
         """サーボモーターをキャリブレーションされた最大位置に移動させる。"""
+        self._log.debug('')
         self.move(self.max)
 
     def deg2pulse(self, deg:float) -> int:
@@ -133,16 +136,27 @@ class CalibrableServo(PiServo):
             d = self.center - self.min
 
         pulse_float = d / self.ANGLE_MAX * deg + self.center
-        return int(round(pulse_float))
+        pulse_int = int(round(pulse_float))
+        self._log.debug(
+            f'deg={deg},pulse_float={pulse_float},pulse_int={pulse_int}'
+        )
+
+        return pulse_int
 
     def move_angle(self, deg: float):
-        """指定���れた角度にサーボモーターを移動させる。"""
+        """指定された角度にサーボモーターを移動させる。"""
+        self._log.debug(f'deg={deg}')
+
         if deg < self.ANGLE_MIN:
             self._log.warning(f'deg({deg}) < ANGLE_MIN({self.ANGLE_MIN})')
+            return
         if deg > self.ANGLE_MAX:
             self._log.warning(f'deg({deg}) > ANGLE_MAX({self.ANGLE_MAX})')
+            return
 
-        self.move(self.deg2pulse(deg))
+        pulse = self.deg2pulse(deg)
+
+        self.move(pulse)
         
     def load_conf(self):
         """設定ファイルからこのサーボのキャリブレーション値を読み込む。"""
