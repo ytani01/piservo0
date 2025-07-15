@@ -18,7 +18,8 @@ class PiServo:
     """
     OFF = 0
     MIN = 500
-    MAX = 2400
+    #MAX = 2400
+    MAX = 2500
     CENTER = 1450
 
     def __init__(self, pi, pin, debug=False):

@@ -137,45 +137,45 @@ def cservo(pin, sec, debug):
                 # 文字列が入力された
                 pass
 
-            if in_str == 'center':
+            if in_str in ('c', 'center'):
                 servo.move_center()
                 pulse = servo.get_pulse()
                 print(f'center: pulse={pulse}')
                 time.sleep(sec)
                 continue
 
-            if in_str == 'min':
+            if in_str in ('n', 'min'):
                 servo.move_min()
                 pulse = servo.get_pulse()
                 print(f'min: pulse={pulse}')
                 time.sleep(sec)
                 continue
 
-            if in_str == 'max':
+            if in_str in ('x', 'max'):
                 servo.move_max()
                 pulse = servo.get_pulse()
                 print(f'max: pulse={pulse}')
                 time.sleep(sec)
                 continue
 
-            if in_str == 'get':
+            if in_str in ('g', 'get'):
                 pulse = servo.get_pulse()
                 print(f'pulse = {pulse}')
                 continue
 
-            if in_str == 'set center':
+            if in_str in ('sc', 'set center'):
                 pulse = servo.get_pulse()
                 servo.set_center(pulse)
                 print(f'set center: pulse = {pulse}')
                 continue
 
-            if in_str == 'set min':
+            if in_str in ('sn', 'set min'):
                 pulse = servo.get_pulse()
                 servo.set_min(pulse)
                 print(f'set min: pulse = {pulse}')
                 continue
 
-            if in_str == 'set max':
+            if in_str in ('sx', 'set max'):
                 pulse = servo.get_pulse()
                 servo.set_max(pulse)
                 print(f'set max: pulse = {pulse}')
@@ -184,7 +184,7 @@ def cservo(pin, sec, debug):
             log.error(f'{in_str}: invalid command')
 
     except (EOFError, KeyboardInterrupt):
-        print('Bye!')
+        print('\nBye!')
 
     finally:
         servo.off()
