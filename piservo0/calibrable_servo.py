@@ -34,7 +34,7 @@ class CalibrableServo(PiServo):
         Args:
             pi (pigpio.pi): pigpio.piのインスタンス。
             pin (int): サーボが接続されているGPIOピン番号。
-            conf_file (str, optional): キャリブレーション設定ファイル。
+            cenf_file (str, optional): キャリブレーション設定ファイル。
             debug (bool, optional): デバッグログを有効にするフラグ。
         """
         super().__init__(pi, pin, debug)
@@ -144,6 +144,26 @@ class CalibrableServo(PiServo):
         )
 
         return pulse_int
+
+    def pulse2deg(self, pulse:int) -> float:
+        """   """
+        if pulse >= self.center:
+            d = self.max - self.center
+        else:
+            d = self.center - self.min
+
+        deg = (pulse - self.center) / d * self.ANGLE_MAX
+        self._log.debug(f'pulse={pulse},deg={deg}')
+
+        return deg
+
+    def get_angle(self):
+        """ XXX """
+        pulse = self.get_pulse()
+        angle = self.pulse2deg(pulse)
+        self._log.debug(f'pulse={pulse}, angle={angle}')
+
+        return angle
 
     def move_angle(self, deg: float):
         """指定された角度にサーボモーターを移動させる。"""
