@@ -27,8 +27,8 @@ dev = [
 piservo0 = "piservo0.__main__:cli"
 
 [tool.ruff]
-line-length = 88
-target-version = "py313"
+line-length = 78
+target-version = "py311"
 
 [tool.pytest.ini_options]
 pythonpath = "."
