@@ -99,7 +99,7 @@ class CalibrableServo(PiServo):
         self.save_conf()
         return self.max
 
-    def move(self, pulse, forced=False):
+    def move_pulse(self, pulse, forced=False):
         """サーボモーターを、キャリブレーション値を考慮して移動させる。
 
         指定されたパルス幅がキャリブレーション範囲外の場合、モーターは動かない。
@@ -113,22 +113,22 @@ class CalibrableServo(PiServo):
                 self._log.warning(f'pulse({pulse}) > self.max({self.max})')
                 return
         
-        super().move(pulse)
+        super().move_pulse(pulse)
 
     def move_center(self):
         """サーボモーターをキャリブレーションされた中央位置に移動させる。"""
         self._log.debug('')
-        self.move(self.center)
+        self.move_pulse(self.center)
         
     def move_min(self):
         """サーボモーターをキャリブレーションされた最小位置に移動させる。"""
         self._log.debug('')
-        self.move(self.min)
+        self.move_pulse(self.min)
         
     def move_max(self):
         """サーボモーターをキャリブレーションされた最大位置に移動させる。"""
         self._log.debug('')
-        self.move(self.max)
+        self.move_pulse(self.max)
 
     def deg2pulse(self, deg:float) -> int:
         """角度をパルス幅に変換する。"""
@@ -158,7 +158,7 @@ class CalibrableServo(PiServo):
 
         pulse = self.deg2pulse(deg)
 
-        self.move(pulse)
+        self.move_pulse(pulse)
         
     def load_conf(self):
         """設定ファイルからこのサーボのキャリブレーション値を読み込む。"""

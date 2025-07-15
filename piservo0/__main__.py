@@ -69,7 +69,7 @@ def servo(pin, pulse, sec, debug):
             log.debug(f'pulse_int={pulse_int}')
             
         if PiServo.MIN <= pulse_int <= PiServo.MAX:
-            servo.move(pulse_int)
+            servo.move_pulse(pulse_int)
             time.sleep(sec)
         else:
             log.error(f'pulse_int={pulse_int}: invalid value. do nothing')
@@ -124,7 +124,7 @@ def cservo(pin, sec, debug):
 
                 # パルス幅として入力されたか？
                 if PiServo.MIN <= val <= PiServo.MAX:
-                    servo.move(int(round(val)), forced=True)
+                    servo.move_pulse(int(round(val)), forced=True)
                     pulse = servo.get_pulse()
                     print(f'pulse = {pulse}')
                     time.sleep(sec)
@@ -184,7 +184,7 @@ def cservo(pin, sec, debug):
             log.error(f'{in_str}: invalid command')
 
     except (EOFError, KeyboardInterrupt):
-        print('\nBye!')
+        print('\n Bye!')
 
     finally:
         servo.off()

@@ -41,7 +41,7 @@ class PiServo:
         self.pi = pi
         self.pin = pin
 
-    def move(self, pulse):
+    def move_pulse(self, pulse):
         """サーボモーターを指定されたパルス幅に移動させる。
 
         パルス幅はMINからMAXの範囲に制限される。
@@ -71,7 +71,7 @@ class PiServo:
         """
         self._log.debug(f'pin={self.pin}')
 
-        self.move(self.MIN)
+        self.move_pulse(self.MIN)
 
     def move_max(self):
         """サーボモーターを最大位置に移動させる。
@@ -80,16 +80,16 @@ class PiServo:
         """
         self._log.debug(f'pin={self.pin}')
 
-        self.move(self.MAX)
+        self.move_pulse(self.MAX)
 
     def move_center(self):
-        """サーボモ��ターを中央位置に移動させる。
+        """サーボモーターを中央位置に移動させる。
 
         パルス幅をCENTERに設定する。
         """
         self._log.debug(f'pin={self.pin}')
 
-        self.move(self.CENTER)
+        self.move_pulse(self.CENTER)
 
     def off(self):
         """サーボモーターの電源をオフにする。

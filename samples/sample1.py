@@ -12,6 +12,13 @@ if not pi.connected:
 servo = CalibrableServo(pi, 18, debug=True)
 
 try:
+    # --- パルスをしていして移動 ---
+    print("Move by pulse")
+    servo.move_pulse(1000)
+    time.sleep(1)
+    servo.move_pulse(2000)
+    time.sleep(1)
+
     # --- キャリブレーションされた位置へ移動 ---
     print("Move to calibrated positions")
     servo.move_min()
