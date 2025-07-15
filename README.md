@@ -30,6 +30,7 @@ sudo apt-get update
 sudo apt-get install pigpio
 
 # pigpioデーモンの起動
+sudo systemctl enable pigpiod
 sudo systemctl start pigpiod
 ```
 
@@ -74,7 +75,8 @@ cd piservo0
 uv venv
 
 # 依存関係のインストール
-uv pip install -e .
+uv pip install -e .        # 実行用
+uv pip install -e '.[dev]' # 開発用
 ```
 
 ## 使い方
@@ -141,44 +143,30 @@ uv run python samples/sample.py
 
 `piservo0` は、コマンドラインから直接サーボを操作する機能も提供します。
 
-**書式:**
+**書式: 仮想環境で使う場合**
 ```bash
-# (仮想環境を有効化した後)
-piservo0 servo <PIN> <PULSE>
-piservo0 servo <PIN> [min|center|max]
-piservo0 servo <PIN> <ANGLE>deg
-piservo0 servo <PIN> [set_min|set_center|set_max]
+source venv/bin/activate
+
+piservo0 servo --help
+piservo0 servo 18 1500
+
+piservo0 cservo --help
+piservo0 cservo 18
 ```
 
-**実行例:**
-
-- GPIO 18番のサーボをパルス幅1500に動かす:
-  ```bash
-  piservo0 servo 18 1500
-  ```
-- GPIO 18番のサーボをキ��リブレーションされた中央位置に動かす:
-  ```bash
-  piservo0 servo 18 center
-  ```
-- GPIO 18番のサーボを30度の位置に動かす:
-  ```bash
-  piservo0 servo 18 30deg
-  ```
-- 現在のサーボ位置をGPIO 18番の最大値として設定する:
-  ```bash
-  piservo0 servo 18 set_max
-  ```
-- ヘルプを表示する:
-  ```bash
-  piservo0 --help
-  ```
-
-`uv` を使用する場合は、`piservo0` の前に `uv run` を付けます。
+**書式: uvを使う場合**
 ```bash
+uv run piservo0 servo --help
 uv run piservo0 servo 18 1500
+
+uv run piservo0 cservo --help
+uv run piservo0 cservo 18
 ```
 
-## 使用するピンについて
+
+## 使用するGPIOピンについて
+
+ほとんどのGPIOピンを使うことができます。
 
 ### 1. コマンドで確認
 ```
