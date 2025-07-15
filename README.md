@@ -11,49 +11,15 @@
     - サーボモーターごとの物理的な動作範囲（最小・中央・最大位置）をJSONファイルに保存し、個体差に応じた最適化ができます。
     - `set_min()`, `set_center()`, `set_max()` メソッドで、現在のサーボ位置を基準に簡単にキャリブレーションを行えます。
 - **角度指定制御**: キャリブレーション後は、`-90`度から`+90`度の範囲で角度を指定してサーボを操作できます。
-- **コマンドラインツール**: `uv run piservo0` コマンドを使って、ターミナルから直接サーボの動作確認やキャリブレーションが可能です。
+- **コマンドラインツール**: ターミナルから直接サーボの動作確認やキャリブレー���ョンが可能です。
 
-## リリースされたライブラリの利用方法
+## インストール
 
-ライブラリを利用するだけであれば、下記の **[準備](#準備)** は不要です。
-インストール後、**[使い方](#使い方)** へ進んでください。
+### 通常の利用者向け (推奨)
 
-### 1. ダウンロード
-[Releases](https://github.com/ytani01/piservo0/releases) ページから、最新の whlファイルをダウンロード
+ライブラリを利用するだけであれば、こちらの方法でインストールしてください。
 
-**他のファイルは不要です。**
-
-
-### 2. インストール
-```
-python3 -m venv venv1
-cd venv1
-source ./bin/activate
-
-pip install piservo0-....whl # <-- ダウンロードした whlファイルを指定
-```
-
-
-## 準備
-
-### `uv` のインストール
-`uv` はPythonのパッケージ管理と仮想環境管理を高速に行うツールです。
-以下のコマンドでインストールできます。
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-次に、仮想環境を作成し、依存関係をインストールします。
-
-```bash
-# 仮想環境の作成
-uv venv
-
-# 依存関係のインストール
-uv pip install -e .
-```
-
-## 使い方
+**1. `pigpio`のインストールと起動**
 
 このライブラリは、`pigpio`デーモンが動作している必要があります。
 まず、`pigpio`をインストールし、デーモンを起動してください。
@@ -66,6 +32,52 @@ sudo apt-get install pigpio
 # pigpioデーモンの起動
 sudo systemctl start pigpiod
 ```
+
+**2. ライブラリのダウンロードとインストール**
+
+次に、`piservo0`ライブラリをインストールします。
+
+- **ダウンロード**: [Releases](https://github.com/ytani01/piservo0/releases) ページから、最新の `.whl` ファイルをダウンロードします。
+
+- **インストール**: ダウンロードしたファイルを`pip`でインストールします。仮想環境の利用を強く推奨します。
+
+  ```bash
+  # 仮想環境を作成し、有効化する
+  python3 -m venv .venv
+  source .venv/bin/activate
+
+  # pipでwhlファイルをインストール
+  pip install /path/to/piservo0-x.x.x-py3-none-any.whl
+  ```
+  ��� `/path/to/` の部分は、ダウンロードしたファイルの実際のパスに置き換えてください。
+
+### 開発者向け
+
+ソースコードを編集したり、開発に貢献したりする場合は、以下の手順でセットアップしてください。
+
+**1. `uv` のインストール**
+
+`uv` は高速なPythonパッケージインストーラー兼リゾルバーです。
+以下のコマンドでインストールできます。
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**2. リポジトリのクローンとセットアップ**
+
+```bash
+# リポジトリをクローン
+git clone https://github.com/ytani01/piservo0.git
+cd piservo0
+
+# 仮想環境の作成
+uv venv
+
+# 依存関係のインストール
+uv pip install -e .
+```
+
+## 使い方
 
 ### 基本的な使い方 (`CalibrableServo`)
 
@@ -112,8 +124,14 @@ finally:
 
 ```
 
-実行するには、`uv run` を使用します。
+**実行方法:**
 
+仮想環境を有効化している場合:
+```bash
+python samples/sample.py
+```
+
+`uv` を使用する場合:
 ```bash
 uv run python samples/sample.py
 ```
@@ -121,45 +139,43 @@ uv run python samples/sample.py
 ### コマンドラインからの操作
 
 `piservo0` は、コマンドラインから直接サーボを操作する機能も提供します。
-`uv run` を使って、以下のように実行できます。
 
 **書式:**
 ```bash
-# パルス幅を指定して移動
-uv run piservo0 servo <PIN> <PULSE>
-
-# キャリブレーション位置へ移動
-uv run piservo0 servo <PIN> [min|center|max]
-
-# 角度を指定して移動
-uv run piservo0 servo <PIN> <ANGLE>deg
-
-# 現在の位置をキャ��ブレーション値として設定
-uv run piservo0 servo <PIN> [set_min|set_center|set_max]
+# (仮想環境を有効化した後)
+piservo0 servo <PIN> <PULSE>
+piservo0 servo <PIN> [min|center|max]
+piservo0 servo <PIN> <ANGLE>deg
+piservo0 servo <PIN> [set_min|set_center|set_max]
 ```
 
 **実行例:**
 
 - GPIO 18番のサーボをパルス幅1500に動かす:
   ```bash
-  uv run piservo0 servo 18 1500
+  piservo0 servo 18 1500
   ```
-- GPIO 18番のサーボをキャリブレーションされた中央位置に動かす:
+- GPIO 18番のサーボをキャリブレーションされた中央位置に��かす:
   ```bash
-  uv run piservo0 servo 18 center
+  piservo0 servo 18 center
   ```
 - GPIO 18番のサーボを30度の位置に動かす:
   ```bash
-  uv run piservo0 servo 18 30deg
+  piservo0 servo 18 30deg
   ```
 - 現在のサーボ位置をGPIO 18番の最大値として設定する:
   ```bash
-  uv run piservo0 servo 18 set_max
+  piservo0 servo 18 set_max
   ```
 - ヘルプを表示する:
   ```bash
-  uv run piservo0 --help
+  piservo0 --help
   ```
+
+`uv` を使用する場合は、`piservo0` の前に `uv run` を付けます。
+```bash
+uv run piservo0 servo 18 1500
+```
 
 ## 使用するピンについて
 
