@@ -37,11 +37,11 @@ class CalibrableServo(PiServo):
             conf_file (str, optional): キャリブレーション設定ファイル。
             debug (bool, optional): デバッグログを有効にするフラグ。
         """
+        super().__init__(pi, pin, debug)
+
         self._dbg = debug
         self._log = get_logger(self.__class__.__name__, self._dbg)
         self._log.debug(f'pin={pin}, conf_file={conf_file}')
-
-        super().__init__(pi, pin, debug)
 
         self._config_manager = ServoConfigManager(conf_file, self._dbg)
 
@@ -99,17 +99,19 @@ class CalibrableServo(PiServo):
         self.save_conf()
         return self.max
 
-    def move(self, pulse):
+    def move(self, pulse, forced=False):
         """サーボモーターを、キャリブレーション値を考慮して移動させる。
 
-        指���されたパルス幅がキャリブレーション範囲外の場合、モーターは動かない。
+        指定されたパルス幅がキャリブレーション範囲外の場合、モーターは動かない。
         """
-        if pulse < self.min:
-            self._log.warning(f'pulse({pulse}) < self.min({self.min})')
-            return
-        if pulse > self.max:
-            self._log.warning(f'pulse({pulse}) > self.max({self.max})')
-            return
+
+        if not forced:
+            if pulse < self.min:
+                self._log.warning(f'pulse({pulse}) < self.min({self.min})')
+                return
+            if pulse > self.max:
+                self._log.warning(f'pulse({pulse}) > self.max({self.max})')
+                return
         
         super().move(pulse)
 
