@@ -11,15 +11,15 @@ servo = PiServo(pi, 18, debug=True)
 
 try:
     # 中央位置に移動
-    servo.center()
+    servo.move_center()
     sleep(1)
 
     # 最小位置に移動
-    servo.min()
+    servo.move_min()
     sleep(1)
 
     # 最大位置に移動
-    servo.max()
+    servo.move_max()
     sleep(1)
 
     #
