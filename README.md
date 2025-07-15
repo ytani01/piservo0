@@ -83,7 +83,8 @@ uv pip install -e .
 
 `CalibrableServo` を使うと、サーボモーターの個体差に合わせたキャリブレーションが簡単に行えます。
 
-`samples/sample.py`
+完全なサンプルコードは、[`samples/sample.py`](samples/sample.py) をご覧ください。
+
 ```python
 import time
 import pigpio
@@ -95,7 +96,7 @@ if not pi.connected:
     exit()
 
 # GPIO 18番ピンに接続されたサーボを操作
-# キャリブレーションデータは 'servo.json' に保存��れます
+# キャリブレーションデータは 'servo.json' に保存されます
 servo = CalibrableServo(pi, 18, debug=True)
 
 try:

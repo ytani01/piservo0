@@ -1,38 +1,34 @@
-from time import sleep
+import time
 import pigpio
-from piservo0 import PiServo
+from piservo0 import CalibrableServo
 
+# pigpio.piのインスタンスを生成
 pi = pigpio.pi()
 if not pi.connected:
     exit()
 
-# GPIO 18番ピンに接続されたサーボを操作する
-servo = PiServo(pi, 18, debug=True)
+# GPIO 18番ピンに接続されたサーボを操作
+# キャリブレーションデータは 'servo.json' に保存されます
+servo = CalibrableServo(pi, 18, debug=True)
 
 try:
-    # 中央位置に移動
+    # --- キャリブレーションされた位置へ移動 ---
+    print("Move to calibrated positions")
     servo.move_center()
-    sleep(1)
-
-    # 最小位置に移動
+    time.sleep(1)
     servo.move_min()
-    sleep(1)
-
-    # 最大位置に移動
+    time.sleep(1)
     servo.move_max()
-    sleep(1)
+    time.sleep(1)
 
-    #
-    servo.move(975)
-    sleep(1)
-
-    #
-    servo.move(1925)
-    sleep(1)
-
-    # 中央位置に移動
-    servo.move(PiServo.CENTER)
-    sleep(1)
+    # --- 角度を指定して移動 ---
+    print("Move by angle")
+    servo.move_angle(-90)
+    time.sleep(1)
+    servo.move_angle(0)
+    time.sleep(1)
+    servo.move_angle(90)
+    time.sleep(1)
 
 finally:
     # サーボの電源をオフにする
