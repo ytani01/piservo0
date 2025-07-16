@@ -1,6 +1,6 @@
 [project]
 name = "piservo0"
-version = "0.3.5"
+version = "0.3.6"
 description = "Python library for servo motor control."
 readme = "README.md"
 authors = [
