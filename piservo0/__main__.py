@@ -179,7 +179,7 @@ def calib(pin, conf_file, sec, debug):
                         for s in cmd['str']:
                             cmds += f'"{s}", '
                         cmds = cmds[:-2]
-                    print(f' {cmds:28} {cmd['help']:12}')
+                    print(f' {cmds:28} {cmd["help"]:12}')
 
                 continue
 

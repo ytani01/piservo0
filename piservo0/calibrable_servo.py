@@ -170,11 +170,23 @@ class CalibrableServo(PiServo):
         """指定された角度にサーボモーターを移動させる。"""
         self._log.debug(f'deg={deg}')
 
+        if type(deg) is str:
+            if deg == 'center':
+                deg = self.ANGLE_CENTER
+            elif deg == 'min':
+                deg = self.ANGLE_MIN
+            elif deg == 'max':
+                deg = self.ANGLE_MAX
+            else:
+                self._log.error(f'deg="{deg}": invalid string. do nothing')
+                return
+
         if deg < self.ANGLE_MIN:
-            self._log.warning(f'deg({deg}) < ANGLE_MIN({self.ANGLE_MIN})')
+            self._log.error(f'deg={deg} < ANGLE_MIN({self.ANGLE_MIN})')
             return
+
         if deg > self.ANGLE_MAX:
-            self._log.warning(f'deg({deg}) > ANGLE_MAX({self.ANGLE_MAX})')
+            self._log.error(f'deg={deg} > ANGLE_MAX({self.ANGLE_MAX})')
             return
 
         pulse = self.deg2pulse(deg)
