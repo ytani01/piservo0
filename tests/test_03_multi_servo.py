@@ -127,6 +127,7 @@ def test_move_angle_invalid_length(multi_servo_setup, mocker):
     角度が変わらないことをテストする。
     """
     pi, multi_servo = multi_servo_setup
+    # multi_servoインスタンスの内部ロガーのエラーメソッドをモック化
     mocker.patch.object(multi_servo._log, 'error')
 
     initial_angles = multi_servo.get_angle()
@@ -134,8 +135,10 @@ def test_move_angle_invalid_length(multi_servo_setup, mocker):
 
     # move_angle
     multi_servo.move_angle(invalid_angles)
+    # エラーログが1回呼び出されたことを確認
     multi_servo._log.error.assert_called_once()
     current_angles = multi_servo.get_angle()
+    # 角度が変わっていないことを確認
     assert initial_angles == current_angles
 
     # move_angle_sync
