@@ -216,6 +216,20 @@ GPIO26 (37) (38) GPIO20
 
 より詳しいクラスやメソッドの仕様については、[`docs/REFERENCE.md`](docs/REFERENCE.md) をご覧ください。
 
+### --- 他のプロジェクトの依存ライブラリとして、本プロジェクトを参照する場合の例
+
+`pyproject.toml`
+```
+:
+dependencies = [
+    "piservo0",
+]
+:
+[tool.uv.sources]
+piservo0 = { path = "../piservo0" }
+:
+```
+
 ## == 依存ライブラリ
 
 - [pigpio](https://abyz.me.uk/rpi/pigpio/)

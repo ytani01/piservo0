@@ -33,7 +33,7 @@ class CalibrableServo(PiServo):
         """CalibrableServoオブジェクトを初期化する。
 
         親クラスを初期化した後、ServoConfigManagerを使って設定を読み込む。
-        設定が存在しない場合は、デフ��ルト値で作成する。
+        設定が存在しない場合は、デフォルト値で作成する。
 
         Args:
             pi (pigpio.pi): pigpio.piのインスタンス。
