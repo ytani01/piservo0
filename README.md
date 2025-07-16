@@ -3,19 +3,20 @@
 `piservo0` は、Raspberry Piでサーボモーターを精密に制御するためのPythonライブラリです。
 `pigpio`ライブラリを基盤とし、特にサーボモーターごとの個体差を吸収するためのキャリブレーション機能に重点を置いています。
 
-## 特徴
+## == 特徴
 
 - **シンプルなAPI**: 簡単なメソッド呼び出しでサーボモーターを直感的に操作できます。
-- **パルス幅直接制御**: 角度ではなく、マイクロ秒単位のパルス幅を直接指定して、きめ細やかな制御が可能です。
 - **キャリブレーション機能 (`CalibrableServo`)**:
     - サーボモーターごとの物理的な動作範囲（最小・中央・最大位置）をJSONファイルに保存し、個体差に応じた最適化ができます。
     - `set_min()`, `set_center()`, `set_max()` メソッドで、現在のサーボ位置を基準に簡単にキャリブレーションを行えます。
+- **複数サーボモーターの制御**: 複数のサーボモーターを同時にタイミングをあわせて動かすことができます。
 - **角度指定制御**: キャリブレーション後は、`-90`度から`+90`度の範囲で角度を指定してサーボを操作できます。
+- **パルス幅直接制御**: 角度ではなく、マイクロ秒単位のパルス幅を直接指定して、きめ細やかな制御が可能です。
 - **コマンドラインツール**: ターミナルから直接サーボの動作確認やキャリブレーションが可能です。
 
-## インストール
+## == インストール
 
-### 通常の利用者向け (推奨)
+### --- 通常の利用者向け (推奨)
 
 ライブラリを利用するだけであれば、こちらの方法でインストールしてください。
 
@@ -52,7 +53,7 @@ sudo systemctl start pigpiod
   ```
   ※ `/path/to/` の部分は、ダウンロードしたファイルの実際のパスに置き換えてください。
 
-### 開発者向け
+### --- 開発者向け
 
 ソースコードを編集したり、開発に貢献したりする場合は、以下の手順でセットアップしてください。
 
@@ -79,52 +80,58 @@ uv pip install -e .        # 実行用
 uv pip install -e '.[dev]' # 開発用
 ```
 
-## 使い方
+## == 使い方
 
-### 基本的な使い方 (`CalibrableServo`)
+### --- 基本的な使い方 (`CalibrableServo`)
 
 `CalibrableServo` を使うと、サーボモーターの個体差に合わせたキャリブレーションが簡単に行えます。
 
-完全なサンプルコードは、[`samples/sample.py`](samples/sample.py) をご覧ください。
+`MultiServo` を使うと、複数サーボモーターを同時に動かすことができます。
+
+[`samples/`](samples/) をご覧ください。
 
 ```python
+# ``CalibrableServo``の例
+
 import time
 import pigpio
 from piservo0 import CalibrableServo
 
-# pigpio.piのインスタンスを生成
+PIN = 18
+
 pi = pigpio.pi()
-if not pi.connected:
-    exit()
 
-# GPIO 18番ピンに接続されたサーボを操作
-# キャリブレーションデータは 'servo.json' に保存されます
-servo = CalibrableServo(pi, 18, debug=True)
+servo = CalibrableServo(pi, PIN)
 
-try:
-    # --- キャリブレーションされた位置へ移動 ---
-    print("Move to calibrated positions")
-    servo.move_center()
-    time.sleep(1)
-    servo.move_min()
-    time.sleep(1)
-    servo.move_max()
-    time.sleep(1)
+servo.move_angle(-45)
+time.sleep(1)
+servo.move_max()
+time.sleep(1)
+servo.move_center()
+time.sleep(1)
 
-    # --- 角度を指定して移動 ---
-    print("Move by angle")
-    servo.move_angle(-90)
-    time.sleep(1)
-    servo.move_angle(0)
-    time.sleep(1)
-    servo.move_angle(90)
-    time.sleep(1)
+servo.off()
+pi.stop()
+```
 
-finally:
-    # サーボの電源をオフにする
-    servo.off()
-    pi.stop()
+```python
+# ``MultiServo``の例
 
+import time
+import pigpio
+from piservo0 import MultiServo
+
+PIN = [18, 21]
+
+pi = pigpio.pi()
+
+servo = MultiServo(pi, PIN)
+
+servo.move_angle_sync([90, -90])
+servo.move_angle_sync([0, 0])
+
+servo.off()
+pi.stop()
 ```
 
 **実行方法:**
@@ -139,22 +146,28 @@ python samples/sample.py
 uv run python samples/sample.py
 ```
 
-### コマンドラインからの操作
+### --- コマンドラインからの操作
 
 `piservo0` は、コマンドラインから直接サーボを操作する機能も提供します。
 
-**書式: 仮想環境で使う場合**
+**書式: (仮想環境で使う場合) **
 ```bash
 source venv/bin/activate
 
+# 単一のサーボモーターをプルスで制御
 piservo0 servo --help
 piservo0 servo 18 1500
 
+# サーボ‐モーターのキャリブレーション 
 piservo0 cservo --help
 piservo0 cservo 18
+
+# 複数サーボの同時操作
+piservo0 multi --help
+piservo0 multi 18 21
 ```
 
-**書式: uvを使う場合**
+**書式: (uvを使う場合) **
 ```bash
 uv run piservo0 servo --help
 uv run piservo0 servo 18 1500
@@ -164,11 +177,11 @@ uv run piservo0 cservo 18
 ```
 
 
-## 使用するGPIOピンについて
+## == 使用するGPIOピンについて
 
 ほとんどのGPIOピンを使うことができます。
 
-### 1. コマンドで確認
+### --- 1. コマンドで確認
 ```
 pinout
 ```
@@ -196,18 +209,18 @@ GPIO26 (37) (38) GPIO20
    GND (39) (40) GPIO21
 ```
 
-### 2. 公式サイト情報
+### --- 2. 公式サイト情報
 [Raspberry Pi Pinout](pinout.xyz)
 
-## APIリファレンス
+## == APIリファレンス
 
 より詳しいクラスやメソッドの仕様については、[`docs/REFERENCE.md`](docs/REFERENCE.md) をご覧ください。
 
-## 依存ライブラリ
+## == 依存ライブラリ
 
 - [pigpio](https://abyz.me.uk/rpi/pigpio/)
 - [click](https://pypi.org/project/click/)
 
-## ライセンス
+## == ライセンス
 
 このプロジェクトはMITライセンスです。詳細は [`LICENSE`](LICENSE) ファイルをご覧ください。
