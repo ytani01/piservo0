@@ -5,14 +5,17 @@ import time
 from .my_logger import get_logger
 from .calibrable_servo import CalibrableServo
 
+
 class MultiServo:
     """
+    Controls multiple servo motors.
     """
 
     def __init__(self, pi, pins, first_move=True,
                  conf_file=CalibrableServo.DEF_CONF_FILE,
                  debug=False):
         """
+        Initializes the MultiServo instance.
         """
         self._dbg = debug
         self._log = get_logger(self.__class__.__name__, self._dbg)
@@ -22,93 +25,84 @@ class MultiServo:
         self.pins = pins
         self.servo_n = len(pins)
         self.conf_file = conf_file
+        self.first_move = first_move
 
-        self.servo = []
-        for pin in pins:
-            self.servo.append(CalibrableServo(pi, pin,
-                                              conf_file=self.conf_file,
-                                              debug=False))
-                                              # debug=self._dbg))
+        self.servo = [
+            CalibrableServo(pi, pin, conf_file=self.conf_file, debug=False)
+            for pin in pins
+        ]
 
-        self.move_angle([0] * self.servo_n)
+        if self.first_move:
+            self.move_angle([0] * self.servo_n)
 
     def off(self):
         """
+        Turns off all servos.
         """
         self._log.debug('')
-
         for s in self.servo:
             s.off()
 
     def get_pulse(self):
         """
+        Gets the current pulse width of all servos.
         """
-        pulse = []
-
-        for s in self.servo:
-            pulse.append(s.get_pulse())
-
+        pulse = [s.get_pulse() for s in self.servo]
         self._log.debug(f'pulse={pulse}')
         return pulse
 
     def get_angle(self):
         """
+        Gets the current angle of all servos.
         """
-        angle = []
-
-        for s in self.servo:
-            angle.append(s.get_angle())
-
+        angle = [s.get_angle() for s in self.servo]
         self._log.debug(f'angle={angle}')
         return angle
 
     def move_angle(self, angle):
         """
+        Moves each servo to the specified angle.
         """
         self._log.debug(f'angle={angle}')
 
-        if len(angle) != len(self.servo):
-            self._log.error(f'len(angle)={len(angle)} != {len(self.servo)}')
+        if len(angle) != self.servo_n:
+            self._log.error(f'len(angle)={len(angle)} != {self.servo_n}')
             return
 
         for i, s in enumerate(self.servo):
-            self._log.debug(f'pin={s.pin},angle={angle[i]}')
-            self.servo[i].move_angle(angle[i])
+            self._log.debug(f'pin={s.pin}, angle={angle[i]}')
+            s.move_angle(angle[i])
 
     def move_angle_sync(self, angle, estimated_sec=1.0, step_n=50):
         """
-        全てのサーボを同期させて動かす。
+        Moves all servos synchronously and smoothly.
         """
         self._log.debug(
-            f'angle={angle},estimated_sec={estimated_sec},step_n={step_n}'
+            f'angle={angle}, estimated_sec={estimated_sec}, step_n={step_n}'
         )
-        
-        # paraeters check
-        if len(angle) != len(self.servo):
-            self._log.error(f'len(angle)={len(angle)} != {len(self.servo)}')
+
+        if len(angle) != self.servo_n:
+            self._log.error(f'len(angle)={len(angle)} != {self.servo_n}')
             return
 
-        # ステップ毎のスリープ時間
+        if step_n <= 0:
+            self.move_angle(angle)
+            return
+
         step_sec = estimated_sec / step_n
         self._log.debug(f'step_sec={step_sec}')
 
-        # 移動前の角度のリスト
-        cur_angle = self.get_angle()
-        self._log.debug(f'cur_angle={cur_angle}')
+        start_angles = self.get_angle()
+        self._log.debug(f'start_angles={start_angles}')
 
-        # 目的角度との差分を元に、各サーボ毎にステップごとの移動量を求める
-        d_angle = []
-        step_angle = []
-        for i, s in enumerate(self.servo):
-            d_angle.append(angle[i] - cur_angle[i])
-            step_angle.append(d_angle[i] / step_n)
-        self._log.debug( f'd_angle={d_angle},step_angle={step_angle}')
+        diff_angles = [angle[i] - start_angles[i] for i in range(self.servo_n)]
+        self._log.debug(f'diff_angles={diff_angles}')
 
-        # 動かす
-        for step_i in range(step_n):
-            for servo_i in self.servo_n:
-                cur_angle[servo_i] += step_angle[servo_i]
-            self.move_angle(cur_angle)
-            self._log.debug(f'cur_angle={cur_angle}')
-
+        for step_i in range(1, step_n + 1):
+            next_angles = [
+                start_angles[i] + diff_angles[i] * step_i / step_n
+                for i in range(self.servo_n)
+            ]
+            self.move_angle(next_angles)
+            self._log.debug(f'step {step_i}/{step_n}: next_angles={next_angles}')
             time.sleep(step_sec)

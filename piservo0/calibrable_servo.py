@@ -23,6 +23,10 @@ class CalibrableServo(PiServo):
     ANGLE_MAX = 90.0
     ANGLE_CENTER = 0.0
 
+    POS_CENTER = 'center'
+    POS_MIN = 'min'
+    POS_MAX = 'max'
+
     def __init__(self, pi, pin,
                  conf_file=DEF_CONF_FILE,
                  debug=False):
@@ -147,7 +151,7 @@ class CalibrableServo(PiServo):
         return pulse_int
 
     def pulse2deg(self, pulse:int) -> float:
-        """   """
+        """パルス幅を角度に変換する。"""
         if pulse >= self.center:
             d = self.max - self.center
         else:
@@ -159,7 +163,7 @@ class CalibrableServo(PiServo):
         return deg
 
     def get_angle(self):
-        """ XXX """
+        """現在のサーボの角度を取得する。"""
         pulse = self.get_pulse()
         angle = self.pulse2deg(pulse)
         self._log.debug(f'pulse={pulse}, angle={angle}')
@@ -170,12 +174,12 @@ class CalibrableServo(PiServo):
         """指定された角度にサーボモーターを移動させる。"""
         self._log.debug(f'deg={deg}')
 
-        if type(deg) is str:
-            if deg == 'center':
+        if isinstance(deg, str):
+            if deg == self.POS_CENTER:
                 deg = self.ANGLE_CENTER
-            elif deg == 'min':
+            elif deg == self.POS_MIN:
                 deg = self.ANGLE_MIN
-            elif deg == 'max':
+            elif deg == self.POS_MAX:
                 deg = self.ANGLE_MAX
             else:
                 self._log.error(f'deg="{deg}": invalid string. do nothing')
