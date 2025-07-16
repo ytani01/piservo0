@@ -43,6 +43,7 @@ class CalibrableServo(PiServo):
         self._log = get_logger(self.__class__.__name__, self._dbg)
         self._log.debug(f'pin={pin}, conf_file={conf_file}')
 
+        self.conf_file = conf_file
         self._config_manager = ServoConfigManager(conf_file, self._dbg)
 
         # デフォルト値を設定

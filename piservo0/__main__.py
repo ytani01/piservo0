@@ -34,7 +34,7 @@ def cli(ctx, debug):
 servo command""")
 @click.argument('pin', type=int, nargs=1)
 @click.argument('pulse', type=str, nargs=1)
-@click.option('--sec', '-t', '-s', type=float, default=1,
+@click.option('--sec', '-t', '-s', type=float, default=1.0,
     help='sec')
 @click.option('--debug', '-d', is_flag=True, default=False,
     help='debug flag')
@@ -83,15 +83,43 @@ def servo(pin, pulse, sec, debug):
 @cli.command(help="""
 calibration command""")
 @click.argument('pin', type=int, nargs=1)
+@click.option('--conf_file', '--file', '-c', '-f', type=str,
+    default='./servo.json')
 @click.option('--sec', '-t', '-s', type=float, default=1,
     help='sec')
 @click.option('--debug', '-d', is_flag=True, default=False,
     help='debug flag')
-def cservo(pin, sec, debug):
+def calib(pin, conf_file, sec, debug):
     """ servo command
     """
+    ctx = click.get_current_context()
+    cmd_name = ctx.command.name
+
     log = get_logger(__name__, debug)
-    log.debug(f'pin={pin}, sec={sec}')
+    log.debug(f'pin={pin},conf_file={conf_file},sec={sec}')
+
+    CMD_CENTER = {'help': 'move center', 'str': ('center', 'c')}
+    CMD_ANGLE = {'help': 'move angle', 'str': '-90.0 .. 0.0 .. 90.0'}
+    CMD_PULSE = {'help': 'move pulse', 'str': '500 .. 2500'}
+    CMD_MIN = {'help': 'move min', 'str': ('min', 'n')}
+    CMD_MAX = {'help': 'move max', 'str': ('max', 'x')}
+    CMD_GET = {'help': 'get pulse', 'str': ('get pulse', 'get', 'g')}
+    CMD_SET_CENTER = {'help': 'set center', 'str': ('set center', 'sc')}
+    CMD_SET_MIN = {'help': 'set min', 'str': ('set min', 'sn')}
+    CMD_SET_MAX = {'help': 'set max', 'str': ('set max', 'sx')}
+    CMD_EXIT = {'help': 'exit', 'str': ('exit', 'quit', 'q', 'bye')}
+    CMD_HELP = {'help': 'help', 'str': ('help', 'h', '?')}
+
+    CMDS = [
+        CMD_ANGLE, CMD_PULSE,
+        CMD_CENTER, CMD_MIN, CMD_MAX,
+        CMD_GET,
+        CMD_SET_CENTER, CMD_SET_MIN, CMD_SET_MAX,
+        CMD_HELP,
+        CMD_EXIT
+    ]
+
+    PROMPT_STR = f'\n{cmd_name}: [h] for help, [q] for exit > '
 
     pi = pigpio.pi()
     if not pi.connected:
@@ -99,15 +127,18 @@ def cservo(pin, sec, debug):
         return
 
     try:
-        servo = CalibrableServo(pi, pin, debug=debug)
+        servo = CalibrableServo(pi, pin, conf_file=conf_file, debug=debug)
     except Exception as e:
         log.error(f'type(e).__name__: {e}')
         pi.stop()
         return
 
+    print(f'[[ {cmd_name} ]]')
+    print(f' GPIO: {servo.pin}')
+    print(f' conf_file: {servo.conf_file}')
     try:
         while True:
-            in_str = input('> ')
+            in_str = input(PROMPT_STR)
             log.debug(f'in_str={in_str}')
 
             # 数値が入力されたか？
@@ -118,7 +149,7 @@ def cservo(pin, sec, debug):
                 if CalibrableServo.ANGLE_MIN <= val <= CalibrableServo.ANGLE_MAX:
                     servo.move_angle(val)
                     pulse = servo.get_pulse()
-                    print(f'angle = {val}, pulse={pulse}')
+                    print(f' angle = {val}, pulse={pulse}')
                     time.sleep(sec)
                     continue
 
@@ -126,7 +157,7 @@ def cservo(pin, sec, debug):
                 if PiServo.MIN <= val <= PiServo.MAX:
                     servo.move_pulse(int(round(val)), forced=True)
                     pulse = servo.get_pulse()
-                    print(f'pulse = {pulse}')
+                    print(f' pulse = {pulse}')
                     time.sleep(sec)
                     continue
 
@@ -137,55 +168,78 @@ def cservo(pin, sec, debug):
                 # 文字列が入力された
                 pass
 
-            if in_str in ('c', 'center'):
+            if in_str in CMD_HELP['str']:
+                print('\nUSAGE\n')
+
+                for cmd in CMDS:
+                    cmds = ''
+                    if type(cmd['str']) is str:
+                        cmds = cmd['str']
+                    else:
+                        for s in cmd['str']:
+                            cmds += f'"{s}", '
+                        cmds = cmds[:-2]
+                    print(f' {cmds:28} {cmd['help']:12}')
+
+                continue
+
+            if in_str in CMD_CENTER['str']:
                 servo.move_center()
                 pulse = servo.get_pulse()
-                print(f'center: pulse={pulse}')
+                print(f' center: pulse={pulse}')
                 time.sleep(sec)
                 continue
 
-            if in_str in ('n', 'min'):
+            if in_str in CMD_MIN['str']:
                 servo.move_min()
                 pulse = servo.get_pulse()
-                print(f'min: pulse={pulse}')
+                print(f' min: pulse={pulse}')
                 time.sleep(sec)
                 continue
 
-            if in_str in ('x', 'max'):
+            if in_str in CMD_MAX['str']:
                 servo.move_max()
                 pulse = servo.get_pulse()
-                print(f'max: pulse={pulse}')
+                print(f' max: pulse={pulse}')
                 time.sleep(sec)
                 continue
 
-            if in_str in ('g', 'get'):
+            if in_str in CMD_GET['str']: 
                 pulse = servo.get_pulse()
-                print(f'pulse = {pulse}')
+                print(f' pulse = {pulse}')
                 continue
 
-            if in_str in ('sc', 'set center'):
+            if in_str in CMD_SET_CENTER['str']:
                 pulse = servo.get_pulse()
                 servo.set_center(pulse)
-                print(f'set center: pulse = {pulse}')
+                print(f' set center: pulse = {pulse}')
+                print(f' file: {servo.conf_file}')
                 continue
 
-            if in_str in ('sn', 'set min'):
+            if in_str in CMD_SET_MIN['str']:
                 pulse = servo.get_pulse()
                 servo.set_min(pulse)
-                print(f'set min: pulse = {pulse}')
+                print(f' set min: pulse = {pulse}')
+                print(f' file: {servo.conf_file}')
                 continue
 
-            if in_str in ('sx', 'set max'):
+            if in_str in CMD_SET_MAX['str']:
                 pulse = servo.get_pulse()
                 servo.set_max(pulse)
-                print(f'set max: pulse = {pulse}')
+                print(f' set max: pulse = {pulse}')
+                print(f' file: {servo.conf_file}')
                 continue
+
+            if in_str in CMD_EXIT['str']:
+                break
 
             log.error(f'{in_str}: invalid command')
 
-    except (EOFError, KeyboardInterrupt):
-        print('\n Bye!')
+    except (EOFError, KeyboardInterrupt) as e:
+        log.debug(f'{type(e).__name__}: {e}')
+        pass
 
     finally:
+        print('\n Bye!\n')
         servo.off()
         pi.stop()
