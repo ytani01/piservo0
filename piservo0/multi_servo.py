@@ -35,6 +35,21 @@ class MultiServo:
         if self.first_move:
             self.move_angle([0] * self.servo_n)
 
+    def _validate_angle_list(self, angles):
+        """
+        Validates the list of angles.
+        Returns True if valid, False otherwise.
+        """
+        if not isinstance(angles, (list, tuple)):
+            self._log.error(f'angles must be a list or tuple: {type(angles)}')
+            return False
+
+        if len(angles) != self.servo_n:
+            self._log.error(f'len(angles)={len(angles)} != {self.servo_n}')
+            return False
+
+        return True
+
     def off(self):
         """
         Turns off all servos.
@@ -47,46 +62,44 @@ class MultiServo:
         """
         Gets the current pulse width of all servos.
         """
-        pulse = [s.get_pulse() for s in self.servo]
-        self._log.debug(f'pulse={pulse}')
-        return pulse
+        pulses = [s.get_pulse() for s in self.servo]
+        self._log.debug(f'pulses={pulses}')
+        return pulses
 
     def get_angle(self):
         """
         Gets the current angle of all servos.
         """
-        angle = [s.get_angle() for s in self.servo]
-        self._log.debug(f'angle={angle}')
-        return angle
+        angles = [s.get_angle() for s in self.servo]
+        self._log.debug(f'angles={angles}')
+        return angles
 
-    def move_angle(self, angle):
+    def move_angle(self, angles):
         """
         Moves each servo to the specified angle.
         """
-        self._log.debug(f'angle={angle}')
+        self._log.debug(f'angles={angles}')
 
-        if len(angle) != self.servo_n:
-            self._log.error(f'len(angle)={len(angle)} != {self.servo_n}')
+        if not self._validate_angle_list(angles):
             return
 
         for i, s in enumerate(self.servo):
-            self._log.debug(f'pin={s.pin}, angle={angle[i]}')
-            s.move_angle(angle[i])
+            self._log.debug(f'pin={s.pin}, angle={angles[i]}')
+            s.move_angle(angles[i])
 
-    def move_angle_sync(self, angle, estimated_sec=1.0, step_n=50):
+    def move_angle_sync(self, target_angles, estimated_sec=1.0, step_n=50):
         """
-        Moves all servos synchronously and smoothly.
+        Moves all servos synchronously and smoothly to target angles.
         """
         self._log.debug(
-            f'angle={angle}, estimated_sec={estimated_sec}, step_n={step_n}'
+            f'target_angles={target_angles}, estimated_sec={estimated_sec}, step_n={step_n}'
         )
 
-        if len(angle) != self.servo_n:
-            self._log.error(f'len(angle)={len(angle)} != {self.servo_n}')
+        if not self._validate_angle_list(target_angles):
             return
 
-        if step_n <= 0:
-            self.move_angle(angle)
+        if step_n < 1:
+            self.move_angle(target_angles)
             return
 
         step_sec = estimated_sec / step_n
@@ -95,7 +108,9 @@ class MultiServo:
         start_angles = self.get_angle()
         self._log.debug(f'start_angles={start_angles}')
 
-        diff_angles = [angle[i] - start_angles[i] for i in range(self.servo_n)]
+        diff_angles = [
+            target_angles[i] - start_angles[i] for i in range(self.servo_n)
+        ]
         self._log.debug(f'diff_angles={diff_angles}')
 
         for step_i in range(1, step_n + 1):

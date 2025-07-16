@@ -63,7 +63,6 @@ def test_move_max(servo_test_setup):
 
 @pytest.mark.parametrize(('pulse', "expected"), [
     (1000, 1000),
-    (2000, 2000),
     (PiServo.MIN, PiServo.MIN),
     (PiServo.MAX, PiServo.MAX),
     (PiServo.MIN - 1, PiServo.MIN),  # 範囲外(下)

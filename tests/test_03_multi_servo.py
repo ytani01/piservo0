@@ -3,7 +3,7 @@ import time
 import pigpio
 import os
 import json
-from piservo0 import MultiServo, CalibrableServo
+from piservo0 import MultiServo
 
 SLEEP_SEC = 1.0
 TEST_PINS = [18, 21]
@@ -80,7 +80,7 @@ def test_move_angle(multi_servo_setup):
 def test_move_angle_sync(multi_servo_setup):
     """
     move_angle_syncで各サーボが同期して移動し、
-    最終的に目標角度に到達するかをテストする。
+    最終的に目標角度に到��するかをテストする。
     """
     pi, multi_servo = multi_servo_setup
     
@@ -120,3 +120,51 @@ def test_off(multi_servo_setup):
     pulses = multi_servo.get_pulse()
     for pulse in pulses:
         assert pulse == 0
+
+def test_move_angle_invalid_length(multi_servo_setup, mocker):
+    """
+    不正な長さのリストを渡した際にエラーログが出て、
+    角度が変わらないことをテストする。
+    """
+    pi, multi_servo = multi_servo_setup
+    mocker.patch.object(multi_servo._log, 'error')
+
+    initial_angles = multi_servo.get_angle()
+    invalid_angles = [10]  # 長さが違う
+
+    # move_angle
+    multi_servo.move_angle(invalid_angles)
+    multi_servo._log.error.assert_called_once()
+    current_angles = multi_servo.get_angle()
+    assert initial_angles == current_angles
+
+    # move_angle_sync
+    multi_servo._log.error.reset_mock()
+    multi_servo.move_angle_sync(invalid_angles)
+    multi_servo._log.error.assert_called_once()
+    current_angles = multi_servo.get_angle()
+    assert initial_angles == current_angles
+
+def test_move_angle_invalid_type(multi_servo_setup, mocker):
+    """
+    不正な型の引数を渡した際にエラーログが出て、
+    角度が変わらないことをテストする。
+    """
+    pi, multi_servo = multi_servo_setup
+    mocker.patch.object(multi_servo._log, 'error')
+
+    initial_angles = multi_servo.get_angle()
+    invalid_arg = "not a list"
+
+    # move_angle
+    multi_servo.move_angle(invalid_arg)
+    multi_servo._log.error.assert_called_once()
+    current_angles = multi_servo.get_angle()
+    assert initial_angles == current_angles
+
+    # move_angle_sync
+    multi_servo._log.error.reset_mock()
+    multi_servo.move_angle_sync(invalid_arg)
+    multi_servo._log.error.assert_called_once()
+    current_angles = multi_servo.get_angle()
+    assert initial_angles == current_angles
