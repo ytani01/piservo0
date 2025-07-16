@@ -6,6 +6,7 @@ import click
 import pigpio
 from piservo0 import PiServo
 from piservo0 import CalibrableServo
+from piservo0 import MultiServo
 from piservo0 import get_logger
 
 
@@ -95,6 +96,8 @@ def calib(pin, conf_file, sec, debug):
     ctx = click.get_current_context()
     cmd_name = ctx.command.name
 
+    PROMPT_STR = f'\n{cmd_name}: [h] for help, [q] for exit > '
+
     log = get_logger(__name__, debug)
     log.debug(f'pin={pin},conf_file={conf_file},sec={sec}')
 
@@ -119,8 +122,6 @@ def calib(pin, conf_file, sec, debug):
         CMD_EXIT
     ]
 
-    PROMPT_STR = f'\n{cmd_name}: [h] for help, [q] for exit > '
-
     pi = pigpio.pi()
     if not pi.connected:
         log.error('pigpio daemon not connected.')
@@ -133,7 +134,7 @@ def calib(pin, conf_file, sec, debug):
         pi.stop()
         return
 
-    print(f'[[ {cmd_name} ]]')
+    print(f'[[ "{cmd_name}": Servo Calibration Tool ]]')
     print(f' GPIO: {servo.pin}')
     print(f' conf_file: {servo.conf_file}')
     try:
@@ -238,6 +239,77 @@ def calib(pin, conf_file, sec, debug):
     except (EOFError, KeyboardInterrupt) as e:
         log.debug(f'{type(e).__name__}: {e}')
         pass
+
+    finally:
+        print('\n Bye!\n')
+        servo.off()
+        pi.stop()
+
+
+@cli.command(help="""
+multi servo command""")
+@click.argument('pin', type=int, nargs=-1)
+@click.option('--conf_file', '--file', '-c', '-f', type=str,
+    default='./servo.json')
+@click.option('--sec', '-t', '-s', type=float, default=1,
+    help='sec')
+@click.option('--debug', '-d', is_flag=True, default=False,
+    help='debug flag')
+def multi(pin, conf_file, sec, debug):
+    """ servo command
+    """
+    ctx = click.get_current_context()
+    cmd_name = ctx.command.name
+
+    PROMPT_STR = f'\n{cmd_name}: [q] for exit > '
+
+    CMD_EXIT = ('exit', 'quit', 'q', 'bye')
+
+    log = get_logger(__name__, debug)
+    log.debug(f'pin={pin},conf_file={conf_file},sec={sec}')
+
+    pi = pigpio.pi()
+    if not pi.connected:
+        log.error('pigpio daemon not connected.')
+        return
+
+    try:
+        servo = MultiServo(pi, pin, conf_file, debug=debug)
+    except Exception as e:
+        log.error(f'type(e).__name__: {e}')
+        pi.stop()
+        return
+
+    print(f'[[ "{cmd_name}": Multi Servo Motors Tester ]]')
+    print(f' GPIO: {servo.pins}')
+    print(f' conf_file: {servo.conf_file}')
+    try:
+        while True:
+            in_str = input(PROMPT_STR)
+            log.debug(f'in_str="{in_str}"')
+
+            if in_str in CMD_EXIT:
+                break
+
+            words = in_str.split()
+            log.debug(f'words={words}')
+
+            try:
+                angles = [ float(word) for word in words ]
+                log.debug(f'angles={angles}')
+
+                servo.move_angle_sync(angles)
+                print(f' {servo.get_angle()}')
+
+            except ValueError as e:
+                log.error(f'{type(e).__name__}: {e}')
+
+    except (EOFError, KeyboardInterrupt) as e:
+        log.debug(f'{type(e).__name__}: {e}')
+        pass
+
+    except Exception as e:
+        log.error(f'{type(e).__name__} {e}')
 
     finally:
         print('\n Bye!\n')
