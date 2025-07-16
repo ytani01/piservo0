@@ -18,13 +18,13 @@ try:
                 count += 1
 
                 angle = [
-                    random.uniform(-90, 90),
-                    random.uniform(-90, 90),
-                    random.uniform(-90, 90)
+                    round(random.uniform(-90, 90)),
+                    round(random.uniform(-90, 90)),
+                    round(random.uniform(-90, 90))
                 ]
 
+                print(f'{count:>3}: {s} sec: {angle}')
                 servo.move_angle_sync(angle, s)
-                print(f'{count:>3}: {s} sec: {servo.get_angle()}')
 
             print()
             time.sleep(1)
