@@ -82,7 +82,7 @@ def servo(pin, pulse, sec, debug):
 
 
 @cli.command(help="""
-calibration command""")
+calibration tool""")
 @click.argument('pin', type=int, nargs=1)
 @click.option('--conf_file', '--file', '-c', '-f', type=str,
     default='./servo.json')
@@ -247,7 +247,7 @@ def calib(pin, conf_file, sec, debug):
 
 
 @cli.command(help="""
-multi servo command""")
+multi servo controller""")
 @click.argument('pin', type=int, nargs=-1)
 @click.option('--conf_file', '--file', '-c', '-f', type=str,
     default='./servo.json')
@@ -280,7 +280,7 @@ def multi(pin, conf_file, sec, debug):
         pi.stop()
         return
 
-    print(f'[[ "{cmd_name}": Multi Servo Motors Tester ]]')
+    print(f'[[ "{cmd_name}": Multipule Servo Motors Controller ]]')
     print(f' GPIO: {servo.pins}')
     print(f' conf_file: {servo.conf_file}')
     try:
@@ -298,8 +298,10 @@ def multi(pin, conf_file, sec, debug):
                 angles = [ float(word) for word in words ]
                 log.debug(f'angles={angles}')
 
-                servo.move_angle_sync(angles)
-                print(f' {servo.get_angle()}')
+                time_start = time.time()
+                servo.move_angle_sync(angles, sec)
+                time_end = time.time()
+                print(f' {servo.get_angle()} ... {time_end - time_start} sec')
 
             except ValueError as e:
                 log.error(f'{type(e).__name__}: {e}')
