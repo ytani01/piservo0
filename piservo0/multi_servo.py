@@ -119,5 +119,9 @@ class MultiServo:
                 for i in range(self.servo_n)
             ]
             self.move_angle(next_angles)
-            self._log.debug(f'step {step_i}/{step_n}: next_angles={next_angles}')
+            self._log.debug(
+                f'step {step_i}/{step_n}: ' +
+                f'next_angles={next_angles}, ' +
+                f'step_sec={step_sec}'
+            )
             time.sleep(step_sec)

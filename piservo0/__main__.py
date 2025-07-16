@@ -301,7 +301,7 @@ def multi(pin, conf_file, sec, debug):
                 time_start = time.time()
                 servo.move_angle_sync(angles, sec)
                 time_end = time.time()
-                print(f' {servo.get_angle()} ... {time_end - time_start} sec')
+                print(f' {servo.get_angle()} ... {(time_end - time_start):.3f} sec')
 
             except ValueError as e:
                 log.error(f'{type(e).__name__}: {e}')

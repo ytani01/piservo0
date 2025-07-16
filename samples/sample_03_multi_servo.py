@@ -13,21 +13,28 @@ try:
 
     ###
     print('* move_angle_sync()\n')
+    print(f' PIN = {PIN}')
 
     for sec in [2, 1, 0.5, 0.3]:
         print(f' sec={sec}')
 
         servo.move_angle([-90,-90,-90])
-        time.sleep(2)
+        time.sleep(1)
 
         for angles in [
+                        [-90,-90,-90],
                         [ 90,  0,-45],
                         [-90, 90,  0],
                         [ 90,  0, 45],
-                        [-90,-90, 90]
+                        [-90,-90, 90],
+                        [ 90,  0, 45],
+                        [-90, 90,  0],
+                        [ 90,  0,-45],
+                        [-90,-90,-90],
                       ]:
             print(f' angles={angles}')
             servo.move_angle_sync(angles, sec)
+            time.sleep(0.1)
 
         time.sleep(2)
 
