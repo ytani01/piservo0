@@ -52,7 +52,7 @@ Raspberry PiのGPIOピンを介してサーボモーターを制御する基本�
 
 | 定数名 | 値 | 説明 |
 |---|---|---|
-| `DEF_CONF_FILE` | `'./servo.json'` | デフォルトの設��ファイル名 |
+| `DEF_CONF_FILE` | `'./servo.json'` | デフォルトの設定ファイル名 |
 | `ANGLE_MIN` | `-90.0` | 最小角度 |
 | `ANGLE_MAX` | `90.0` | 最大角度 |
 | `ANGLE_CENTER`| `0.0`| 中央角度 |

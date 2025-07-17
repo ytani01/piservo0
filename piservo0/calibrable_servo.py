@@ -218,7 +218,7 @@ class CalibrableServo(PiServo):
         self._log.debug(f"Saved: {new_config}")
 
     def _ensure_config_exists(self):
-        """もし設定がなければ、現在の値で保存する。(プライベート��ソッド)"""
+        """もし設定がなければ、現在の値で保存する。(プライベートメソッド)"""
         if self._config_manager.get_config(self.pin) is None:
             self._log.warning(f"No config for pin {self.pin}. Saving current values.")
             self.save_conf()

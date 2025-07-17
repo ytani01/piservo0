@@ -154,7 +154,7 @@ uv run python samples/sample.py
 ```bash
 source venv/bin/activate
 
-# 単一のサーボモーターをプルスで制御
+# 単一のサーボモーターをパルスで制御
 piservo0 servo --help
 piservo0 servo 18 1500
 

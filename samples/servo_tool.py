@@ -8,251 +8,224 @@ import pigpio
 import blessed
 from piservo0 import MultiServo, get_logger
 
-
 # clickで、'-h'もヘルプオプションするために
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 
-@click.group(
-    invoke_without_command=True,
-    context_settings=CONTEXT_SETTINGS,
-    help="""
-Servo Tool
-""")
+@click.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS,
+             help="Servo Tool")
 @click.option('-debug', '-d', is_flag=True, help="debug flag")
 @click.pass_context
 def cli(ctx, debug):
     """ CLI top """
-
-    subcmd = ctx.invoked_subcommand
-    log = get_logger(__name__, debug)
-    log.debug(f"subcmd={subcmd}")
-
-    if subcmd is None:
-        print(f'{ctx.get_help()}')
+    if ctx.invoked_subcommand is None:
+        print(ctx.get_help())
 
 
 class CalibApp:
-    """ """
+    """
+    サーボキャリブレーション用TUIアプリケーション
+    """
     SELECTED_SERVO_ALL = -1
 
     def __init__(self, pins, conf_file, debug=False):
         self._dbg = debug
         self._log = get_logger(self.__class__.__name__, self._dbg)
-        self._log.debug('pins=%s', pins)
-
-        self.pins = pins
-        self.conf_file = conf_file
+        self._log.debug('pins=%s, conf_file=%s', pins, conf_file)
 
         self.pi = pigpio.pi()
         self.term = blessed.Terminal()
+        self.mservo = MultiServo(self.pi, pins, conf_file=conf_file, debug=debug)
 
-        self.mservo = MultiServo(self.pi, pins,
-                                 conf_file=self.conf_file,
-                                 debug=debug)
+        self.selected_servo = self.SELECTED_SERVO_ALL
+        self.running = True
+
+        self.key_bindings = self._setup_key_bindings()
+
+    def _setup_key_bindings(self):
+        """ キーバインドを設定する """
+        term = self.term
+        return {
+            # Move
+            'w': lambda: self.move_diff(+20), 'k': lambda: self.move_diff(+20),
+            term.KEY_UP: lambda: self.move_diff(+20),
+            's': lambda: self.move_diff(-20), 'j': lambda: self.move_diff(-20),
+            term.KEY_DOWN: lambda: self.move_diff(-20),
+            # Fine Tune
+            'W': lambda: self.move_diff(+1), 'K': lambda: self.move_diff(+1),
+            'S': lambda: self.move_diff(-1), 'J': lambda: self.move_diff(-1),
+            # Move to angle
+            'c': lambda: self.move_angle(0),
+            'n': lambda: self.move_angle(-90),
+            'x': lambda: self.move_angle(90),
+            # Calibration
+            'C': self.set_center,
+            'N': self.set_min,
+            'X': self.set_max,
+            # Misc
+            'h': self.display_help, '?': self.display_help,
+            'q': self.quit, 'Q': self.quit,
+        }
 
     def main(self):
-        """ """
-        self._log.debug('')
-
+        """ メインループ """
+        self._log.debug('starting main loop')
         with self.term.cbreak():
-            inkey = ''
-            selected_servo = self.SELECTED_SERVO_ALL
-
-            while inkey.lower() != 'q':
-                cur_pulse = self.mservo.get_pulse()
-
-                if selected_servo >= 0:
-                    gpio_str = f'{selected_servo + 1}:'
-                    gpio_str += f'GPIO{self.pins[selected_servo]:02d}'
-                else:
-                    gpio_str = '-:ALL'
-
-                # 配列内の要素をフォーマットするトリッキーなやり方
-                str_list = [f"{item:4}" for item in cur_pulse]
-                print(f'[{", ".join(str_list)}] {gpio_str}> ',
-                      end='', flush=True)
-
+            while self.running:
+                self.draw_prompt()
                 inkey = self.term.inkey()
                 if not inkey:
                     continue
 
-                if inkey in '0123456789':
-                    # サーボの選択
-                    selected_servo = int(inkey) - 1
-                    self._log.debug(f'servo:{selected_servo}')
-
-                    print('select ', end='')
-                    if selected_servo >= self.mservo.servo_n:
-                        selected_servo = self.SELECTED_SERVO_ALL
-                        print('ALL')
-                    else:
-                        print(f'{selected_servo + 1}:' +
-                              f'GPIO{self.pins[selected_servo]:02d}')
+                if inkey.isnumeric():
+                    self.select_servo(int(inkey))
                     continue
 
-                if inkey in ('w', 'k', self.term.KEY_LEFT):
-                    self.move_diff(self.mservo, cur_pulse, +20,
-                                   selected_servo)
-                    continue
+                action = self.key_bindings.get(inkey)
+                if action:
+                    action()
+                else:
+                    print()  # 未知のキー入力の場合は改行
 
-                if inkey in 'WK':
-                    self.move_diff(self.mservo, cur_pulse, -1,
-                                   selected_servo)
-                    continue
+    def draw_prompt(self):
+        """ プロンプトを表示する """
+        cur_pulse = self.mservo.get_pulse()
+        pulse_str = ", ".join([f"{p:4}" for p in cur_pulse])
 
-                if inkey in ('s', 'j', self.term.KEY_RIGHT):
-                    self.move_diff(self.mservo, cur_pulse, -20,
-                                   selected_servo)
-                    continue
+        if self.selected_servo >= 0:
+            gpio_str = (f'{self.selected_servo + 1}:'
+                        f'GPIO{self.mservo.pins[self.selected_servo]:02d}')
+        else:
+            gpio_str = '-:ALL'
 
-                if inkey in 'SJ':
-                    self.move_diff(self.mservo, cur_pulse, +1,
-                                   selected_servo)
-                    continue
+        print(f'[{pulse_str}] {gpio_str}> ', end='', flush=True)
 
-                if inkey in 'c':
-                    self.move_angle(self.mservo, 0, selected_servo)
-                    continue
+    def select_servo(self, num):
+        """ サーボを選択する """
+        index = num - 1
+        if 0 <= index < self.mservo.servo_n:
+            self.selected_servo = index
+            print(f'select {self.selected_servo + 1}:'
+                  f'GPIO{self.mservo.pins[self.selected_servo]:02d}')
+        else:
+            self.selected_servo = self.SELECTED_SERVO_ALL
+            print('select ALL')
+        self._log.debug('selected_servo: %s', self.selected_servo)
 
-                if inkey in 'n':
-                    self.move_angle(self.mservo, -90, selected_servo)
-                    continue
+    def move_diff(self, diff_pulse):
+        """ パルス幅を相対的に変更する """
+        cur_pulse = self.mservo.get_pulse()
+        if self.selected_servo >= 0:
+            dst_pulse = cur_pulse[self.selected_servo] + diff_pulse
+            self.mservo.servo[self.selected_servo].move_pulse(dst_pulse, forced=True)
+        else:
+            dst_pulse = [p + diff_pulse for p in cur_pulse]
+            self.mservo.move_pulse(dst_pulse, forced=True)
+        print(f'pulse: {dst_pulse}')
 
-                if inkey in 'x':
-                    self.move_angle(self.mservo, +90, selected_servo)
-                    continue
+    def move_angle(self, angle):
+        """ 指定角度に移動する """
+        if self.selected_servo >= 0:
+            self.mservo.servo[self.selected_servo].move_angle(angle)
+        else:
+            self.mservo.move_angle([angle] * self.mservo.servo_n)
+        print(f'angle: {angle}')
 
-                if inkey in 'C':
-                    self.set_centerJ()
-                    continue
+    def _set_calibration(self, calib_type):
+        """ キャリブレーション値を設定・保存する """
+        if self.selected_servo < 0:
+            print(' Select a servo first.')
+            return
 
-                if inkey in 'N':
-                    self.set_min()
-                    continue
+        servo = self.mservo.servo[self.selected_servo]
+        cur_pulse = servo.get_pulse()
 
-                if inkey in 'X':
-                    self.set_max()
-                    continue
+        if calib_type == 'center':
+            servo.center = cur_pulse
+        elif calib_type == 'min':
+            servo.min = cur_pulse
+        elif calib_type == 'max':
+            servo.max = cur_pulse
+        else:
+            return
 
-                if inkey in 'hH?':
-                    self.help()
-                    continue
+        self._log.debug(f"DEBUG: Before save_conf - servo.pin={servo.pin}, calib_type={calib_type}, cur_pulse={cur_pulse}, servo.min={servo.min}, servo.center={servo.center}, servo.max={servo.max}")
 
-                if inkey in 'qQ':
-                    print(' Quit')
-                    break
+        servo.save_conf()
+        print(f' GPIO{servo.pin:02d}: {calib_type.capitalize()} pulse set to {cur_pulse} and saved.')
 
-                print()
-                continue
+    def set_center(self):
+        self._set_calibration('center')
+
+    def set_min(self):
+        self._set_calibration('min')
+
+    def set_max(self):
+        self._set_calibration('max')
+
+    def display_help(self):
+        """ ヘルプメッセージを表示する """
+        print('''
+
+=== Usage ===
+* Select servo
+  0: Select All servos
+  1..9: Select one servo
+
+* Move
+  'w', 'k', UpArrow:   Up
+  's', 'j', DownArrow: Down
+  (Upper case is for fine tuning)
+
+* Move to angle
+  'c': move to center (0 deg)
+  'n': move to min (-90 deg)
+  'x': move to max (90 deg)
+
+* Calibration
+  'C': save current pulse as Center
+  'N': save current pulse as Min
+  'X': save current pulse as Max
+
+* Misc
+  'q': Quit
+  'h', '?': Show this help
+''')
+
+    def quit(self):
+        """ アプリケーションを終了する """
+        print(' Quit')
+        self.running = False
 
     def end(self):
-        """  """
-        self._log.debug('')
-
+        """ 終了処理 """
         self.mservo.off()
         self.pi.stop()
         print('\n Bye\n')
 
-    def set_center(self):
-        pass
 
-    def set_min(self):
-        pass
-
-    def set_max(self):
-        pass
-
-    def help(self):
-        """  """
-        self._log.debug('')
-
-        print('''
-
-=== Usage ===
-
-* Select servo
-  0: Select All servos
-  1 .. 9: Select one servo
-
-* Move
-  'w', 'k': Up
-  's', 'j': Down
-  Upper case('W','K','S','J'): Fine Tuning
-
-  (Lower case)
-  'c': move center <-- [c]enter
-  'n': move min    <-- mi[n]
-  'x': move max    <-- ma[x]
-
-* Calibration (ToDo)
-  (Upper case)
-  'C': save center <-- [C]enter
-  'N': save min    <-- mi[N]
-  'X': save max    <-- ma[X]
-
-* etc.
-  'q': Quit
-  'h': Help (This usage)
-''')
-
-    def move_angle(self, servo, dst_angle, selected_servo):
-        """ """
-        if selected_servo >= 0:
-            servo.servo[selected_servo].move_angle(dst_angle)
-        else:
-            dst_angle = [dst_angle] * servo.servo_n
-            servo.move_angle(dst_angle)
-
-        print('servo:%s, dst_angle=%s' % (selected_servo, dst_angle))
-
-    def move_diff(self, servo, cur_pulse, diff_pulse, selected_servo):
-        """  """
-        self._log.debug(
-            'selected_servo=%s,' +
-            'cur_pulse=%s, ' +
-            'diff_pulse=%s, selected_servo',
-            selected_servo, cur_pulse, diff_pulse
-        )
-
-        if selected_servo >= 0:
-            dst_pulse = cur_pulse[selected_servo] + diff_pulse
-            servo.servo[selected_servo].move_pulse(dst_pulse, forced=True)
-        else:
-            dst_pulse = [pulse + diff_pulse for pulse in cur_pulse]
-            servo.move_pulse(dst_pulse, forced=True)
-
-        print('servo:%s, dst_pulse=%s' % (selected_servo, dst_pulse))
-
-
-@cli.command(help="""
-calibration tool""")
+@cli.command(help="Calibration tool")
 @click.argument('pins', type=int, nargs=-1)
 @click.option('--conf_file', '-c', '-f', default='./servo.json',
-              help='config file')
-@click.option('--debug', '-d', is_flag=True, default=False,
-              help='debug flag')
+              help='Config file path')
+@click.option('--debug', '-d', is_flag=True, help='Enable debug mode')
 def calib(pins, conf_file, debug):
-    """ calibrate servo """
-
+    """ Calibrate servo motors """
     log = get_logger(__name__, debug)
     log.debug('pins=%s, conf_file=%s', pins, conf_file)
 
-    if len(pins) == 0:
-        log.error(f'pins={pins}')
+    if not pins:
+        log.error('No GPIO pins specified.')
+        print("Error: Please specify GPIO pins. e.g. `servo_tool calib 17 27`")
         return
 
     app = CalibApp(pins, conf_file, debug=debug)
-
     try:
         app.main()
-
     except KeyboardInterrupt:
         print('\n\n! Keyboard Interrupt')
-
     except Exception as e:
-        log.error('%s: %s', type(e).__name__, e)
-
+        log.error('%s: %s', type(e).__name__, e, exc_info=True)
     finally:
         app.end()
 

@@ -80,7 +80,7 @@ def test_move_angle(multi_servo_setup):
 def test_move_angle_sync(multi_servo_setup):
     """
     move_angle_syncで各サーボが同期して移動し、
-    最終的に目標角度に到��するかをテストする。
+    最終的に目標角度に到達するかをテストする。
     """
     pi, multi_servo = multi_servo_setup
     
