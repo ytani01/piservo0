@@ -8,14 +8,27 @@ from .calibrable_servo import CalibrableServo
 
 class MultiServo:
     """
-    Controls multiple servo motors.
+    複数のサーボモーターを制御する。
     """
 
     def __init__(self, pi, pins, first_move=True,
                  conf_file=CalibrableServo.DEF_CONF_FILE,
                  debug=False):
         """
-        Initializes the MultiServo instance.
+        MultiServoのインスタンスを初期化する。
+
+        Parameters
+        ----------
+        pi: pigpio.pi
+            pigpio.piのインスタンス。
+        pins: list[int]
+            サーボモーターを接続したGPIOピンのリスト。
+        first_move: bool
+            Trueの場合、初期化時にサーボを0度の位置に移動させる。
+        conf_file: str
+            キャリブレーション設定ファイルのパス。
+        debug: bool
+            デバッグモードを有効にするかどうかのフラグ。
         """
         self._dbg = debug
         self._log = get_logger(self.__class__.__name__, self._dbg)
@@ -37,22 +50,32 @@ class MultiServo:
 
     def _validate_angle_list(self, angles):
         """
-        Validates the list of angles.
-        Returns True if valid, False otherwise.
+        角度のリストを検証する。
+        有効な場合はTrue、そうでない場合はFalseを返す。
+
+        Parameters
+        ----------
+        angles: list[float] or tuple[float]
+            検証する角度のリストまたはタプル。
+
+        Returns
+        -------
+        bool
+            検証結果。
         """
         if not isinstance(angles, (list, tuple)):
-            self._log.error(f'angles must be a list or tuple: {type(angles)}')
+            self._log.error(f'角度はリストまたはタプルでなければなりません: {type(angles)}')
             return False
 
         if len(angles) != self.servo_n:
-            self._log.error(f'len(angles)={len(angles)} != {self.servo_n}')
+            self._log.error(f'角度の数がサーボの数と一致しません: len(angles)={len(angles)} != {self.servo_n}')
             return False
 
         return True
 
     def off(self):
         """
-        Turns off all servos.
+        すべてのサーボをオフにする。
         """
         self._log.debug('')
         for s in self.servo:
@@ -60,21 +83,40 @@ class MultiServo:
 
     def get_pulse(self):
         """
-        Gets the current pulse width of all servos.
+        すべてのサーボの現在のパルス幅を取得する。
+
+        Returns
+        -------
+        list[int]
+            各サーボのパルス幅のリスト。
         """
         pulses = [s.get_pulse() for s in self.servo]
         self._log.debug(f'pulses={pulses}')
         return pulses
 
     def move_pulse(self, pulses, forced=False):
-        """   """
+        """
+        各サーボを指定されたパルス幅に動かす。
+
+        Parameters
+        ----------
+        pulses: list[int]
+            各サーボに設定するパルス幅のリスト。
+        forced: bool
+            Trueの場合、可動範囲外のパルス幅も強制的に設定する。
+        """
         for i, s in enumerate(self.servo):
             self._log.debug(f'pin=s.pin, pulse={pulses[i]}')
             s.move_pulse(pulses[i], forced)
 
     def get_angle(self):
         """
-        Gets the current angle of all servos.
+        すべてのサーボの現在の角度を取得する。
+
+        Returns
+        -------
+        list[float]
+            各サーボの角度のリスト。
         """
         angles = [s.get_angle() for s in self.servo]
         self._log.debug(f'angles={angles}')
@@ -82,7 +124,12 @@ class MultiServo:
 
     def move_angle(self, angles):
         """
-        Moves each servo to the specified angle.
+        各サーボを指定された角度に動かす。
+
+        Parameters
+        ----------
+        angles: list[float]
+            各サーボに設定する角度のリスト。
         """
         self._log.debug(f'angles={angles}')
 
@@ -95,7 +142,16 @@ class MultiServo:
 
     def move_angle_sync(self, target_angles, estimated_sec=1.0, step_n=50):
         """
-        Moves all servos synchronously and smoothly to target angles.
+        すべてのサーボを目標角度まで同期的かつ滑らかに動かす。
+
+        Parameters
+        ----------
+        target_angles: list[float]
+            各サーボの目標角度のリスト。
+        estimated_sec: float
+            動作にかかるおおよその時間（秒）。
+        step_n: int
+            動作を分割するステップ数。
         """
         self._log.debug(
             'target_angles=%s, estimated_sec=%s, step_n=%s',
