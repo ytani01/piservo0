@@ -187,11 +187,11 @@ class CalibrableServo(PiServo):
 
         if deg < self.ANGLE_MIN:
             self._log.error(f'deg={deg} < ANGLE_MIN({self.ANGLE_MIN})')
-            return
+            deg = self.ANGLE_MIN
 
         if deg > self.ANGLE_MAX:
             self._log.error(f'deg={deg} > ANGLE_MAX({self.ANGLE_MAX})')
-            return
+            deg = self.ANGLE_MAX
 
         pulse = self.deg2pulse(deg)
 

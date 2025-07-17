@@ -66,6 +66,12 @@ class MultiServo:
         self._log.debug(f'pulses={pulses}')
         return pulses
 
+    def move_pulse(self, pulses, forced=False):
+        """   """
+        for i, s in enumerate(self.servo):
+            self._log.debug(f'pin=s.pin, pulse={pulses[i]}')
+            s.move_pulse(pulses[i], forced)
+
     def get_angle(self):
         """
         Gets the current angle of all servos.
