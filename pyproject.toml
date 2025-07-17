@@ -22,6 +22,9 @@ dev = [
     "pytest-mock",
     "ruff"
 ]
+samples = [
+    "blessed"
+]
 
 [project.scripts]
 piservo0 = "piservo0.__main__:cli"
