@@ -1,165 +1,166 @@
 # `piservo0` API Reference
 
-## `MultiServo` クラス
+このドキュメントは、`piservo0`ライブラリのAPIリファレンスです。
+ライブラリは以下の主要なクラスで構成されています。
 
-複数のサーボモーター (`CalibrableServo`) を同時に制御するためのクラスです。
-
-### `__init__(self, pi, pins, first_move=True, conf_file='./servo.json', debug=False)`
-
-`MultiServo` オブジェクトを初期化します。
-内部で `CalibrableServo` のインスタンスをピンの数だけ生成します。
-
-- **引数:**
-    - `pi` (`pigpio.pi`): `pigpio.pi` のインスタンス。
-    - `pins` (`list[int]`): サーボが接続されているGPIOピン番号のリスト。
-    - `first_move` (`bool`, optional): 初期化時にサーボを中央 (`0`度) に移動させるかどうかのフラグ。デフォルトは `True`。
-    - `conf_file` (`str`, optional): 各サーボのキャリブレーション設定ファイルのパス。デフォルトは `./servo.json`。
-    - `debug` (`bool`, optional): デバッグログを有効にするフラグ。デフォルトは `False`。
-
-### `off(self)`
-
-すべてのサーボモーターの電源をオフにします。
-
-### `get_pulse(self)`
-
-すべてのサーボモーターの現在のパルス幅をリストで取得します。
-
-- **戻り値:**
-    - `list[int]`: 各サーボの現在のパルス幅のリスト (マイクロ秒)。
-
-### `get_angle(self)`
-
-すべてのサーボモーターの現在の角度をリストで取得します。
-
-- **戻り値:**
-    - `list[float]`: 各サーボの現在の角度のリスト。
-
-### `move_angle(self, angle)`
-
-各サーボモーターを、リストで指定されたそれぞれの角度に移動させます。
-
-- **引数:**
-    - `angle` (`list[float]`): 各サーボに設定する角度のリスト。リストの要素数は `pins` と一致している必要があります。
-
-### `move_angle_sync(self, angle, estimated_sec=1.0, step_n=50)`
-
-すべてのサーボモーターを、指定された角度まで同期的かつ滑らかに移動させます。
-開始角度から目標角度までを `step_n` 回に分割して、少しずつ動かします。
-
-- **引数:**
-    - `angle` (`list[float]`): 各サーボの目標角度のリスト。
-    - `estimated_sec` (`float`, optional): 移動にかかるおおよその時間 (秒)。デフォルトは `1.0`。
-    - `step_n` (`int`, optional): 移動の分割ステップ数。数値を大きくすると、より滑らかに動きます。デフォルトは `50`。
-
----
-
-## `CalibrableServo` クラス
-
-`PiServo`を拡張し、JSONファイルによるキャリブレーション機能を追加したクラスです。
-
-### クラス定数
-
-| 定数名 | 値 | 説明 |
-|---|---|---|
-| `ANGLE_MIN` | `-90.0` | 最小角度 |
-| `ANGLE_MAX` | `90.0` | 最大角度 |
-| `ANGLE_CENTER`| `0.0`| 中央角度 |
-
-### `__init__(self, pi, pin, conf_file='./servo.json', debug=False)`
-
-`CalibrableServo` オブジェクトを初期化します。
-指定された `conf_file` を読み込み、ピン番号に対応するキャリブレーション値を適��します。ファイルが存在しない場合は、デフォルト値で新たに作成されます。
-
-- **引数:**
-    - `pi` (`pigpio.pi`): `pigpio.pi` のインスタンス。
-    - `pin` (`int`): サーボが接続されているGPIOピン番号。
-    - `conf_file` (`str`, optional): キャリブレーション設定ファイルのパス。デフォルトは `./servo.json`。
-    - `debug` (`bool`, optional): デバッグログを有効にするフラグ。デフォルトは `False`。
-
-### インスタンス変数
-
-- `center` (`int`): キャリブレーション後の中央位置のパルス幅。
-- `min` (`int`): キャリブレーション後の最小位置のパルス幅。
-- `max` (`int`): キャリブレーション後の最大位置のパルス幅。
-
-### 移動メソッド
-
-キャリブレーション値を考慮してサーボモ���ターを移動させます。
-
-- `move_pulse(self, pulse)`: 指定したパルス幅へ移動します。パルス幅がキャリブレーション範囲外の場合は動作しません。
-- `move_center(self)`: キャリブレーションされた中央位置へ移動します。
-- `move_min(self)`: キャリブレーションされた最小位置へ移動します。
-- `move_max(self)`: キャリブレーションされた最大位置へ移動します。
-- `move_angle(self, deg)`: 指定された角度へ移動します。
-
-### 角度・パルス幅変換メソッド
-
-- `deg2pulse(self, deg)`: 角度をパルス幅に変換します。
-
-### キャリブレーション設定メソッド
-
-- `set_center(self, pulse=None)`: 中央位置のパルス幅を更新し、設定ファイルに保存します。引数を省略すると現在の値が使われます。
-- `set_min(self, pulse=None)`: 最小位置のパルス幅を更新し、設定ファイルに保存します。引数を省略すると現在の値が使われます。
-- `set_max(self, pulse=None)`: 最大位置のパルス幅を更新し、設定ファイルに保存します。引数を省略すると現在の値が使われます。
-
-### 設定ファイル管理メソッド
-
-- `load_conf(self, conf_file=None)`: 設定ファイルからキャリブレーション値を読��込みます。
-- `save_conf(self, conf_file=None)`: 現在のキャリブレーション値を設定ファイルに保存します。
-- `read_jsonfile(self, conf_file=None)`: 設定ファイルを読み込み、内容をリストとして返します。
-- `nomalize_pulse1(self, pulse)`: パルス幅を `PiServo` の `MIN` と `MAX` の範囲に正規化します。
+- **`PiServo`**: サーボモーターを直接制御する基本クラス。
+- **`CalibrableServo`**: `PiServo`を拡張し、キャリブレーション機能を追加したクラス。
+- **`MultiServo`**: 複数のサーボモーターを同期制御するクラス。
+- **`ServoConfigManager`**: サーボの設定をJSONファイルで管理するクラス。
 
 ---
 
 ## `PiServo` クラス
 
-Raspberry PiのGPIOピンを介してサーボモーターを制御します。
+Raspberry PiのGPIOピンを介してサーボモーターを制御する基本クラスです。`pigpio`ライブラリを利用してパルス幅を直接設定します。
 
 ### クラス定数
 
 | 定数名 | 値 | 説明 |
 |---|---|---|
 | `OFF` | `0` | サーボをオフにするためのパルス幅 |
-| `MIN` | `500` | サーボの最小位置に対応するデフォルトのパルス幅 (マイクロ秒) |
-| `MAX` | `2400` | サーボの最大位置に対応するデフォルトのパルス幅 (マイクロ秒) |
-| `CENTER`| `1450`| サーボの中央位置に対応するデフォルトのパルス幅 (マイクロ秒) |
+| `MIN` | `500` | デフォルトの最小パルス幅 (マイクロ秒) |
+| `MAX` | `2500` | デフォルトの最大パルス幅 (マイクロ秒) |
+| `CENTER`| `1450`| デフォルトの中央位置のパルス幅 (マイクロ秒) |
 
 ### `__init__(self, pi, pin, debug=False)`
 
-`PiServo` オブジェクトを初期化します。
+`PiServo`オブジェクトを初期化します。
 
 - **引数:**
-    - `pi` (`pigpio.pi`): `pigpio.pi` のインスタンス。
+    - `pi` (`pigpio.pi`): `pigpio.pi`のインスタンス。
     - `pin` (`int`): サーボが接続されているGPIOピン番号。
-    - `debug` (`bool`, optional): デバッグログを有効にするフラグ。デフォルトは `False`。
+    - `debug` (`bool`, optional): デバッグログを有効にするフラグ。デフォルトは`False`。
 
-### `move_pulse(self, pulse)`
+### メソッド
 
-サーボモ��ターを指定されたパルス幅に移動させます。
-パルス幅が `MIN` と `MAX` の範囲外の場合は、自動的に範囲内に調整されます。
+- **`move_pulse(self, pulse)`**: 指定されたパルス幅にサーボを移動させます。パルス幅が`MIN`と`MAX`の範囲外の場合、自動的に範囲内に調整されます。
+- **`move_min(self)`**: サーボを最小位置 (`MIN`) に移動させます。
+- **`move_max(self)`**: サーボを最大位置 (`MAX`) に移動させます。
+- **`move_center(self)`**: サーボを中央位置 (`CENTER`) に移動させます。
+- **`off(self)`**: サーボの電源をオフにします (パルス幅を`OFF`に設定)。
+- **`get_pulse(self)`**: 現在のサーボのパルス幅を取得します。
+    - **戻り値**: `int` - 現在のパルス幅 (マイクロ秒)。
+
+---
+
+## `CalibrableServo` クラス
+
+`PiServo`を継承し、各サーボの個体差を吸収するためのキャリブレーション機能を追加したクラスです。設定は`ServoConfigManager`を通じてJSONファイルに永続化されます。
+
+### クラス定数
+
+| 定数名 | 値 | 説明 |
+|---|---|---|
+| `DEF_CONF_FILE` | `'./servo.json'` | デフォルトの設��ファイル名 |
+| `ANGLE_MIN` | `-90.0` | 最小角度 |
+| `ANGLE_MAX` | `90.0` | 最大角度 |
+| `ANGLE_CENTER`| `0.0`| 中央角度 |
+
+### `__init__(self, pi, pin, conf_file=DEF_CONF_FILE, debug=False)`
+
+`CalibrableServo`オブジェクトを初期化します。設定ファイルからキャリブレーション値を読み込みます。
 
 - **引数:**
-    - `pulse` (`int`): 設定するパルス幅 (マイクロ秒)。
+    - `pi` (`pigpio.pi`): `pigpio.pi`のインスタンス。
+    - `pin` (`int`): サーボが接続されているGPIOピン番号。
+    - `conf_file` (`str`, optional): キャリブレーション設定ファイルのパス。
+    - `debug` (`bool`, optional): デバッグログを有効にするフラグ。
 
-### `move_min(self)`
+### プロパティ
 
-サーボモーターを最小位置に移動させます。パルス幅を `MIN` に設定します。
+- **`min`, `center`, `max`** (`int`): キャリブレーションされた最小、中央、最大のパルス幅。
 
-### `move_max(self)`
+### 移動メソッド
 
-サーボモーターを最大位置に移動させます。パルス幅を `MAX` に設定します。
+- **`move_pulse(self, pulse, forced=False)`**: キャリブレーション範囲内でパルス移動します。`forced=True`の場合、範囲外でも移動します。
+- **`move_min(self)`**: キャリブレーションされた最小位置へ移動します。
+- **`move_max(self)`**: キャリブレーションされた最大位置へ移動します。
+- **`move_center(self)`**: キャリブレーションされた中央位置へ移動します。
+- **`move_angle(self, deg)`**: 指定された角度 (`-90.0`～`90.0`) にサーボを移動させます。
 
-### `move_center(self)`
+### 角度・パルス幅関連メソッド
 
-サーボモーターを中央位置に移動させます。パルス幅を `CENTER` に設定します。
+- **`get_angle(self)`**: 現在のサーボの角度を取得します。
+- **`deg2pulse(self, deg)`**: 角度をパルス幅に変換します。
+- **`pulse2deg(self, pulse)`**: パルス幅を角度に変換します。
 
-### `off(self)`
+### キャリブレーション設定メソッド
 
-サーボモーターの電源をオフにします。パルス幅を `0` に設定して動作を停止させます。
+現在のサーボ位置を基にキャリブレーション値を設定し、ファイルに保存します。
 
-### `get_pulse(self)`
+- **`set_min(self, pulse=None)`**: 最小位置を設定します。
+- **`set_max(self, pulse=None)`**: 最大位置を設定します。
+- **`set_center(self, pulse=None)`**: 中央位置を設定します。
 
-現在のサーボモーターのパルス幅を取得します。
+### 設定ファイル管理メソッド
 
-- **戻り値:**
-    - `int`: 現在のパルス幅 (マイクロ秒)。
+- **`load_conf(self)`**: ファイルから設定を読み込みます。
+- **`save_conf(self)`**: 現在の設定をファイルに保存します。
+
+---
+
+## `MultiServo` クラス
+
+複数の`CalibrableServo`を同時に、または同期して制御するためのクラスです。
+
+### `__init__(self, pi, pins, first_move=True, conf_file=CalibrableServo.DEF_CONF_FILE, debug=False)`
+
+`MultiServo`オブジェクトを初期化します。
+
+- **引数:**
+    - `pi` (`pigpio.pi`): `pigpio.pi`のインスタンス。
+    - `pins` (`list[int]`): 制御するサーボのGPIOピン番号のリスト。
+    - `first_move` (`bool`, optional): 初期化時にサーボを中央(0度)に移動させるか。デフォルトは`True`。
+    - `conf_file` (`str`, optional): キャリブレーション設定ファイルのパス。
+    - `debug` (`bool`, optional): デバッグログを有効にするフラグ。
+
+### メソッド
+
+- **`off(self)`**: すべてのサーボをオフにします。
+- **`get_pulse(self)`**: 全サーボの現在のパルス幅をリストで取得します。
+- **`move_pulse(self, pulses, forced=False)`**: 全サーボをそれぞれのパルス幅に移動させます。
+- **`get_angle(self)`**: 全サーボの現在の角度をリストで取得します。
+- **`move_angle(self, angles)`**: 全サーボをそれぞれの角度に移動させます。
+- **`move_angle_sync(self, target_angles, estimated_sec=1.0, step_n=50)`**: 全サーボを目標角度まで同期的に滑らかに移動させます。
+    - `target_angles` (`list[float]`): 目標角度のリスト。
+    - `estimated_sec` (`float`): 移動にかかるおおよその時間。
+    - `step_n` (`int`): 移動の分割ステップ数。
+
+---
+
+## `ServoConfigManager` クラス
+
+サーボのキャリブレーション設定をJSONファイルとして読み書きする責務を担うクラスです。
+
+### `__init__(self, conf_file, debug=False)`
+
+`ServoConfigManager`オブジェクトを初期化します。
+
+- **引数:**
+    - `conf_file` (`str`): 設定ファイルのパス。
+    - `debug` (`bool`, optional): デバッグログを有効にするフラグ。
+
+### メソッド
+
+- **`read_all_configs(self)`**: 設定ファイルからすべてのピンのデータを読み込みます。
+    - **戻り値**: `list` - 設定データのリスト。
+- **`save_all_configs(self, data)`**: すべてのピンのデータをファイルに書き込みます。データはピン番号でソートされます。
+- **`get_config(self, pin)`**: 指定されたピンの設定を読み込みます。
+    - **戻り値**: `dict | None` - ピンの設定データ。
+- **`save_config(self, new_pindata)`**: 指定されたピンの設定を更新または追加して保存します。
+
+---
+
+## `my_logger` モジュール
+
+シンプルなロガーを生成するためのヘルパー関数を提供します。
+
+### `get_logger(name, dbg=False)`
+
+ロガーを取得します。
+
+- **引数:**
+    - `name` (`str`): ロガーの名前。
+    - `dbg` (`bool` or `int`): `True`にするとデバッグレベル(`DEBUG`)になります。ロギングレベルを直接指定することも可能です。
+- **戻り値**: `logging.Logger` - 設定済みのロガーインスタンス。
