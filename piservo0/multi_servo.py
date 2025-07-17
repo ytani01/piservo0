@@ -19,7 +19,7 @@ class MultiServo:
         """
         self._dbg = debug
         self._log = get_logger(self.__class__.__name__, self._dbg)
-        self._log.debug(f'pins={pins}, conf_file={conf_file}')
+        self._log.debug('pins=%s, conf_file=%s', pins, conf_file)
 
         self.pi = pi
         self.pins = pins
@@ -98,7 +98,8 @@ class MultiServo:
         Moves all servos synchronously and smoothly to target angles.
         """
         self._log.debug(
-            f'target_angles={target_angles}, estimated_sec={estimated_sec}, step_n={step_n}'
+            'target_angles=%s, estimated_sec=%s, step_n=%s',
+            target_angles, estimated_sec, step_n
         )
 
         if not self._validate_angle_list(target_angles):
