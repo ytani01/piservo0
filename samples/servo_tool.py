@@ -57,10 +57,12 @@ class CalibApp:
             # Move to angle
             'c': lambda: self.move_angle(0),
             'n': lambda: self.move_angle(-90),
+            'v': lambda: self.move_angle(-90),
             'x': lambda: self.move_angle(90),
             # Calibration
             'C': lambda: self.set_calibration('center'),
             'N': lambda: self.set_calibration('min'),
+            'V': lambda: self.set_calibration('min'),
             'X': lambda: self.set_calibration('max'),
             # Misc
             'h': self.display_help, '?': self.display_help,
