@@ -6,7 +6,7 @@ import json
 from piservo0 import MultiServo
 
 SLEEP_SEC = 1.0
-TEST_PINS = [18, 21]
+TEST_PINS = [17, 22]
 TEST_CONF_FILE = './test_multi_servo_conf.json'
 
 @pytest.fixture(scope="function")

@@ -7,9 +7,9 @@ pi = pigpio.pi()
 if not pi.connected:
     exit()
 
-# GPIO 18番ピンに接続されたサーボを操作
+# GPIO 17番ピンに接続されたサーボを操作
 # キャリブレーションデータは 'servo.json' に保存されます
-servo = CalibrableServo(pi, 18, debug=True)
+servo = CalibrableServo(pi, 17, debug=True)
 
 try:
     # --- パルスをしていして移動 ---

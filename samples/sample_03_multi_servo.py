@@ -2,7 +2,7 @@ import time
 import pigpio
 from piservo0 import MultiServo
 
-PIN = [18, 21, 24]  # !! Ajust your configuration
+PIN = [17, 22, 23, 27]  # !! Ajust your configuration
 
 try:
     pi = pigpio.pi()

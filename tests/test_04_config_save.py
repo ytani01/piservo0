@@ -3,7 +3,7 @@ import os
 import json
 import pytest
 import pigpio
-from piservo0.calibrable_servo import CalibrableServo
+from piservo0 import CalibrableServo
 
 @pytest.fixture
 def test_config():
@@ -11,9 +11,9 @@ def test_config():
     テスト用の設定オブジェクトを生成するフィクスチャ。
     テストの前後で一時的な設定ファイルのクリーンアップを行う。
     """
-    test_pin = 18  # 実際に使用するGPIOピン
+    test_pin = 17  # 実際に使用するGPIOピン
     test_conf_file = 'test_servo_config_pytest.json'
-    
+
     # --- Setup ---
     pi = pigpio.pi()
     if not pi.connected:

@@ -25,7 +25,7 @@ def cli(ctx, debug):
     """ CLI top """
     subcmd = ctx.invoked_subcommand
     log = get_logger(__name__, debug)
-    log.debug(f"subcmd={subcmd}")
+    log.debug('subcmd=%s', subcmd)
 
     if subcmd is None:
         print(f'{ctx.get_help()}')
@@ -36,14 +36,14 @@ servo command""")
 @click.argument('pin', type=int, nargs=1)
 @click.argument('pulse', type=str, nargs=1)
 @click.option('--sec', '-t', '-s', type=float, default=1.0,
-    help='sec')
+              help='sec')
 @click.option('--debug', '-d', is_flag=True, default=False,
-    help='debug flag')
+              help='debug flag')
 def servo(pin, pulse, sec, debug):
     """ servo command
     """
     log = get_logger(__name__, debug)
-    log.debug(f'pin={pin}, pulse="{pulse}", sec={sec}')
+    log.debug('pin=%s, pulse="%s", sec=%s', pin, pulse, sec)
 
     pi = pigpio.pi()
     if not pi.connected:
@@ -68,7 +68,7 @@ def servo(pin, pulse, sec, debug):
                 pulse_int = -1
 
             log.debug(f'pulse_int={pulse_int}')
-            
+
         if PiServo.MIN <= pulse_int <= PiServo.MAX:
             servo.move_pulse(pulse_int)
             time.sleep(sec)
@@ -85,11 +85,11 @@ def servo(pin, pulse, sec, debug):
 calibration tool""")
 @click.argument('pin', type=int, nargs=1)
 @click.option('--conf_file', '--file', '-c', '-f', type=str,
-    default='./servo.json')
+              default='./servo.json')
 @click.option('--sec', '-t', '-s', type=float, default=1,
-    help='sec')
+              help='sec')
 @click.option('--debug', '-d', is_flag=True, default=False,
-    help='debug flag')
+              help='debug flag')
 def calib(pin, conf_file, sec, debug):
     """ servo command
     """
@@ -99,7 +99,7 @@ def calib(pin, conf_file, sec, debug):
     PROMPT_STR = f'\n{cmd_name}: [h] for help, [q] for exit > '
 
     log = get_logger(__name__, debug)
-    log.debug(f'pin={pin},conf_file={conf_file},sec={sec}')
+    log.debug('pin=%s,conf_file=%s,sec=%s', pin, conf_file, sec)
 
     CMD_CENTER = {'help': 'move center', 'str': ('center', 'c')}
     CMD_ANGLE = {'help': 'move angle', 'str': '-90.0 .. 0.0 .. 90.0'}
@@ -128,26 +128,33 @@ def calib(pin, conf_file, sec, debug):
         return
 
     try:
-        servo = CalibrableServo(pi, pin, conf_file=conf_file, debug=debug)
-    except Exception as e:
-        log.error(f'type(e).__name__: {e}')
+        servo = CalibrableServo(pi, pin, conf_file=conf_file,
+                                debug=debug)
+    except Exception as _e:
+        log.error('%s: %s', type(_e).__name__, _e)
         pi.stop()
         return
 
     print(f'[[ "{cmd_name}": Servo Calibration Tool ]]')
     print(f' GPIO: {servo.pin}')
     print(f' conf_file: {servo.conf_file}')
+
+    angle_min = CalibrableServo.ANGLE_MIN
+    angle_max = CalibrableServo.ANGLE_MAX
+    pulse_min = PiServo.MIN
+    pulse_max = PiServo.MAX
+
     try:
         while True:
             in_str = input(PROMPT_STR)
-            log.debug(f'in_str={in_str}')
+            log.debug('in_str=%s', in_str)
 
             # 数値が入力されたか？
             try:
                 val = float(in_str)
 
                 # 角度として入力されたか？
-                if CalibrableServo.ANGLE_MIN <= val <= CalibrableServo.ANGLE_MAX:
+                if angle_min <= val <= angle_max:
                     servo.move_angle(val)
                     pulse = servo.get_pulse()
                     print(f' angle = {val}, pulse={pulse}')
@@ -155,14 +162,14 @@ def calib(pin, conf_file, sec, debug):
                     continue
 
                 # パルス幅として入力されたか？
-                if PiServo.MIN <= val <= PiServo.MAX:
+                if pulse_min <= val <= pulse_max:
                     servo.move_pulse(int(round(val)), forced=True)
                     pulse = servo.get_pulse()
                     print(f' pulse = {pulse}')
                     time.sleep(sec)
                     continue
 
-                log.error(f'{val}: out of range')
+                log.error('%s: out of range', val)
                 continue
 
             except ValueError:
@@ -205,7 +212,7 @@ def calib(pin, conf_file, sec, debug):
                 time.sleep(sec)
                 continue
 
-            if in_str in CMD_GET['str']: 
+            if in_str in CMD_GET['str']:
                 pulse = servo.get_pulse()
                 print(f' pulse = {pulse}')
                 continue
@@ -234,11 +241,10 @@ def calib(pin, conf_file, sec, debug):
             if in_str in CMD_EXIT['str']:
                 break
 
-            log.error(f'{in_str}: invalid command')
+            log.error('%s: invalid command', in_str)
 
-    except (EOFError, KeyboardInterrupt) as e:
-        log.debug(f'{type(e).__name__}: {e}')
-        pass
+    except (EOFError, KeyboardInterrupt) as _e:
+        log.debug('%s: %s', type(_e).__name__, _e)
 
     finally:
         print('\n Bye!\n')
@@ -250,23 +256,23 @@ def calib(pin, conf_file, sec, debug):
 multi servo controller""")
 @click.argument('pin', type=int, nargs=-1)
 @click.option('--conf_file', '--file', '-c', '-f', type=str,
-    default='./servo.json')
+              default='./servo.json')
 @click.option('--sec', '-t', '-s', type=float, default=1,
-    help='sec')
+              help='sec')
 @click.option('--debug', '-d', is_flag=True, default=False,
-    help='debug flag')
+              help='debug flag')
 def multi(pin, conf_file, sec, debug):
     """ servo command
     """
     ctx = click.get_current_context()
     cmd_name = ctx.command.name
 
-    PROMPT_STR = f'\n{cmd_name}: [q] for exit > '
+    prompt_str = f'\n{cmd_name}: [q] for exit > '
 
     CMD_EXIT = ('exit', 'quit', 'q', 'bye')
 
     log = get_logger(__name__, debug)
-    log.debug(f'pin={pin},conf_file={conf_file},sec={sec}')
+    log.debug('pin=%s,conf_file=%s,sec=%s', pin, conf_file, sec)
 
     pi = pigpio.pi()
     if not pi.connected:
@@ -275,8 +281,8 @@ def multi(pin, conf_file, sec, debug):
 
     try:
         servo = MultiServo(pi, pin, conf_file, debug=debug)
-    except Exception as e:
-        log.error(f'type(e).__name__: {e}')
+    except Exception as _e:
+        log.error('%s: %s', type(_e).__name__, _e)
         pi.stop()
         return
 
@@ -285,33 +291,39 @@ def multi(pin, conf_file, sec, debug):
     print(f' conf_file: {servo.conf_file}')
     try:
         while True:
-            in_str = input(PROMPT_STR)
-            log.debug(f'in_str="{in_str}"')
+            in_str = input(prompt_str)
+            log.debug('in_str="%s"', in_str)
 
             if in_str in CMD_EXIT:
                 break
 
             words = in_str.split()
-            log.debug(f'words={words}')
+            log.debug('words=%s', words)
 
             try:
-                angles = [ float(word) for word in words ]
-                log.debug(f'angles={angles}')
+                angles = [float(word) for word in words]
+                log.debug('angles=%s', angles)
 
                 time_start = time.time()
                 servo.move_angle_sync(angles, sec)
                 time_end = time.time()
-                print(f' {servo.get_angle()} ... {(time_end - time_start):.3f} sec')
 
-            except ValueError as e:
-                log.error(f'{type(e).__name__}: {e}')
+                elapsed_time = time_end - time_start
+                moved_angles = servo.get_angle()
+                angles_str = ", ".join(
+                    [f"{p:.0f}" for p in moved_angles]
+                )
+                angles_str = '[' + angles_str + ']'
+                print(f' {angles_str} ... {elapsed_time:.3f} sec')
 
-    except (EOFError, KeyboardInterrupt) as e:
-        log.debug(f'{type(e).__name__}: {e}')
-        pass
+            except ValueError as _e:
+                log.error('%s: %s', type(_e).__name__, _e)
 
-    except Exception as e:
-        log.error(f'{type(e).__name__} {e}')
+    except (EOFError, KeyboardInterrupt) as _e:
+        log.debug('%s: %s', type(_e).__name__, _e)
+
+    except Exception as _e:
+        log.error('%s: %s', type(_e).__name__, _e)
 
     finally:
         print('\n Bye!\n')

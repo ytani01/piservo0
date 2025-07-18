@@ -2,12 +2,11 @@
 import os
 import json
 import pytest
-import pigpio
 import time
 from samples.servo_tool import CalibApp
 
 # --- テスト設定 ---
-TEST_PINS = [18, 21]  # テストに使用するGPIOピン
+TEST_PINS = [17, 22]  # テストに使用するGPIOピン
 TEST_CONF_FILE = 'test_servo_tool_conf.json'
 SLEEP_SEC = 1.0  # サーボが動くのを待つ時間
 
@@ -103,19 +102,19 @@ def test_set_calibration_and_save(calib_app_setup):
     center_pulse = 1500
     app.mservo.servo[0].move_pulse(center_pulse, forced=True)
     time.sleep(SLEEP_SEC)
-    app.set_center()
+    app.set_calibration('center')
 
     # --- minの保存テスト ---
     min_pulse = 1000
     app.mservo.servo[0].move_pulse(min_pulse, forced=True)
     time.sleep(SLEEP_SEC)
-    app.set_min()
+    app.set_calibration('min')
 
     # --- maxの保存テスト ---
     max_pulse = 2000
     app.mservo.servo[0].move_pulse(max_pulse, forced=True)
     time.sleep(SLEEP_SEC)
-    app.set_max()
+    app.set_calibration('max')
 
     # ファイルが保存されたか確認
     assert os.path.exists(TEST_CONF_FILE)

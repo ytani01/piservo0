@@ -2,8 +2,8 @@ import time
 import pigpio
 from piservo0 import CalibrableServo
 
-PIN1 = 18
-PIN2 = 21
+PIN1 = 17
+PIN2 = 22
 
 TOTAL_ANGLE1 = 180.0
 TOTAL_ANGLE2 = 90.0

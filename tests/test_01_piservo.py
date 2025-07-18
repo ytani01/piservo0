@@ -4,7 +4,7 @@ import pigpio
 from piservo0 import PiServo
 
 SLEEP_SEC = 0.8
-TEST_PIN = 18
+TEST_PIN = 17
 
 @pytest.fixture(scope="function")
 def servo_test_setup():

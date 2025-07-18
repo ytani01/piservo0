@@ -59,9 +59,9 @@ class CalibApp:
             'n': lambda: self.move_angle(-90),
             'x': lambda: self.move_angle(90),
             # Calibration
-            'C': self.set_center,
-            'N': self.set_min,
-            'X': self.set_max,
+            'C': lambda: self.set_calibration('center'),
+            'N': lambda: self.set_calibration('min'),
+            'X': lambda: self.set_calibration('max'),
             # Misc
             'h': self.display_help, '?': self.display_help,
             'q': self.quit, 'Q': self.quit,
@@ -90,7 +90,7 @@ class CalibApp:
     def draw_prompt(self):
         """ プロンプトを表示する """
         cur_pulse = self.mservo.get_pulse()
-        pulse_str = ", ".join([f"{p:4}" for p in cur_pulse])
+        pulse_str = "[" + ", ".join([f"{p:4}" for p in cur_pulse]) + "]"
 
         if self.selected_servo >= 0:
             gpio_str = (f'{self.selected_servo + 1}:'
@@ -98,7 +98,7 @@ class CalibApp:
         else:
             gpio_str = '-:ALL'
 
-        print(f'[{pulse_str}] {gpio_str}> ', end='', flush=True)
+        print(f'{pulse_str} {gpio_str}> ', end='', flush=True)
 
     def select_servo(self, num):
         """ サーボを選択する """
@@ -128,10 +128,10 @@ class CalibApp:
         if self.selected_servo >= 0:
             self.mservo.servo[self.selected_servo].move_angle(angle)
         else:
-            self.mservo.move_angle([angle] * self.mservo.servo_n)
+            self.mservo.move_angle_sync([angle] * self.mservo.servo_n, .5)
         print(f'angle: {angle}')
 
-    def _set_calibration(self, calib_type):
+    def set_calibration(self, calib_type):
         """ キャリブレーション値を設定・保存する """
         if self.selected_servo < 0:
             print(' Select a servo first.')
@@ -141,27 +141,37 @@ class CalibApp:
         cur_pulse = servo.get_pulse()
 
         if calib_type == 'center':
-            servo.center = cur_pulse
+            if servo.min < cur_pulse < servo.max:
+                servo.center = cur_pulse
+            else:
+                print(
+                    f'\n {cur_pulse}: ' +
+                    f'out of range:{servo.min}..{servo.max}'
+                )
+                return
         elif calib_type == 'min':
-            servo.min = cur_pulse
+            if cur_pulse < servo.center:
+                servo.min = cur_pulse
+            else:
+                print(
+                    f'\n {cur_pulse}: out of range:..{servo.center}'
+                )
+                return
         elif calib_type == 'max':
-            servo.max = cur_pulse
+            if cur_pulse > servo.center:
+                servo.max = cur_pulse
+            else:
+                print(
+                    f'\n {cur_pulse}: out of range: {servo.center}..'
+                )
+                return
         else:
             return
 
-        self._log.debug(f"DEBUG: Before save_conf - servo.pin={servo.pin}, calib_type={calib_type}, cur_pulse={cur_pulse}, servo.min={servo.min}, servo.center={servo.center}, servo.max={servo.max}")
-
         servo.save_conf()
-        print(f' GPIO{servo.pin:02d}: {calib_type.capitalize()} pulse set to {cur_pulse} and saved.')
-
-    def set_center(self):
-        self._set_calibration('center')
-
-    def set_min(self):
-        self._set_calibration('min')
-
-    def set_max(self):
-        self._set_calibration('max')
+        msg = (f'\n GPIO{servo.pin:02d}: {calib_type.capitalize()}'
+               f' pulse set to {cur_pulse} and saved.')
+        print(msg)
 
     def display_help(self):
         """ ヘルプメッセージを表示する """

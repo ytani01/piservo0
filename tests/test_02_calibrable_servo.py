@@ -6,7 +6,7 @@ import json
 from piservo0 import CalibrableServo
 
 SLEEP_SEC = 0.8
-TEST_PIN = 18
+TEST_PIN = 17
 TEST_CONF_FILE = './test_servo_conf.json'
 
 @pytest.fixture(scope="function")
