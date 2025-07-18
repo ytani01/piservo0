@@ -101,7 +101,8 @@ calibration tool""")
               default='./servo.json')
 @click.option('--sec', '-t', '-s', type=float, default=1.0,
               help='sec')
-    """ servo command
+def calib(ctx, pin, conf_file, sec, debug):
+    """ clib command
     """
     log = get_logger(__name__, debug)
     log.debug('pin=%s,conf_file=%s,sec=%s', pin, conf_file, sec)
