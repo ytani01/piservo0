@@ -6,6 +6,19 @@ from piservo0 import PiServo
 SLEEP_SEC = 0.8
 TEST_PIN = 17
 
+def check_pigpiod():
+    """Check if pigpiod is running"""
+    try:
+        pi = pigpio.pi()
+        if not pi.connected:
+            return False
+        pi.stop()
+        return True
+    except Exception:
+        return False
+
+pytestmark = pytest.mark.skipif(not check_pigpiod(), reason="pigpiod is not running")
+
 @pytest.fixture(scope="function")
 def servo_test_setup():
     """

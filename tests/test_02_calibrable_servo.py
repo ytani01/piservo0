@@ -9,6 +9,19 @@ SLEEP_SEC = 0.8
 TEST_PIN = 17
 TEST_CONF_FILE = './test_servo_conf.json'
 
+def check_pigpiod():
+    """Check if pigpiod is running"""
+    try:
+        pi = pigpio.pi()
+        if not pi.connected:
+            return False
+        pi.stop()
+        return True
+    except Exception:
+        return False
+
+pytestmark = pytest.mark.skipif(not check_pigpiod(), reason="pigpiod is not running")
+
 @pytest.fixture(scope="function")
 def calib_servo_setup():
     """
@@ -51,7 +64,7 @@ def test_initial_config_creation(calib_servo_setup):
 
 def test_set_and_load_calibration():
     """
-    キャリブレーション値を設定し、それがファイルに保存され、
+    キャリブレーション値を設定し、それがファ��ルに保存され、
     新しいインスタンスで正しく読み込まれるかをテストする。
     このテストはライフサイクルが複雑なため、フィクスチャを使用しない。
     """

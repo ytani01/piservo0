@@ -5,6 +5,19 @@ import pytest
 import pigpio
 from piservo0 import CalibrableServo
 
+def check_pigpiod():
+    """Check if pigpiod is running"""
+    try:
+        pi = pigpio.pi()
+        if not pi.connected:
+            return False
+        pi.stop()
+        return True
+    except Exception:
+        return False
+
+pytestmark = pytest.mark.skipif(not check_pigpiod(), reason="pigpiod is not running")
+
 @pytest.fixture
 def test_config():
     """
@@ -45,7 +58,7 @@ def test_config_save_and_load(test_config):
         conf_file=test_config["conf_file"]
     )
     
-    # 初期値がデフォルト値であることを確認
+    # 初期値��デフォルト値であることを確認
     assert servo1.center == 1450
 
     # 値を変更

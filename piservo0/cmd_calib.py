@@ -11,7 +11,7 @@ from .my_logger import get_logger
 
 class CmdCalib:
     """ calibration tool """
-    def __init__(self, pin, conf_file, sec=1.0, debug=False):
+    def __init__(self, pi, pin, conf_file, sec=1.0, debug=False):
         self._dbg = debug
         self._log = get_logger(__class__.__name__, self._dbg)
         self._log.debug('pin=%s,conf_file=%s,sec=%s', pin, conf_file, sec)
@@ -20,7 +20,7 @@ class CmdCalib:
         self.conf_file = conf_file
         self.sec = sec
 
-        self.pi = pigpio.pi()
+        self.pi = pi
         if not self.pi.connected:
             self._log.error('pigpio daemon not connected.')
             raise ConnectionError('pigpio daemon not connected.')
@@ -34,9 +34,8 @@ class CmdCalib:
             self.pi.stop()
             raise _e
 
-    def main(self):
+    def main(self, ctx):
         """ main """
-        ctx = click.get_current_context()
         cmd_name = ctx.command.name
 
         prompt_str = f'\n{cmd_name}: [h] for help, [q] for exit > '
@@ -178,4 +177,3 @@ class CmdCalib:
         self._log.debug('')
         print('\n Bye!\n')
         self.servo.off()
-        self.pi.stop()

@@ -6,8 +6,21 @@ import json
 from piservo0 import MultiServo
 
 SLEEP_SEC = 1.0
-TEST_PINS = [17, 22]
+TEST_PINS = [17, 27, 22, 23]
 TEST_CONF_FILE = './test_multi_servo_conf.json'
+
+def check_pigpiod():
+    """Check if pigpiod is running"""
+    try:
+        pi = pigpio.pi()
+        if not pi.connected:
+            return False
+        pi.stop()
+        return True
+    except Exception:
+        return False
+
+pytestmark = pytest.mark.skipif(not check_pigpiod(), reason="pigpiod is not running")
 
 @pytest.fixture(scope="function")
 def multi_servo_setup():
@@ -67,7 +80,7 @@ def test_move_angle(multi_servo_setup):
     move_angleで各サーボが指定された角度に移動するかをテストする。
     """
     pi, multi_servo = multi_servo_setup
-    target_angles = [-45, 45]
+    target_angles = [-45, 45, 0, 0]
     
     multi_servo.move_angle(target_angles)
     time.sleep(SLEEP_SEC)
@@ -85,10 +98,10 @@ def test_move_angle_sync(multi_servo_setup):
     pi, multi_servo = multi_servo_setup
     
     # まずは初期位置(0度)にしっかり移動させておく
-    multi_servo.move_angle([0, 0])
+    multi_servo.move_angle([0] * len(TEST_PINS))
     time.sleep(SLEEP_SEC)
 
-    target_angles = [90, -90]
+    target_angles = [90, -90, 0, 0]
     move_sec = 1.5
     
     start_time = time.time()
@@ -106,7 +119,7 @@ def test_move_angle_sync(multi_servo_setup):
 
 def test_off(multi_servo_setup):
     """
-    offメソッドで全てのサーボが停止するかをテストする。
+    offメソッドで全てのサーボが停止するかをテスト��る。
     """
     pi, multi_servo = multi_servo_setup
     

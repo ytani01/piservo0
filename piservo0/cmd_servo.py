@@ -9,7 +9,7 @@ from .my_logger import get_logger
 
 class CmdServo:
     """ servo command """
-    def __init__(self, pin, pulse, sec=1.0, debug=False):
+    def __init__(self, pi, pin, pulse, sec=1.0, debug=False):
         self._dbg = debug
         self._log = get_logger(__class__.__name__, self._dbg)
         self._log.debug('pin=%s, pulse="%s", sec=%s', pin, pulse, sec)
@@ -18,7 +18,7 @@ class CmdServo:
         self.pulse_str = pulse
         self.sec = sec
 
-        self.pi = pigpio.pi()
+        self.pi = pi
         if not self.pi.connected:
             self._log.error('pigpio daemon not connected.')
             raise ConnectionError('pigpio daemon not connected.')
@@ -55,5 +55,4 @@ class CmdServo:
         """ end """
         self._log.debug('')
         self.servo.off()
-        self.pi.stop()
         print('bye!')

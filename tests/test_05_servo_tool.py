@@ -3,12 +3,26 @@ import os
 import json
 import pytest
 import time
+import pigpio
 from samples.servo_tool import CalibApp
 
 # --- テスト設定 ---
-TEST_PINS = [17, 22]  # テストに使用するGPIOピン
+TEST_PINS = [17, 27, 22, 23]  # テストに使用するGPIOピン
 TEST_CONF_FILE = 'test_servo_tool_conf.json'
 SLEEP_SEC = 1.0  # サーボが動くのを待つ時間
+
+def check_pigpiod():
+    """Check if pigpiod is running"""
+    try:
+        pi = pigpio.pi()
+        if not pi.connected:
+            return False
+        pi.stop()
+        return True
+    except Exception:
+        return False
+
+pytestmark = pytest.mark.skipif(not check_pigpiod(), reason="pigpiod is not running")
 
 @pytest.fixture
 def calib_app_setup():
@@ -23,7 +37,7 @@ def calib_app_setup():
     # CalibAppは内部でpigpio.pi()を呼び出すため、ここでは何もしない
     app = CalibApp(pins=TEST_PINS, conf_file=TEST_CONF_FILE, debug=True)
     
-    # テスト関数にappインスタンスを渡す
+    # テスト関数にappインス���ンスを渡す
     yield app
     
     # --- クリーンアップ ---

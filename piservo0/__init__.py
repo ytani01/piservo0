@@ -4,9 +4,6 @@
 """
 mypkg
 """
-__author__ = 'Yoichi Tanibayashi'
-__version__ = '0.0.1'
-
 __prog_name__ = 'piservo0'
 
 from .my_logger import get_logger

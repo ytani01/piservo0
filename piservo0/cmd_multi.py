@@ -9,7 +9,7 @@ from .my_logger import get_logger
 
 class CmdMulti:
     """ multi servo controller """
-    def __init__(self, pin, conf_file, sec=1.0, debug=False):
+    def __init__(self, pi, pin, conf_file, sec=1.0, debug=False):
         self._dbg = debug
         self._log = get_logger(__class__.__name__, self._dbg)
         self._log.debug('pin=%s,conf_file=%s,sec=%s', pin, conf_file, sec)
@@ -18,7 +18,7 @@ class CmdMulti:
         self.conf_file = conf_file
         self.sec = sec
 
-        self.pi = pigpio.pi()
+        self.pi = pi
         if not self.pi.connected:
             self._log.error('pigpio daemon not connected.')
             raise ConnectionError('pigpio daemon not connected.')
@@ -31,9 +31,9 @@ class CmdMulti:
             self.pi.stop()
             raise _e
 
-    def main(self):
+    def main(self, ctx):
         """ main """
-        cmd_name = __class__.__name__
+        cmd_name = ctx.command.name
         prompt_str = f'\n{cmd_name}: [q] for exit > '
         cmd_exit = ('exit', 'quit', 'q', 'bye')
 
@@ -81,4 +81,3 @@ class CmdMulti:
         self._log.debug('')
         print('\n Bye!\n')
         self.servo.off()
-        self.pi.stop()

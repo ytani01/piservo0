@@ -2,6 +2,7 @@
 # (c) 2025 Yoichi Tanibayashi
 #
 import click
+import pigpio
 from piservo0 import get_logger
 from .cmd_echo import CmdEcho
 from .cmd_servo import CmdServo
@@ -72,7 +73,11 @@ def servo(pin, pulse, sec, debug):
     log.debug('pin=%s, pulse="%s", sec=%s', pin, pulse, sec)
 
     try:
-        app = CmdServo(pin, pulse, sec, debug=debug)
+        pi = pigpio.pi()
+        if not pi.connected:
+            log.error('pigpio daemon not connected.')
+            return
+        app = CmdServo(pi, pin, pulse, sec, debug=debug)
 
     except Exception as _e:
         log.error('%s: %s', type(_e).__name__, _e)
@@ -86,6 +91,7 @@ def servo(pin, pulse, sec, debug):
 
     finally:
         app.end()
+        pi.stop() # ここでpiインスタンスを停止
 
 
 @cli.command(help="""
@@ -93,31 +99,33 @@ calibration tool""")
 @click.argument('pin', type=int, nargs=1)
 @click.option('--conf_file', '--file', '-c', '-f', type=str,
               default='./servo.json')
-@click.option('--sec', '-t', '-s', type=float, default=1,
+@click.option('--sec', '-t', '-s', type=float, default=1.0,
               help='sec')
-@click.option('--debug', '-d', is_flag=True, default=False,
-              help='debug flag')
-def calib(pin, conf_file, sec, debug):
     """ servo command
     """
     log = get_logger(__name__, debug)
     log.debug('pin=%s,conf_file=%s,sec=%s', pin, conf_file, sec)
 
     try:
-        app = CmdCalib(pin, conf_file, sec, debug=debug)
+        pi = pigpio.pi()
+        if not pi.connected:
+            log.error('pigpio daemon not connected.')
+            return
+        app = CmdCalib(pi, pin, conf_file, sec, debug=debug)
 
     except Exception as _e:
         log.error('%s: %s', type(_e).__name__, _e)
         return
 
     try:
-        app.main()
+        app.main(ctx)
 
     except Exception as _e:
         log.warning('%s: %s', type(_e).__name__, _e)
 
     finally:
         app.end()
+        pi.stop() # ここでpiインスタンスを停止
 
 
 @cli.command(help="""
@@ -129,21 +137,26 @@ multi servo controller""")
               help='sec')
 @click.option('--debug', '-d', is_flag=True, default=False,
               help='debug flag')
-def multi(pin, conf_file, sec, debug):
+@click.pass_context
+def multi(ctx, pin, conf_file, sec, debug):
     """ servo command
     """
     log = get_logger(__name__, debug)
     log.debug('pin=%s,conf_file=%s,sec=%s', pin, conf_file, sec)
 
     try:
-        app = CmdMulti(pin, conf_file, sec, debug=debug)
+        pi = pigpio.pi()
+        if not pi.connected:
+            log.error('pigpio daemon not connected.')
+            return
+        app = CmdMulti(pi, pin, conf_file, sec, debug=debug)
 
     except Exception as _e:
         log.error('%s: %s', type(_e).__name__, _e)
         return
 
     try:
-        app.main()
+        app.main(ctx)
 
     except (EOFError, KeyboardInterrupt) as _e:
         log.debug('%s: %s', type(_e).__name__, _e)
@@ -153,3 +166,4 @@ def multi(pin, conf_file, sec, debug):
 
     finally:
         app.end()
+        pi.stop() # ここでpiインスタンスを停止
