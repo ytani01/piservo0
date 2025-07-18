@@ -16,7 +16,7 @@ class App:
     PINS = [23, 22, 27, 17]
 
     # 遅延時間
-    SLEEP_SEC = .5
+    SLEEP_SEC = .2
 
     # コマンドシーケンス
     #
@@ -24,7 +24,7 @@ class App:
     #
     # - ここでは、プラスの角度が前方向になるように書く。
     #
-    ANGLE_UNIT = 40
+    ANGLE_UNIT = 30
 
     F = ANGLE_UNIT  # move leg forward
     B = -ANGLE_UNIT  # move leg backward
@@ -69,7 +69,7 @@ class App:
 
         time.sleep(1.0)
         
-        for _count in range(5):
+        for _count in range(10):
             print(f'===== count={_count}')
 
             for angles in self.SEQ + self.flip_angles(self.SEQ):
