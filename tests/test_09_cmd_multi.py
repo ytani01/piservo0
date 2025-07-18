@@ -1,6 +1,8 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
+import os
+import json
 import pytest
 import pigpio
 from unittest.mock import patch
@@ -25,9 +27,27 @@ pytestmark = pytest.mark.skipif(not check_pigpiod(), reason="pigpiod is not runn
 @pytest.fixture
 def multi_app():
     """CmdMultiのテスト用インスタンス"""
-    app = CmdMulti([17, 27, 22, 23], './servo_test.json', debug=True)
+    test_pin = [17, 27, 22, 23]
+    test_conf_file = './servo_test.json'
+
+    # テスト用の設定ファイルを初期化
+    initial_config = [
+        {"pin": test_pin, "min": 500, "center": 1500, "max": 2500},
+        {"pin": 18, "min": 2500, "center": 2500, "max": 2500} # 他のピンは現状維持
+    ]
+    with open(test_conf_file, 'w') as f:
+        json.dump(initial_config, f, indent=2)
+
+    pi = pigpio.pi() # pigpio.pi()インスタンスをフィクスチャで管理
+    if not pi.connected:
+        pytest.fail("pigpio daemon not connected.")
+
+    app = CmdMulti(pi, test_pin, conf_file=test_conf_file, debug=True)
     yield app
     app.end()
+    pi.stop() # フィクスチャで作成したpiインスタンスを停止
+    if os.path.exists(test_conf_file):
+        os.remove(test_conf_file)
 
 
 def test_cmd_multi_init_ok(multi_app):

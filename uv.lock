@@ -46,21 +46,6 @@ wheels = [
 ]
 
 [[package]]
-name = "cuilib"
-version = "0.0.5"
-source = { directory = "../CuiLib" }
-dependencies = [
-    { name = "blessed" },
-    { name = "click" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "blessed" },
-    { name = "click" },
-]
-
-[[package]]
 name = "iniconfig"
 version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -116,14 +101,12 @@ dev = [
 ]
 samples = [
     { name = "blessed" },
-    { name = "cuilib" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "blessed", marker = "extra == 'samples'" },
     { name = "click" },
-    { name = "cuilib", marker = "extra == 'samples'", directory = "../CuiLib" },
     { name = "pigpio" },
     { name = "pytest", marker = "extra == 'dev'" },
     { name = "pytest-mock", marker = "extra == 'dev'" },

@@ -1,11 +1,5 @@
 # ToDo
 
-## 問題点
-
--[ ] `samples/servo_tool.py`の再確認
-    -[ ] min, centerは保存できるが、maxは保存されない？
-
-
-## 機能拡張など
-
--[] 自動テストの充実
+- [ ] 自動テストの充実
+    - [ ] 'tests/test_09_cmd_multi.py'
+          'tests/test_08_cmd_calib.py'を参考にテストパターンを増やす。
