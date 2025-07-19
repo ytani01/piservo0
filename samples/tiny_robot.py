@@ -113,6 +113,7 @@ class Demo1App:
     SEQ = [
         'FCCC',
         'FBBB',
+        'CBBB',
         'CCBB',
         'CFBB',
         'CFBC',
