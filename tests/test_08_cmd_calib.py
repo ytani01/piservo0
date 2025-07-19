@@ -37,7 +37,7 @@ def calib_app():
     # テスト用の設定ファイルを初期化
     initial_config = [
         {"pin": test_pin, "min": 500, "center": 1500, "max": 2500},
-        {"pin": 18, "min": 2500, "center": 2500, "max": 2500} # 他のピンは現状維持
+        {"pin": 17, "min": 2500, "center": 2500, "max": 2500} # 他のピンは現状維持
     ]
     with open(test_conf_file, 'w') as f:
         json.dump(initial_config, f, indent=2)

@@ -137,7 +137,7 @@ def test_set_calibration_and_save(calib_app_setup):
     with open(TEST_CONF_FILE, 'r') as f:
         config_data = json.load(f)
 
-    # TEST_PINS[0] (18) の設定を確認
+    # TEST_PINS[0] (17) の設定を確認
     servo_config = next((item for item in config_data if item["pin"] == TEST_PINS[0]), None)
     assert servo_config is not None
     assert servo_config['center'] == center_pulse
