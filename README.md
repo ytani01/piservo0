@@ -210,7 +210,7 @@ GPIO26 (37) (38) GPIO20
 ```
 
 ### --- 2. 公式サイト情報
-[Raspberry Pi Pinout](pinout.xyz)
+[Raspberry Pi Pinout](https://pinout.xyz/)
 
 ## == APIリファレンス
 
