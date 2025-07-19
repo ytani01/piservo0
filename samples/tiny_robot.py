@@ -3,7 +3,6 @@
 #
 import sys
 import time
-import random
 import click
 import pigpio
 from piservo0 import get_logger
@@ -24,23 +23,35 @@ def cli(ctx, debug):
         print(ctx.get_help())
 
 
-@cli.command(help="Tiny Robot Demo1")
-@click.argument('pins', type=int, nargs=-1)
-@click.option('--conf_file', '-c', '-f', default='./servo.json',
+@cli.command(help="""
+Tiny Robot Demo #1
+
+`PINS` order:\n
+    PIN1 Front-Left\n
+    PIN2 Back-Left\n
+    PIN3 Back-Right\n
+    PIN4 Front-Rihgt
+""")
+@click.argument('pins', type=int, nargs=4)
+@click.option('--move_sec', '-s', type=float, default=.2,
+               help='move steop sec')
+@click.option('--interval_sec', '-i', type=float, default=0.0,
+               help='step interval sec')
+@click.option('--conf_file', '-c', '-f', type=str, default='./servo.json',
               help='Config file path')
 @click.option('--debug', '-d', is_flag=True, help='Enable debug mode')
-def demo1(pins, conf_file, debug):
+def demo1(pins, move_sec, interval_sec, conf_file, debug):
     """ Calibrate servo motors """
     log = get_logger(__name__, debug)
-    log.debug('pins=%s, conf_file=%s', pins, conf_file)
+    log.debug('pins=%s, move_sec=%s, interval_sec=%s, conf_file=%s',
+              pins, move_sec, interval_sec, conf_file)
 
     # init
+    util = Util(debug=debug)
+
     try:
         pi = pigpio.pi()
-        if pins == ():
-            app = Demo1App(pi, pins, debug=True)
-        else:
-            app = Demo1App(pi, debug=True)
+        app = Demo1App(util, pi, pins, move_sec, interval_sec, debug=debug)
 
     except Exception as _e:
         print('%s: %s' % (type(_e).__name__, _e))
@@ -62,64 +73,55 @@ def demo1(pins, conf_file, debug):
 class Demo1App:
     """ Tiny Robot Demo #1
     """
-    #      [FL, BL, BR, FR]
-    PINS = [17, 22, 23, 24]
-
     # SEQの角度をサーボに与える実際の角度に変換するための係数
-    ANGLE_DIR = [-1, -1, 1, 1]
+    #           [FL, BL, BR, FR]
+    ANGLE_DIR = [-1, -1,  1,  1]
 
     # 遅延時間
-    MOVE_SEC = .2
-    INTERVAL_SEC = .0
+    DEF_MOVE_SEC = .2
+    DEF_INTERVAL_SEC = .0
 
     # コマンドシーケンス
     #
     # - [Front-Left, Back-Left, Back-Right, Front-Right]
-    #
     # - ここでは、プラスの角度が前方向になるように書く。
+    # - F:前、C:中央、B:後
     #
-    ANGLE_UNIT = 45
-
+    ANGLE_UNIT = 45  # move angle
     F = ANGLE_UNIT  # move leg forward
     B = -ANGLE_UNIT  # move leg backward
     C = 0  # move leg center
 
     # (左右反転パターンは、flip_angles()で生成できる)
-    SEQ0 = [
-        #FL,BL,BR,FR
-        [F, C, C, C],
-        [F, B, B, B],
-        [C, C, B, B],
-        [C, F, B, B],
-        [B, F, B, C],
-        [B, C, B, F],
-        [B, C, C, C],
-        [C, C, C, C],
-    ]
-
     SEQ = [
         #FL,BL,BR,FR
-        [F, C, C, C],
-        [F, B, B, B],
+        [F, C, C, C],  # 左前足を前に出し、他は中央
+        [F, B, B, B],  # 左前足は前のまま、他の3本足を後ろへ蹴る
         [C, C, B, B],
         [C, F, B, B],
         [C, F, B, C],
         [B, F, B, C],
         [B, C, B, F],
         [B, C, C, C],
-        [C, C, C, C],
+        #[C, C, C, C],
     ]
 
-    def __init__(self, pi_, pins=PINS,
+    def __init__(self, util, pi_, pins,
+                 move_sec=DEF_MOVE_SEC,
+                 interval_sec=DEF_INTERVAL_SEC,
                  conf_file='./servo.json',
                  debug=False):
         """ constractor """
         self._dbg = debug
         self._log = get_logger(__class__.__name__, self._dbg)
-        self._log.debug('pins=%s, conf_file=%s', pins, conf_file)
+        self._log.debug('pins=%s,move_sec=%s,interval_sec=%s,conf_file=%s',
+                        pins, move_sec, interval_sec, conf_file)
 
+        self.util = util
         self.pi = pi_
         self.pins = pins
+        self.move_sec = move_sec
+        self.interval_sec = interval_sec
         self.conf_file = conf_file
 
         self.mservo = MultiServo(self.pi, self.pins,
@@ -133,25 +135,43 @@ class Demo1App:
 
         time.sleep(1.0)
         
-        for _count in range(10):
-            print(f'===== count={_count}')
+        try:
+            for _count in range(10):
+                print(f'===== count={_count}')
 
-            for angles in self.SEQ + self.flip_angles(self.SEQ):
+                _seq = self.SEQ + self.util.flip_angles(self.SEQ)
+                for angles_in in _seq:
 
-                # プラスの角度が前になるようになっているのを
-                # 実際の角度に戻す
-                self._log.debug('angles=%s', angles)
-                _d = self.ANGLE_DIR
-                angles2 = [angles[_i] * _d[_i] for _i in range(len(_d))]
-                self._log.debug('angles2=%s', angles2)
+                    # プラスの角度が前になるようになっているのを
+                    # 実際の角度に戻す
+                    _a = angles_in
+                    _d = self.ANGLE_DIR
+                    angles = [_a[_i] * _d[_i] for _i in range(len(_d))]
+                    self._log.debug('angles=%s', angles)
 
-                self.mservo.move_angle_sync(angles2, self.MOVE_SEC)
-                time.sleep(self.INTERVAL_SEC)
+                    # Move !
+                    self.mservo.move_angle_sync(angles, self.move_sec)
+
+                    time.sleep(self.interval_sec)
+
+        except KeyboardInterrupt as _e:
+            self._log.debug('\n%s', type(_e).__name__)
+            self.mservo.move_angle_sync([0, 0, 0, 0], self.move_sec)
 
     def end(self):
         """ end: post-processing """
         self._log.debug("")
         self.mservo.off()
+
+
+class Util:
+    """ utility functions """
+
+    def __init__(self, debug=False):
+        """ constructor """
+        self._dbg = debug
+        self._log = get_logger(__class__.__name__, self._dbg)
+        self._log.debug('')
 
     def flip_angles(self, seq):
         """ Flip the array for left/right switching
@@ -169,6 +189,7 @@ class Demo1App:
             [8, 7, 6, 5],
           ]
         """
+        self._log.debug('seq =')
         for _c in seq:
             self._log.debug('  %s', _c)
 
@@ -177,11 +198,12 @@ class Demo1App:
             c.reverse()
             new_seq.append(c)
 
+        self._log.debug('new_seq =')
         for _c in new_seq:
             self._log.debug('  %s', _c)
 
         return new_seq
-        
+
 
 if __name__ == '__main__':
     cli()
