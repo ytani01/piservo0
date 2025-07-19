@@ -35,6 +35,8 @@ Tiny Robot Demo #1
 @click.argument('pins', type=int, nargs=4)
 @click.option('--count', '-c', type=int, default=10,
               help='count')
+@click.option('--angle_unit', '-a', type=float, default=35,
+              help='angle Unit')
 @click.option('--move_sec', '-s', type=float, default=.2,
               help='move steop sec')
 @click.option('--interval_sec', '-i', type=float, default=0.0,
@@ -42,14 +44,16 @@ Tiny Robot Demo #1
 @click.option('--conf_file', '-f', type=str, default='./servo.json',
               help='Config file path')
 @click.option('--debug', '-d', is_flag=True, help='Enable debug mode')
-def demo1(pins, count, move_sec, interval_sec, conf_file, debug):
+def demo1(pins, count, angle_unit, move_sec, interval_sec, conf_file,
+          debug):
     """ Calibrate servo motors """
     log = get_logger(__name__, debug)
-    log.debug('pins=%s,count=%s,move_sec=%s,interval_sec=%s,conf_file=%s',
-              pins, count, move_sec, interval_sec, conf_file)
+    log.debug('pins=%s,count=%s,angle_unit=%s,move_sec=%s,interval_sec=%s,conf_file=%s',
+              pins, count, angle_unit, move_sec, interval_sec, conf_file)
 
     # init
     util = Util(debug=debug)
+    util.set_angle_unit(angle_unit)
 
     try:
         pi = pigpio.pi()
@@ -93,23 +97,27 @@ class Demo1App:
     # - ここでは、プラスの角度が前方向になるように書く。
     # - F:前、C:中央、B:後
     #
-    ANGLE_UNIT = 45  # move angle
-    F = ANGLE_UNIT  # move leg forward
-    B = -ANGLE_UNIT  # move leg backward
-    C = 0  # move leg center
+    # (左右反転パターンは、flip_strs()で生成できる)
+    SEQ1 = [
+        'FCCC',
+        'FBBB',
+        'CCBB',
+        'CFBB',
+        'CFBC',
+        'BFBC',
+        'BCBF',
+        'BCCC',
+        'CCCC',
+    ]
 
-    # (左右反転パターンは、flip_angles()で生成できる)
     SEQ = [
-        #FL,BL,BR,FR
-        [F, C, C, C],  # 左前足を前に出し、他は中央
-        [F, B, B, B],  # 左前足は前のまま、他の3本足を後ろへ蹴る
-        [C, C, B, B],
-        [C, F, B, B],
-        [C, F, B, C],
-        [B, F, B, C],
-        [B, C, B, F],
-        [B, C, C, C],
-        #[C, C, C, C],
+        'FCCC',
+        'FBBB',
+        'CCBB',
+        'CFBB',
+        'CFBC',
+        'BCCC',
+        'CCCC',
     ]
 
     def __init__(self, util, pi_, pins,
@@ -143,23 +151,22 @@ class Demo1App:
 
         time.sleep(1.0)
         
-        _seq = self.SEQ + self.util.flip_angles(self.SEQ)
+        _seq = self.SEQ + self.util.flip_strs(self.SEQ)
 
         try:
             for _count in range(self.count):
                 print(f'===== count={_count}')
 
-                for angles_in in _seq:
-
-                    # プラスの角度が前になるようになっているのを
-                    # 実際の角度に戻す
-                    _a = angles_in
-                    _d = self.ANGLE_DIR
-                    angles = [_a[_i] * _d[_i] for _i in range(len(_d))]
-                    self._log.debug('angles=%s', angles)
+                for angles_str in _seq:
+                    # parse
+                    _res = self.util.parse_cmd(angles_str)
+                    if _res['cmd'] != 'angles':
+                        self._log.error('ERROR: %s', _res)
+                        break
 
                     # Move !
-                    self.mservo.move_angle_sync(angles, self.move_sec)
+                    self.mservo.move_angle_sync(_res['angles'],
+                                                self.move_sec)
 
                     time.sleep(self.interval_sec)
 
@@ -389,8 +396,24 @@ class Util:
         self._log.debug('ret=%s', ret)
         return ret
 
-    def flip_angles(self, seq):
-        """ Flip the array for left/right switching
+    def flip_strs(self, strs):
+        """  """
+        self._log.debug('strs=')
+        for _s in strs:
+            self._log.debug('  %s', _s)
+
+        new_strs = []
+        for _s in strs:
+            new_strs.append(_s[::-1])
+
+        self._log.debug('new_strs=')
+        for _s in strs:
+            self._log.debug('  %s', _s)
+
+        return new_strs
+
+    def flip_lists(self, lists):
+        """ Flip the lists
 
         e.g.
           from
@@ -405,20 +428,20 @@ class Util:
             [8, 7, 6, 5],
           ]
         """
-        self._log.debug('seq =')
-        for _c in seq:
+        self._log.debug('lists =')
+        for _c in lists:
             self._log.debug('  %s', _c)
 
-        new_seq = []
-        for c in seq:
+        new_lists = []
+        for c in lists:
             c.reverse()
-            new_seq.append(c)
+            new_lists.append(c)
 
-        self._log.debug('new_seq =')
-        for _c in new_seq:
+        self._log.debug('new_lists =')
+        for _c in new_lists:
             self._log.debug('  %s', _c)
 
-        return new_seq
+        return new_lists
 
 
 if __name__ == '__main__':

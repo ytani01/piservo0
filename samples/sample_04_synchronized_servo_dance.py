@@ -21,7 +21,7 @@ def synchronized_servo_dance():
         return
 
     # サーボのピン番号を固定する
-    servo_pins = [18, 21, 24] # ピン番号18, 21, 24を使用する
+    servo_pins = [17, 22, 23]
 
     # MultiServoを初期化
     # CalibrableServoが設定ファイルを読み込むため、ここでconfig_fileを渡す

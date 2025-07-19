@@ -19,7 +19,7 @@ def synchronized_pose_demo():
         return
 
     # サーボのピン番号を固定する
-    servo_pins = [18, 21, 24]
+    servo_pins = [17, 22, 23]
 
     # MultiServoを初期化する
     # CalibrableServoが設定ファイルを読み込むため、ここでconf_fileを渡す
