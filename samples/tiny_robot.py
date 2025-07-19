@@ -170,17 +170,224 @@ class Demo1App:
     def end(self):
         """ end: post-processing """
         self._log.debug("")
+        self.mservo.move_angle_sync([0, 0, 0, 0], .5)
+        self.mservo.off()
+
+
+@cli.command(help="""
+Tiny Robot Manual mode
+
+`PINS` order:\n
+    PIN1 Front-Left\n
+    PIN2 Back-Left\n
+    PIN3 Back-Right\n
+    PIN4 Front-Rihgt
+""")
+@click.argument('pins', type=int, nargs=4)
+@click.option('--count', '-c', type=int, default=10,
+              help='count')
+@click.option('--move_sec', '-s', type=float, default=.2,
+              help='move steop sec')
+@click.option('--interval_sec', '-i', type=float, default=0.0,
+              help='step interval sec')
+@click.option('--conf_file', '-f', type=str, default='./servo.json',
+              help='Config file path')
+@click.option('--debug', '-d', is_flag=True, help='Enable debug mode')
+def manual(pins, count, move_sec, interval_sec, conf_file, debug):
+    """ Calibrate servo motors """
+    log = get_logger(__name__, debug)
+    log.debug('pins=%s,count=%s,move_sec=%s,interval_sec=%s,conf_file=%s',
+              pins, count, move_sec, interval_sec, conf_file)
+
+    # init
+    util = Util(debug=debug)
+
+    try:
+        pi = pigpio.pi()
+        app = ManualApp(util, pi, pins, count, move_sec, interval_sec,
+                        debug=debug)
+
+    except Exception as _e:
+        print('%s: %s' % (type(_e).__name__, _e))
+        sys.exit()
+
+    # main
+    try:
+        app.main()
+
+    except Exception as _e:
+        print('%s: %s' % (type(_e).__name__, _e))
+
+    # end
+    finally:
+        app.end()
+        pi.stop()
+        print('\n Bye')
+
+
+class ManualApp:
+    """ Tiny Robot Manual Mode
+    """
+    # パラメータデフォルト値
+    DEF_MOVE_SEC = .2
+    DEF_INTERVAL_SEC = .0
+    DEF_COUNT = 10
+
+    def __init__(self, util, pi_, pins,
+                 count=DEF_COUNT,
+                 move_sec=DEF_MOVE_SEC,
+                 interval_sec=DEF_INTERVAL_SEC,
+                 conf_file='./servo.json',
+                 debug=False):
+        """ constractor """
+        self._dbg = debug
+        self._log = get_logger(__class__.__name__, self._dbg)
+        self._log.debug('pins=%s,move_sec=%s,interval_sec=%s,conf_file=%s',
+                        pins, move_sec, interval_sec, conf_file)
+
+        self.util = util
+        self.pi = pi_
+        self.pins = pins
+        self.count = count
+        self.move_sec = move_sec
+        self.interval_sec = interval_sec
+        self.conf_file = conf_file
+
+        self.mservo = MultiServo(self.pi, self.pins,
+                                 conf_file=self.conf_file,
+                                 #debug=self._dbg)
+                                 debug=False)
+
+    def main(self):
+        """ main function """
+        self._log.debug('')
+
+        time.sleep(1.0)
+        
+        try:
+            while True:
+                line = input('> ')
+
+                cmds = line.split()
+                self._log.debug('cmds=%s', cmds)
+
+                for cmd in cmds:
+                    res = self.util.parse_cmd(cmd)
+
+                    if res['cmd'] == 'angles':
+                        angles = res['angles']
+                        self.mservo.move_angle_sync(angles, self.move_sec)
+                        time.sleep(self.interval_sec)
+
+                    if res['cmd'] == 'interval':
+                        time.sleep(float(res['sec']))
+
+                    if res['cmd'] == 'error':
+                        print(f'ERROR: {cmd}: {res["err"]}')
+
+        except (EOFError, KeyboardInterrupt) as _e:
+            self._log.debug('\n%s', type(_e).__name__)
+
+        except Exception as _e:
+            self._log.error('\n%s: %s', type(_e).__name__, _e)
+
+    def end(self):
+        """ end: post-processing """
+        self._log.debug("")
+        self.mservo.move_angle_sync([0, 0, 0, 0], .5)
         self.mservo.off()
 
 
 class Util:
     """ utility functions """
 
+    # SEQの角度をサーボに与える実際の角度に変換するための係数
+    #                  [FL, BL, BR, FR]
+    DEF_ANGLE_FACTOR = [-1, -1,  1,  1]
+    
+    # 一度に動かく角度の絶対値
+    DEF_ANGLE_UNIT = 40
+
+    # コマンド文字
+    CH_CENTER = 'C'
+    CH_FORWARD = 'F'
+    CH_BACKWARD = 'B'
+
     def __init__(self, debug=False):
         """ constructor """
         self._dbg = debug
         self._log = get_logger(__class__.__name__, self._dbg)
         self._log.debug('')
+
+        self.angle_unit=self.DEF_ANGLE_UNIT
+        self.angle_factor=self.DEF_ANGLE_FACTOR
+
+    def set_angle_unit(self, angle:float) -> float:
+        """   """
+        self._log.debug('angle=%s', angle)
+
+        if angle <= 0:
+            return -1
+
+        self.angle_unit = angle
+
+        return self.angle_unit
+
+    def is_anglecmd(self, cmd):
+        """  """
+        self._log.debug('cmd=%s', cmd)
+
+        if len(cmd) != 4:
+            return False
+
+        for _ch in cmd:
+            if _ch not in (self.CH_CENTER,
+                           self.CH_FORWARD,
+                           self.CH_BACKWARD):
+                return False
+
+        self._log.debug('True')
+        return True
+
+    def parse_cmd(self, cmd):
+        """ parse cmdline
+
+        e.g.
+          self.angle_unit = 40
+          self.angle_factor = [-1, -1, 1, 1]
+
+          'fcbf' --> ('angles', [-40,0,-40,40])
+
+        """
+        self._log.debug('cmd=%s', cmd)
+
+        ret = None
+
+        cmd = cmd.upper()
+
+        if self.is_anglecmd(cmd):
+            angles = []
+            for _i, _ch in enumerate(cmd):
+                _af = self.angle_factor[_i]
+
+                if _ch == self.CH_CENTER:
+                    angles.append(0)
+                elif _ch == self.CH_FORWARD:
+                    angles.append(self.angle_unit * _af)
+                elif _ch == self.CH_BACKWARD:
+                    angles.append(self.angle_unit * _af * -1)
+
+            ret = {'cmd': 'angles', 'angles': angles}
+
+        elif cmd.isnumeric():
+            ret = {'cmd': 'interval', 'sec': float(cmd)}
+
+        else:
+            self._log.error('cmd="%s" invalid]', cmd)
+            ret = {'cmd': 'error', 'err': 'invalid command'}
+
+        self._log.debug('ret=%s', ret)
+        return ret
 
     def flip_angles(self, seq):
         """ Flip the array for left/right switching
