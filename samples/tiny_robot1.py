@@ -13,10 +13,14 @@ class App:
     """ Tiny Robot App
     """
     #      [FL, BL, BR, FR]
-    PINS = [23, 22, 27, 17]
+    PINS = [17, 22, 23, 24]
+
+    # SEQの角度をサーボに与える実際の角度に変換するための係数
+    ANGLE_DIR = [-1, -1, 1, 1]
 
     # 遅延時間
-    SLEEP_SEC = .2
+    MOVE_SEC = .2
+    INTERVAL_SEC = .0
 
     # コマンドシーケンス
     #
@@ -24,14 +28,14 @@ class App:
     #
     # - ここでは、プラスの角度が前方向になるように書く。
     #
-    ANGLE_UNIT = 30
+    ANGLE_UNIT = 45
 
     F = ANGLE_UNIT  # move leg forward
     B = -ANGLE_UNIT  # move leg backward
     C = 0  # move leg center
 
     # (左右反転パターンは、flip_angles()で生成できる)
-    SEQ = [
+    SEQ0 = [
         #FL,BL,BR,FR
         [F, C, C, C],
         [F, B, B, B],
@@ -43,8 +47,18 @@ class App:
         [C, C, C, C],
     ]
 
-    # SEQの角度をサーボに与える実際の角度に変換するための係数
-    ANGLE_DIR = [1, 1, -1, -1]
+    SEQ = [
+        #FL,BL,BR,FR
+        [F, C, C, C],
+        [F, B, B, B],
+        [C, C, B, B],
+        [C, F, B, B],
+        [C, F, B, C],
+        [B, F, B, C],
+        [B, C, B, F],
+        [B, C, C, C],
+        [C, C, C, C],
+    ]
 
     def __init__(self, pi_, pins=PINS,
                  conf_file='./servo.json',
@@ -81,7 +95,8 @@ class App:
                 angles2 = [angles[_i] * _d[_i] for _i in range(len(_d))]
                 self._log.debug('angles2=%s', angles2)
 
-                self.mservo.move_angle_sync(angles2, self.SLEEP_SEC)
+                self.mservo.move_angle_sync(angles2, self.MOVE_SEC)
+                time.sleep(self.INTERVAL_SEC)
 
     def end(self):
         """ end: post-processing """
