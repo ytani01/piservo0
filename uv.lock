@@ -136,7 +136,7 @@ wheels = [
 
 [[package]]
 name = "piservo0"
-version = "0.4.4"
+version = "0.4.5"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
