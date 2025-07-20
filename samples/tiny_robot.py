@@ -35,7 +35,7 @@ Tiny Robot Demo #1
 @click.argument('pins', type=int, nargs=4)
 @click.option('--count', '-c', type=int, default=10,
               help='count')
-@click.option('--angle_unit', '-a', type=float, default=35,
+@click.option('--angle_unit', '-a', '-u', type=float, default=35,
               help='angle Unit')
 @click.option('--move_sec', '-s', type=float, default=.2,
               help='move steop sec')
@@ -48,17 +48,16 @@ def demo1(pins, count, angle_unit, move_sec, interval_sec, conf_file,
           debug):
     """ Calibrate servo motors """
     log = get_logger(__name__, debug)
-    log.debug('pins=%s,count=%s,angle_unit=%s,move_sec=%s,interval_sec=%s,conf_file=%s',
+    log.debug('pins=%s,count=%s,angle_unit=%s,move_sec=%s,' +
+              'interval_sec=%s,conf_file=%s',
               pins, count, angle_unit, move_sec, interval_sec, conf_file)
 
     # init
-    util = Util(debug=debug)
-    util.set_angle_unit(angle_unit)
-
     try:
         pi = pigpio.pi()
-        app = Demo1App(util, pi, pins, count, move_sec, interval_sec,
-                       debug=debug)
+        app = Demo1App(pi, pins, count,
+                       angle_unit, move_sec, interval_sec,
+                       conf_file, debug=debug)
 
     except Exception as _e:
         print('%s: %s' % (type(_e).__name__, _e))
@@ -73,8 +72,7 @@ def demo1(pins, count, angle_unit, move_sec, interval_sec, conf_file,
 
     # end
     finally:
-        #app.mservo.move_angle_sync([0, 0, 0, 0], move_sec)
-        app.mservo.move_angle_sync([0, 0, 0, 0], 1)
+        app.end()
         pi.stop()
         print('\n Bye')
 
@@ -82,15 +80,6 @@ def demo1(pins, count, angle_unit, move_sec, interval_sec, conf_file,
 class Demo1App:
     """ Tiny Robot Demo #1
     """
-    # パラメータデフォルト値
-    DEF_MOVE_SEC = .2
-    DEF_INTERVAL_SEC = .0
-    DEF_COUNT = 10
-
-    # SEQの角度をサーボに与える実際の角度に変換するための係数
-    #           [FL, BL, BR, FR]
-    ANGLE_DIR = [-1, -1,  1,  1]
-
     # コマンドシーケンス
     #
     # - [Front-Left, Back-Left, Back-Right, Front-Right]
@@ -109,7 +98,6 @@ class Demo1App:
         'BCCC',
         'CCCC',
     ]
-
     SEQ = [
         'FCCC',
         'FBBB',
@@ -121,22 +109,21 @@ class Demo1App:
         'CCCC',
     ]
 
-    def __init__(self, util, pi_, pins,
-                 count=DEF_COUNT,
-                 move_sec=DEF_MOVE_SEC,
-                 interval_sec=DEF_INTERVAL_SEC,
-                 conf_file='./servo.json',
-                 debug=False):
+    def __init__(self, pi_, pins,
+                 count, angle_unit, move_sec, interval_sec,
+                 conf_file, debug=False):
         """ constractor """
         self._dbg = debug
         self._log = get_logger(__class__.__name__, self._dbg)
-        self._log.debug('pins=%s,move_sec=%s,interval_sec=%s,conf_file=%s',
-                        pins, move_sec, interval_sec, conf_file)
+        self._log.debug('pins=%s', pins)
+        self._log.debug('angle_unit=%s', angle_unit)
+        self._log.debug('move_sec=%s,interval_sec=%s,conf_file=%s',
+                        move_sec, interval_sec, conf_file)
 
-        self.util = util
         self.pi = pi_
         self.pins = pins
         self.count = count
+        self.angle_unit = angle_unit
         self.move_sec = move_sec
         self.interval_sec = interval_sec
         self.conf_file = conf_file
@@ -145,6 +132,8 @@ class Demo1App:
                                  conf_file=self.conf_file,
                                  #debug=self._dbg)
                                  debug=False)
+        self.util = Util(self.mservo, self.move_sec, self.angle_unit,
+                         debug=debug)
 
     def main(self):
         """ main function """
@@ -159,26 +148,22 @@ class Demo1App:
                 print(f'===== count={_count}')
 
                 for angles_str in _seq:
-                    # parse
-                    _res = self.util.parse_cmd(angles_str)
-                    if _res['cmd'] != 'angles':
-                        self._log.error('ERROR: %s', _res)
-                        break
+                    print(f' {angles_str}')
 
-                    # Move !
-                    self.mservo.move_angle_sync(_res['angles'],
-                                                self.move_sec)
+                    self.util.exec_cmd(angles_str)
 
                     time.sleep(self.interval_sec)
 
         except KeyboardInterrupt as _e:
             self._log.debug('\n%s', type(_e).__name__)
-            #self.mservo.move_angle_sync([0, 0, 0, 0], self.move_sec)
 
     def end(self):
         """ end: post-processing """
         self._log.debug("")
-        self.mservo.move_angle_sync([0, 0, 0, 0], .5)
+        self.util.set_move_sec(0.5)
+        self.util.exec_cmd('CCCC')
+        self.util.set_move_sec(1.0)
+        self.util.exec_cmd('CFFC')
         self.mservo.off()
 
 
@@ -194,6 +179,8 @@ Tiny Robot Manual mode
 @click.argument('pins', type=int, nargs=4)
 @click.option('--count', '-c', type=int, default=10,
               help='count')
+@click.option('--angle_unit', '-a', '-u', type=float, default=35,
+              help='angle Unit')
 @click.option('--move_sec', '-s', type=float, default=.2,
               help='move steop sec')
 @click.option('--interval_sec', '-i', type=float, default=0.0,
@@ -201,19 +188,19 @@ Tiny Robot Manual mode
 @click.option('--conf_file', '-f', type=str, default='./servo.json',
               help='Config file path')
 @click.option('--debug', '-d', is_flag=True, help='Enable debug mode')
-def manual(pins, count, move_sec, interval_sec, conf_file, debug):
+def manual(pins, count, angle_unit, move_sec, interval_sec, conf_file,
+           debug):
     """ Calibrate servo motors """
     log = get_logger(__name__, debug)
-    log.debug('pins=%s,count=%s,move_sec=%s,interval_sec=%s,conf_file=%s',
-              pins, count, move_sec, interval_sec, conf_file)
+    log.debug('pins=%s,count=%s,angle_unit=%s,move_sec=%s,' +
+              'interval_sec=%s,conf_file=%s',
+              pins, count, angle_unit, move_sec, interval_sec, conf_file)
 
     # init
-    util = Util(debug=debug)
-
     try:
         pi = pigpio.pi()
-        app = ManualApp(util, pi, pins, count, move_sec, interval_sec,
-                        debug=debug)
+        app = ManualApp(pi, pins, angle_unit, move_sec, interval_sec,
+                        conf_file, debug=debug)
 
     except Exception as _e:
         print('%s: %s' % (type(_e).__name__, _e))
@@ -236,27 +223,21 @@ def manual(pins, count, move_sec, interval_sec, conf_file, debug):
 class ManualApp:
     """ Tiny Robot Manual Mode
     """
-    # パラメータデフォルト値
-    DEF_MOVE_SEC = .2
-    DEF_INTERVAL_SEC = .0
-    DEF_COUNT = 10
 
-    def __init__(self, util, pi_, pins,
-                 count=DEF_COUNT,
-                 move_sec=DEF_MOVE_SEC,
-                 interval_sec=DEF_INTERVAL_SEC,
-                 conf_file='./servo.json',
-                 debug=False):
+    def __init__(self, pi_, pins,
+                 angle_unit, move_sec, interval_sec,
+                 conf_file, debug=False):
         """ constractor """
         self._dbg = debug
         self._log = get_logger(__class__.__name__, self._dbg)
-        self._log.debug('pins=%s,move_sec=%s,interval_sec=%s,conf_file=%s',
-                        pins, move_sec, interval_sec, conf_file)
+        self._log.debug('pins=%s', pins)
+        self._log.debug('angle_unit=%s', angle_unit)
+        self._log.debug('move_sec=%s,interval_sec=%s,conf_file=%s',
+                        move_sec, interval_sec, conf_file)
 
-        self.util = util
         self.pi = pi_
         self.pins = pins
-        self.count = count
+        self.angle_unit = angle_unit
         self.move_sec = move_sec
         self.interval_sec = interval_sec
         self.conf_file = conf_file
@@ -265,6 +246,8 @@ class ManualApp:
                                  conf_file=self.conf_file,
                                  #debug=self._dbg)
                                  debug=False)
+        self.util = Util(self.mservo, self.move_sec, self.angle_unit,
+                         debug=debug)
 
     def main(self):
         """ main function """
@@ -303,6 +286,7 @@ class ManualApp:
         """ end: post-processing """
         self._log.debug("")
         self.mservo.move_angle_sync([0, 0, 0, 0], .5)
+        self.mservo.move_angle_sync([90, -90, 90, -90], 1.5)
         self.mservo.off()
 
 
@@ -314,21 +298,29 @@ class Util:
     DEF_ANGLE_FACTOR = [-1, -1,  1,  1]
     
     # 一度に動かく角度の絶対値
-    DEF_ANGLE_UNIT = 40
+    DEF_ANGLE_UNIT = 35
 
     # コマンド文字
     CH_CENTER = 'C'
+    CH_MIN = 'N'
+    CH_MAX = 'X'
     CH_FORWARD = 'F'
     CH_BACKWARD = 'B'
 
-    def __init__(self, debug=False):
+    def __init__(self, mservo,
+                 move_sec,
+                 angle_unit=DEF_ANGLE_UNIT, angle_factor=DEF_ANGLE_FACTOR,
+                 debug=False):
         """ constructor """
         self._dbg = debug
         self._log = get_logger(__class__.__name__, self._dbg)
-        self._log.debug('')
+        self._log.debug('move_sec=%s,angle_unit=%s,angle_factor=%s',
+                         move_sec, angle_unit, angle_factor)
 
-        self.angle_unit=self.DEF_ANGLE_UNIT
-        self.angle_factor=self.DEF_ANGLE_FACTOR
+        self.mservo = mservo
+        self.move_sec = move_sec
+        self.angle_unit=angle_unit
+        self.angle_factor=angle_factor
 
     def set_angle_unit(self, angle:float) -> float:
         """   """
@@ -349,9 +341,8 @@ class Util:
             return False
 
         for _ch in cmd:
-            if _ch not in (self.CH_CENTER,
-                           self.CH_FORWARD,
-                           self.CH_BACKWARD):
+            if _ch not in (self.CH_CENTER, self.CH_MIN, self.CH_MAX,
+                           self.CH_FORWARD, self.CH_BACKWARD,):
                 return False
 
         self._log.debug('True')
@@ -380,6 +371,10 @@ class Util:
 
                 if _ch == self.CH_CENTER:
                     angles.append(0)
+                elif _ch == self.CH_MIN:
+                    angles.append(-90 * _af)
+                elif _ch == self.CH_MAX:
+                    angles.append(90 * _af)
                 elif _ch == self.CH_FORWARD:
                     angles.append(self.angle_unit * _af)
                 elif _ch == self.CH_BACKWARD:
@@ -396,6 +391,25 @@ class Util:
 
         self._log.debug('ret=%s', ret)
         return ret
+
+    def set_move_sec(self, move_sec):
+        """  """
+        self.move_sec = move_sec
+
+    def exec_cmd(self, cmd):
+        """  """
+        res = self.parse_cmd(cmd)
+
+        if res['cmd'] == 'angles':
+            angles = res['angles']
+            self.mservo.move_angle_sync(angles, self.move_sec)
+
+        if res['cmd'] == 'interval':
+            time.sleep(float(res['sec']))
+
+        if res['cmd'] == 'error':
+            print(f'ERROR: {cmd}: {res["err"]}')
+    
 
     def flip_strs(self, strs):
         """  """

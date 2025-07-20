@@ -47,13 +47,17 @@ class CalibApp:
         term = self.term
         return {
             # Move
-            'w': lambda: self.move_diff(+20), 'k': lambda: self.move_diff(+20),
+            'w': lambda: self.move_diff(+20),
+            'k': lambda: self.move_diff(+20),
             term.KEY_UP: lambda: self.move_diff(+20),
-            's': lambda: self.move_diff(-20), 'j': lambda: self.move_diff(-20),
+            's': lambda: self.move_diff(-20),
+            'j': lambda: self.move_diff(-20),
             term.KEY_DOWN: lambda: self.move_diff(-20),
             # Fine Tune
-            'W': lambda: self.move_diff(+1), 'K': lambda: self.move_diff(+1),
-            'S': lambda: self.move_diff(-1), 'J': lambda: self.move_diff(-1),
+            'W': lambda: self.move_diff(+1),
+            'K': lambda: self.move_diff(+1),
+            'S': lambda: self.move_diff(-1),
+            'J': lambda: self.move_diff(-1),
             # Move to angle
             'c': lambda: self.move_angle(0),
             'n': lambda: self.move_angle(-90),
@@ -65,8 +69,10 @@ class CalibApp:
             'V': lambda: self.set_calibration('min'),
             'X': lambda: self.set_calibration('max'),
             # Misc
-            'h': self.display_help, '?': self.display_help,
-            'q': self.quit, 'Q': self.quit,
+            'h': self.display_help,
+            '?': self.display_help,
+            'q': self.quit,
+            'Q': self.quit,
         }
 
     def main(self):
@@ -92,15 +98,43 @@ class CalibApp:
     def draw_prompt(self):
         """ プロンプトを表示する """
         cur_pulse = self.mservo.get_pulse()
-        pulse_str = "[" + ", ".join([f"{p:4}" for p in cur_pulse]) + "]"
+
+        prompt_str = ""
+        for i in range(self.mservo.servo_n):
+            if i == self.selected_servo:
+                prompt_str += "*"
+            else:
+                prompt_str += " "
+
+            prompt_str += f'[{i+1}]:{cur_pulse[i]:4} '
+
+        if self.selected_servo < 0:
+            prompt_str += '*:ALL'
+        else:
+            prompt_str += f'{self.selected_servo + 1}:'
+            self.selected_pin = self.mservo.pins[self.selected_servo]
+            prompt_str += f'GPIO{self.selected_pin}'
+
+        print(f'{prompt_str}> ')
+            
+        """
+        selected_mark = []
+        for i in range(self.mservo.servo_n):
+            if i == self.selected_servo:
+                selected_mark.append("*")
+            else:
+                selected_mark.append(" ")
+
+        pulse_str = " ".join([f'{selected_mark[i]}[{i+1}]:{p:4}' for i, p in enumerate(cur_pulse)])
 
         if self.selected_servo >= 0:
             gpio_str = (f'{self.selected_servo + 1}:'
                         f'GPIO{self.mservo.pins[self.selected_servo]:02d}')
         else:
-            gpio_str = '-:ALL'
+            gpio_str = '*:ALL'
 
         print(f'{pulse_str} {gpio_str}> ', end='', flush=True)
+        """
 
     def select_servo(self, num):
         """ サーボを選択する """
