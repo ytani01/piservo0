@@ -69,12 +69,19 @@ sudo systemctl start pigpiod
 `uv` は高速なPythonパッケージインストーラー兼リゾルバーです。
 以下のコマンドでインストールできます。
 ```bash
+# uv のインストール
 curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# uv へのPATHを通す
+# ~/.bashrcなどに書いておくことが望ましい。
+export PATH=$PATH:~/.local/bin
 ```
 
 **2. リポジトリのクローンとセットアップ**
 
 ```bash
+mkdir work1
+
 # リポジトリをクローン
 git clone https://github.com/ytani01/piservo0.git
 cd piservo0
