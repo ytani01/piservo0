@@ -115,26 +115,7 @@ class CalibApp:
             self.selected_pin = self.mservo.pins[self.selected_servo]
             prompt_str += f'GPIO{self.selected_pin}'
 
-        print(f'{prompt_str}> ')
-            
-        """
-        selected_mark = []
-        for i in range(self.mservo.servo_n):
-            if i == self.selected_servo:
-                selected_mark.append("*")
-            else:
-                selected_mark.append(" ")
-
-        pulse_str = " ".join([f'{selected_mark[i]}[{i+1}]:{p:4}' for i, p in enumerate(cur_pulse)])
-
-        if self.selected_servo >= 0:
-            gpio_str = (f'{self.selected_servo + 1}:'
-                        f'GPIO{self.mservo.pins[self.selected_servo]:02d}')
-        else:
-            gpio_str = '*:ALL'
-
-        print(f'{pulse_str} {gpio_str}> ', end='', flush=True)
-        """
+        print(f'{prompt_str}> ', end='', flush=True)
 
     def select_servo(self, num):
         """ サーボを選択する """
