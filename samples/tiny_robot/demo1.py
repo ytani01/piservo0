@@ -56,14 +56,14 @@ class Demo1App(TinyRobotApp):
     #
     # (左右反転パターンは、flip_strs()で生成できる)
     SEQ = [
-        'FCCC',
-        'FBBB',
-        'CBBB',
-        'CCBB',
-        'CFBB',
-        'CFBC',
-        'BCCC',
-        'CCCC',
+        'fccc',
+        'fbbb',
+        'cbbb',
+        'ccbb',
+        'cfbb',
+        'cfbc',
+        'bccc',
+        'cccc',
     ]
 
     def __init__(self, pins,
@@ -93,7 +93,7 @@ class Demo1App(TinyRobotApp):
 
         time.sleep(1.0)
 
-        _seq = self.SEQ + self.util.flip_strs(self.SEQ)
+        _seq = self.SEQ + self.util.flip_angle_strs(self.SEQ)
 
         try:
             for _count in range(self.count):
@@ -113,7 +113,7 @@ class Demo1App(TinyRobotApp):
         """ end: post-processing """
         self._log.debug("")
         self.util.set_move_sec(0.5)
-        self.util.exec_cmd('CCCC')
+        self.util.exec_cmd('cccc')
         self.util.set_move_sec(1.0)
-        self.util.exec_cmd('CFFC')
+        self.util.exec_cmd('cffc')
         super().end()

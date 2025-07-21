@@ -13,11 +13,11 @@ class Util:
     DEF_ANGLE_FACTOR = [-1, -1,  1,  1]
 
     # angle文字
-    CH_CENTER = 'C'
-    CH_MIN = 'N'
-    CH_MAX = 'X'
-    CH_FORWARD = 'F'
-    CH_BACKWARD = 'B'
+    CH_CENTER = 'c'
+    CH_MIN = 'n'
+    CH_MAX = 'x'
+    CH_FORWARD = 'f'
+    CH_BACKWARD = 'b'
 
     ANGLE_CHS = [CH_CENTER, CH_MIN, CH_MAX, CH_FORWARD, CH_BACKWARD]
 
@@ -54,16 +54,16 @@ class Util:
 
     def is_anglecmd(self, cmd):
         """  """
-        self._log.debug('cmd=%s', cmd)
-
         if len(cmd) != 4:
+            self._log.debug('cmd=%s: False', cmd)
             return False
 
         for _ch in cmd:
             if _ch not in self.ANGLE_CHS:
+                self._log.debug('cmd=%s: False', cmd)
                 return False
 
-        self._log.debug('True')
+        self._log.debug('cmd=%s: True', cmd)
         return True
 
     def is_float_str(self, s):
@@ -90,7 +90,7 @@ class Util:
 
         ret = None
 
-        cmd = cmd.upper()
+        # cmd = cmd.upper()
 
         if self.is_anglecmd(cmd):
             angles = []
@@ -147,19 +147,21 @@ class Util:
         print(f'ERROR:"{cmd}": {res["cmd"]}, {res["err"]}')
     
 
-    def flip_strs(self, strs):
-        """  """
-        self._log.debug('strs=')
-        for _s in strs:
-            self._log.debug('  %s', _s)
-
+    def flip_angle_strs(self, strs):
+        """
+          'fcbx' --> 'xbcf'
+          '0.5' --> '0.5'
+        """
         new_strs = []
         for _s in strs:
-            new_strs.append(_s[::-1])
+            self._log.debug('_s=%s', _s)
 
-        self._log.debug('new_strs=')
-        for _s in new_strs:
-            self._log.debug('  %s', _s)
+            _new_s = _s
+            if self.is_anglecmd(_s):
+                _new_s = _s[::-1]
+            self._log.debug('_new_s=%s', _new_s)
+
+            new_strs.append(_new_s)
 
         return new_strs
 
