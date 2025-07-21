@@ -58,6 +58,8 @@ class Util:
             self._log.debug('cmd=%s: False', cmd)
             return False
 
+        cmd = cmd.lower()
+
         for _ch in cmd:
             if _ch not in self.ANGLE_CHS:
                 self._log.debug('cmd=%s: False', cmd)
@@ -97,6 +99,12 @@ class Util:
 
             for _i, _ch in enumerate(cmd):
                 _af = self.angle_factor[_i]
+
+                # if upper case, double angle
+                if _ch.isupper():
+                    _af *= 2
+                    _ch = _ch.lower()
+
                 _angle = None
 
                 if _ch == self.CH_CENTER:
@@ -115,6 +123,7 @@ class Util:
                     _angle = self.angle_unit * _af * -1
 
                 if _angle is not None:
+                    _angle = max(-90, min(_angle, 90))
                     angles.append(_angle)
 
             self._log.debug('angles=%s', angles)
