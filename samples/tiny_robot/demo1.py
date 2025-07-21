@@ -26,7 +26,7 @@ Tiny Robot Demo #1
               default=10, show_default=True,
               help='count')
 @click.option('--angle_unit', '-a', '-u', type=float,
-              default=30, show_default=True,
+              default=35, show_default=True,
               help='angle Unit')
 @click.option('--move_sec', '-s', type=float,
               default=.2, show_default=True,
@@ -80,7 +80,6 @@ class Demo1App(TinyRobotApp):
 
     SEQ = [
         'fccc',
-        'f...',
         'cbbb',
         '.c..',
         '.f..',

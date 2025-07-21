@@ -23,7 +23,7 @@ Tiny Robot: Manual mode
 """)
 @click.argument('pins', type=int, nargs=4)
 @click.option('--angle_unit', '-a', '-u', type=float,
-              default=30, show_default=True,
+              default=35, show_default=True,
               help='angle Unit')
 @click.option('--move_sec', '-s', type=float,
               default=.2, show_default=True,
