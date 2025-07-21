@@ -1,0 +1,195 @@
+#
+# (c) 2025 Yoichi Tanibayashi
+#
+import time
+from piservo0 import get_logger
+
+
+class Util:
+    """ utility functions """
+
+    # SEQの角度をサーボに与える実際の角度に変換するための係数
+    #                  [FL, BL, BR, FR]
+    DEF_ANGLE_FACTOR = [-1, -1,  1,  1]
+
+    # angle文字
+    CH_CENTER = 'C'
+    CH_MIN = 'N'
+    CH_MAX = 'X'
+    CH_FORWARD = 'F'
+    CH_BACKWARD = 'B'
+
+    ANGLE_CHS = [CH_CENTER, CH_MIN, CH_MAX, CH_FORWARD, CH_BACKWARD]
+
+    def __init__(self, mservo,
+                 move_sec,
+                 angle_unit,
+                 angle_factor=DEF_ANGLE_FACTOR,
+                 debug=False):
+        """ constructor """
+        self._dbg = debug
+        self._log = get_logger(__class__.__name__, self._dbg)
+        self._log.debug('move_sec=%s,angle_unit=%s,angle_factor=%s',
+                         move_sec, angle_unit, angle_factor)
+
+        self.mservo = mservo
+        self.move_sec = move_sec
+        self.angle_unit=angle_unit
+        self.angle_factor=angle_factor
+
+    def set_move_sec(self, move_sec):
+        """  """
+        self.move_sec = move_sec
+
+    def set_angle_unit(self, angle:float) -> float:
+        """   """
+        self._log.debug('angle=%s', angle)
+
+        if angle <= 0:
+            return -1
+
+        self.angle_unit = angle
+
+        return self.angle_unit
+
+    def is_anglecmd(self, cmd):
+        """  """
+        self._log.debug('cmd=%s', cmd)
+
+        if len(cmd) != 4:
+            return False
+
+        for _ch in cmd:
+            if _ch not in self.ANGLE_CHS:
+                return False
+
+        self._log.debug('True')
+        return True
+
+    def is_float_str(self, s):
+        """  """
+        self._log.debug('s=%s', s)
+
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False
+
+    def parse_cmd(self, cmd):
+        """ parse cmdline
+
+        e.g.
+          self.angle_unit = 40
+          self.angle_factor = [-1, -1, 1, 1]
+
+          'FBCF' --> {'angles', [-40, 40, 0, 40]}
+
+        """
+        self._log.debug('cmd=%s', cmd)
+
+        ret = None
+
+        cmd = cmd.upper()
+
+        if self.is_anglecmd(cmd):
+            angles = []
+
+            for _i, _ch in enumerate(cmd):
+                _af = self.angle_factor[_i]
+                _angle = None
+
+                if _ch == self.CH_CENTER:
+                    _angle = 0
+
+                elif _ch == self.CH_MIN:
+                    _angle = -90 * _af
+
+                elif _ch == self.CH_MAX:
+                    _angle = 90 * _af
+
+                elif _ch == self.CH_FORWARD:
+                    _angle = self.angle_unit * _af
+
+                elif _ch == self.CH_BACKWARD:
+                    _angle = self.angle_unit * _af * -1
+
+                if _angle is not None:
+                    angles.append(_angle)
+
+            self._log.debug('angles=%s', angles)
+
+            ret = {'cmd': 'angles', 'angles': angles}
+
+        elif self.is_float_str(cmd):
+            ret = {'cmd': 'interval', 'sec': float(cmd)}
+
+        else:
+            ret = {'cmd': 'error', 'err': 'invalid command'}
+
+        self._log.debug('ret=%s', ret)
+        return ret
+
+    def exec_cmd(self, cmd):
+        """  """
+        res = self.parse_cmd(cmd)
+
+        if res['cmd'] == 'angles':
+            angles = res['angles']
+            self.mservo.move_angle_sync(angles, self.move_sec)
+            return
+
+        if res['cmd'] == 'interval':
+            time.sleep(float(res['sec']))
+            return
+
+        # else: Error
+        print(f'ERROR:"{cmd}": {res["cmd"]}, {res["err"]}')
+    
+
+    def flip_strs(self, strs):
+        """  """
+        self._log.debug('strs=')
+        for _s in strs:
+            self._log.debug('  %s', _s)
+
+        new_strs = []
+        for _s in strs:
+            new_strs.append(_s[::-1])
+
+        self._log.debug('new_strs=')
+        for _s in new_strs:
+            self._log.debug('  %s', _s)
+
+        return new_strs
+
+    def flip_lists(self, lists):
+        """ Flip the lists
+
+        e.g.
+          from
+          [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+          ]
+
+          to
+          [
+            [4, 3, 2, 1],
+            [8, 7, 6, 5],
+          ]
+        """
+        self._log.debug('lists =')
+        for _c in lists:
+            self._log.debug('  %s', _c)
+
+        new_lists = []
+        for c in lists:
+            c.reverse()
+            new_lists.append(c)
+
+        self._log.debug('new_lists =')
+        for _c in new_lists:
+            self._log.debug('  %s', _c)
+
+        return new_lists

@@ -1,12 +1,15 @@
 # Tiny Robot Demo の動かし方
 
+`piservo0` を使ったシンプルな四足歩行ロボットです。
 
-## Install 
 
-### 1. pigpioの設定
+## == Install 
+
+### 1. pigpioのインストールと設定
 
 ```
 # `pigpio`パッケージのインストール
+# すでにインストールされていることが多いです。
 sudo apt install pigpio
 
 # pigpioサービスの自動起動設定
@@ -26,7 +29,7 @@ export PATH=$PATH:~/.local/bin
 ```
 
 
-## 3. 'piservo0'のダウンロードとインストール
+### 3. 'piservo0'のダウンロードとインストール
 
 ```
 git clone https://github.com/ytani01/piservo0.git
@@ -40,8 +43,16 @@ uv pip install -e '.[sample]'
 ```
 
 
-## 4. Tiny Robot Demo の実行
+## == Tiny Robot Demo の実行
+
+### 1. デモの実行
 
 ``` bash
-uv run samples/tiny_robot.py devmo1 17 27 22 25
+uv run samples/tiny_robot.py devmo1 17 27 23 25
+```
+
+### 2. マニュアルモードの実行
+
+``` bash
+uv run samples/tiny_robot.py devmo1 17 27 23 25
 ```
