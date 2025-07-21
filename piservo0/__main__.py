@@ -4,7 +4,6 @@
 import click
 import pigpio
 from piservo0 import get_logger
-from .cmd_echo import CmdEcho
 from .cmd_servo import CmdServo
 from .cmd_calib import CmdCalib
 from .cmd_multi import CmdMulti
@@ -32,37 +31,11 @@ def cli(ctx, debug):
 
 
 @cli.command(help="""
-echo coomand""")
-@click.option('--debug', '-d', is_flag=True, default=False,
-              help='debug flag')
-def echo(debug):
-    """ echo command (just sample command)
-    """
-    log = get_logger(__name__, debug)
-    log.debug('')
-
-    try:
-        app = CmdEcho(debug=debug)
-
-    except Exception as _e:
-        log.error('%s: %s', type(_e).__name__, _e)
-        return
-
-    try:
-        app.main()
-
-    except Exception as _e:
-        log.warning('%s: %s', type(_e).__name__, _e)
-
-    finally:
-        app.end()
-
-
-@cli.command(help="""
 servo command""")
 @click.argument('pin', type=int, nargs=1)
 @click.argument('pulse', type=str, nargs=1)
-@click.option('--sec', '-t', '-s', type=float, default=1.0,
+@click.option('--sec', '-t', '-s', type=float,
+              default=1.0, show_default=True,
               help='sec')
 @click.option('--debug', '-d', is_flag=True, default=False,
               help='debug flag')
@@ -98,8 +71,10 @@ def servo(pin, pulse, sec, debug):
 calibration tool""")
 @click.argument('pin', type=int, nargs=1)
 @click.option('--conf_file', '--file', '-c', '-f', type=str,
-              default='./servo.json')
-@click.option('--sec', '-t', '-s', type=float, default=1.0,
+              default='./servo.json', show_default=True,
+              help='config file')
+@click.option('--sec', '-t', '-s', type=float,
+              default=1.0, show_default=True,
               help='sec')
 def calib(ctx, pin, conf_file, sec, debug):
     """ clib command
@@ -133,11 +108,12 @@ def calib(ctx, pin, conf_file, sec, debug):
 multi servo controller""")
 @click.argument('pin', type=int, nargs=-1)
 @click.option('--conf_file', '--file', '-c', '-f', type=str,
-              default='./servo.json')
-@click.option('--sec', '-t', '-s', type=float, default=1,
+              default='./servo.json', show_default=True,
+              help='config file')
+@click.option('--sec', '-t', '-s', type=float,
+              default=1, show_default=True,
               help='sec')
-@click.option('--debug', '-d', is_flag=True, default=False,
-              help='debug flag')
+@click.option('--debug', '-d', is_flag=True, help='debug flag')
 @click.pass_context
 def multi(ctx, pin, conf_file, sec, debug):
     """ servo command

@@ -37,6 +37,12 @@ class Util:
         self.angle_unit=angle_unit
         self.angle_factor=angle_factor
 
+    def clip(self, v, v_min, v_max):
+        """ min <= v <= max """
+        self._log.debug('v=%s,min=%s,max=%s', v, v_min, v_max)
+
+        return max(min(v, v_max), v_min)
+
     def set_move_sec(self, move_sec):
         """  """
         self.move_sec = move_sec
@@ -123,7 +129,7 @@ class Util:
                     _angle = self.angle_unit * _af * -1
 
                 if _angle is not None:
-                    _angle = max(-90, min(_angle, 90))
+                    _angle = self.clip(_angle, -90, 90)
                     angles.append(_angle)
 
             self._log.debug('angles=%s', angles)

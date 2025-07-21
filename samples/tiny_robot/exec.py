@@ -9,7 +9,7 @@ from .util import Util
 
 
 @click.command(help="""
-Tiny Robot Demo #1
+Tiny Robot: Execute Script files
 
 `PINS` order:
 
@@ -20,11 +20,14 @@ Tiny Robot Demo #1
     PIN3 Back-Right
 
     PIN4 Front-Rihgt
+
+One or more `SCRIPT_FILE`s
 """)
 @click.argument('pins', type=int, nargs=4)
+@click.argument('script_file', type=str, nargs=-1)
 @click.option('--count', '-c', type=int,
-              default=10, show_default=True,
-              help='count')
+              default=1, show_default=True,
+              help='execution count')
 @click.option('--angle_unit', '-a', '-u', type=float,
               default=30, show_default=True,
               help='angle Unit')
@@ -38,53 +41,41 @@ Tiny Robot Demo #1
               default='./servo.json', show_default=True,
               help='Config file path')
 @click.option('--debug', '-d', is_flag=True, help='Enable debug mode')
-def demo1(pins, count, angle_unit, move_sec, interval_sec, conf_file,
+def exec(pins, script_file, count, angle_unit, move_sec, interval_sec, conf_file,
           debug):
     """ Tiny Robot Demo #1 """
     _log = get_logger(__name__, debug)
-    _fmt = 'pins=%s,count=%s,angle_unit=%s,move_sec=%s,'
+    _fmt = 'pins=%s,'
+    _fmt += 'script_file=%s,'
+    _fmt += 'count=%s,angle_unit=%s,move_sec=%s,'
     _fmt += 'interval_sec=%s,conf_file=%s'
     _log.debug(_fmt,
-               pins, count, angle_unit, move_sec, interval_sec,
+               pins, script_file,
+               count, angle_unit, move_sec, interval_sec,
                conf_file)
 
-    app = Demo1App(pins, count,
-                   angle_unit, move_sec, interval_sec,
-                   conf_file, debug=debug)
+    app = ExecApp(pins, script_file, count,
+                  angle_unit, move_sec, interval_sec,
+                  conf_file, debug=debug)
     app.start()
 
 
-class Demo1App(TinyRobotApp):
+class ExecApp(TinyRobotApp):
     """ Tiny Robot Demo #1
     """
-    # コマンドシーケンス
-    #
-    # - [Front-Left, Back-Left, Back-Right, Front-Right]
-    # - ここでは、プラスの角度が前方向になるように書く。
-    # - F:前、C:中央、B:後
-    #
-    # (左右反転パターンは、flip_strs()で生成できる)
-    SEQ = [
-        'fccc',
-        'fbbb',
-        'cbbb',
-        'ccbb',
-        'cfbb',
-        'cfbc',
-        'bccc',
-        'cccc',
-    ]
 
-    def __init__(self, pins,
+    def __init__(self, pins, script_file,
                  count, angle_unit, move_sec, interval_sec,
                  conf_file, debug=False):
         """ constractor """
         super().__init__(pins, conf_file, debug=debug)
         self._log = get_logger(__class__.__name__, self._dbg)
+        self._log.debug('script_file=%s', script_file)
         self._log.debug('count=%s, angle_unit=%s', count, angle_unit)
         self._log.debug('move_sec=%s, interval_sec=%s',
                         move_sec, interval_sec)
 
+        self.script_file = script_file
         self.count = count
         self.angle_unit = angle_unit
         self.move_sec = move_sec
@@ -96,18 +87,26 @@ class Demo1App(TinyRobotApp):
 
         time.sleep(1.0)
 
-        _seq = self.SEQ + self.util.flip_angle_strs(self.SEQ)
-
         try:
             for _count in range(self.count):
                 print(f'===== count={_count}')
 
-                for angles_str in _seq:
-                    print(f' {angles_str}')
+                for _file in self.script_file:
+                    self._log.debug('_file=%s', _file)
 
-                    self.util.exec_cmd(angles_str)
+                    with open(_file) as _f:
+                        for line in _f:
+                            self._log.debug('line=%s', line)
 
-                    time.sleep(self.interval_sec)
+                            cmds = line.split()
+                            self._log.debug('cmds=%s', cmds)
+
+                            for cmd in cmds:
+                                print(f' {cmd}')
+
+                                self.util.exec_cmd(cmd)
+
+                                time.sleep(self.interval_sec)
 
         except KeyboardInterrupt as _e:
             self._log.warning('%s', type(_e).__name__)

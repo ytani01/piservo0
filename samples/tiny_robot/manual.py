@@ -6,26 +6,33 @@ import time
 import click
 from piservo0 import get_logger
 from .app import TinyRobotApp
-from .util import Util
 
 
 @click.command(help="""
-Tiny Robot Manual mode
+Tiny Robot: Manual mode
 
 `PINS` order:
+
     PIN1 Front-Left
+
     PIN2 Back-Left
+
     PIN3 Back-Right
+
     PIN4 Front-Rihgt
 """)
 @click.argument('pins', type=int, nargs=4)
-@click.option('--angle_unit', '-a', '-u', type=float, default=35,
+@click.option('--angle_unit', '-a', '-u', type=float,
+              default=30, show_default=True,
               help='angle Unit')
-@click.option('--move_sec', '-s', type=float, default=.2,
+@click.option('--move_sec', '-s', type=float,
+              default=.2, show_default=True,
               help='move steop sec')
-@click.option('--interval_sec', '-i', type=float, default=0.0,
+@click.option('--interval_sec', '-i', type=float,
+              default=0.0, show_default=True,
               help='step interval sec')
-@click.option('--conf_file', '-f', type=str, default='./servo.json',
+@click.option('--conf_file', '-f', type=str,
+              default='./servo.json', show_default=True,
               help='Config file path')
 @click.option('--debug', '-d', is_flag=True, help='Enable debug mode')
 def manual(pins, angle_unit, move_sec, interval_sec, conf_file,
@@ -59,12 +66,6 @@ class ManualApp(TinyRobotApp):
         self.angle_unit = angle_unit
         self.move_sec = move_sec
         self.interval_sec = interval_sec
-
-    def init(self):
-        """ initialize """
-        super().init()
-        self.util = Util(self.mservo, self.move_sec, self.angle_unit,
-                         debug=self._dbg)
 
     def main(self):
         """ main function """

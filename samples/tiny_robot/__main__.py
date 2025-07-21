@@ -6,6 +6,7 @@ from piservo0 import get_logger
 
 from .demo1 import demo1
 from .manual import manual
+from .exec import exec
 
 
 # clickで、'-h'もヘルプオプションするために
@@ -29,6 +30,7 @@ def cli(ctx, debug):
 
 cli.add_command(demo1)
 cli.add_command(manual)
+cli.add_command(exec)
 
 
 if __name__ == '__main__':

@@ -35,6 +35,8 @@ class TinyRobotApp:
         self.mservo = MultiServo(self.pi, self.pins,
                                  conf_file=self.conf_file,
                                  debug=False)
+        self.util = Util(self.mservo, self.move_sec, self.angle_unit,
+                         debug=self._dbg)
 
     def main(self):
         """ main loop
