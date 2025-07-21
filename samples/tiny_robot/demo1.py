@@ -64,6 +64,8 @@ class Demo1App(TinyRobotApp):
     # - F:前、C:中央、B:後
     #
     # (左右反転パターンは、flip_strs()で生成できる)
+    #
+    """
     SEQ = [
         'fccc',
         'fbbb',
@@ -73,6 +75,18 @@ class Demo1App(TinyRobotApp):
         'cfbc',
         'bccc',
         'cccc',
+    ]
+    """
+
+    SEQ = [
+        'fccc',
+        'f...',
+        'cbbb',
+        '.c..',
+        '.f..',
+        '.f.c',
+        'bcc.',
+        'c...',
     ]
 
     def __init__(self, pins,

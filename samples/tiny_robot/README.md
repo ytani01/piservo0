@@ -48,11 +48,17 @@ uv pip install -e '.[sample]'
 ### 1. デモの実行
 
 ``` bash
-uv run samples/tiny_robot.py devmo1 17 27 23 25
+uv run python -m samples.tiny_robot.py devmo1 17 27 23 25
 ```
 
 ### 2. マニュアルモードの実行
 
 ``` bash
-uv run samples/tiny_robot.py devmo1 17 27 23 25
+uv run python -m samples.tiny_robot.py devmo1 17 27 23 25
+```
+
+### 3. スクリプト実行モード
+
+``` bash
+uv run python -m samples.tiny_robot.py exec 17 27 23 25 samples/tiny_robot/script2-hi.txt
 ```

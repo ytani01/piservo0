@@ -18,8 +18,10 @@ class Util:
     CH_MAX = 'x'
     CH_FORWARD = 'f'
     CH_BACKWARD = 'b'
+    CH_DONT_MOVE = '.'
 
-    ANGLE_CHS = [CH_CENTER, CH_MIN, CH_MAX, CH_FORWARD, CH_BACKWARD]
+    ANGLE_CHS = [CH_CENTER, CH_MIN, CH_MAX, CH_FORWARD, CH_BACKWARD,
+                 CH_DONT_MOVE]
 
     def __init__(self, mservo,
                  move_sec,
@@ -68,7 +70,7 @@ class Util:
 
         for _ch in cmd:
             if _ch not in self.ANGLE_CHS:
-                self._log.debug('cmd=%s: False', cmd)
+                self._log.debug('cmd=%s:_ch=%s: False', cmd, _ch)
                 return False
 
         self._log.debug('cmd=%s: True', cmd)
@@ -98,8 +100,6 @@ class Util:
 
         ret = None
 
-        # cmd = cmd.upper()
-
         if self.is_anglecmd(cmd):
             angles = []
 
@@ -127,6 +127,9 @@ class Util:
 
                 elif _ch == self.CH_BACKWARD:
                     _angle = self.angle_unit * _af * -1
+
+                elif _ch == self.CH_DONT_MOVE:
+                    _angle = self.mservo.servo[_i].get_angle()
 
                 if _angle is not None:
                     _angle = self.clip(_angle, -90, 90)
