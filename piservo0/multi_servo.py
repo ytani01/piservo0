@@ -171,8 +171,27 @@ class MultiServo:
         start_angles = self.get_angle()
         self._log.debug(f'start_angles={start_angles}')
 
+        # 文字列を数値に変換
+        processed_target_angles = []
+        for i, angle in enumerate(target_angles):
+            if isinstance(angle, str):
+                # 各サーボインスタンスの定数を使って変換
+                servo_instance = self.servo[i]
+                if angle == servo_instance.POS_CENTER:
+                    processed_target_angles.append(servo_instance.ANGLE_CENTER)
+                elif angle == servo_instance.POS_MIN:
+                    processed_target_angles.append(servo_instance.ANGLE_MIN)
+                elif angle == servo_instance.POS_MAX:
+                    processed_target_angles.append(servo_instance.ANGLE_MAX)
+                else:
+                    # 不明な文字列の場合は現在の角度を維持（エラーログはmove_angleで出力）
+                    self._log.warning(f'不明な角度文字列 "{angle}" を無視します。')
+                    processed_target_angles.append(start_angles[i])
+            else:
+                processed_target_angles.append(angle)
+
         diff_angles = [
-            target_angles[i] - start_angles[i] for i in range(self.servo_n)
+            processed_target_angles[i] - start_angles[i] for i in range(self.servo_n)
         ]
         self._log.debug(f'diff_angles={diff_angles}')
 

@@ -122,11 +122,11 @@ def test_cmd_calib_main_input(calib_app, mocker, capsys, input_str, expected_out
 
     # 最終的なサーボのパルス値が期待通りかを確認
     if input_str == 'c':
-        expected_pulse_val = calib_app.servo.center
+        expected_pulse_val = calib_app.servo.pulse_center
     elif input_str == 'n':
-        expected_pulse_val = calib_app.servo.min
+        expected_pulse_val = calib_app.servo.pulse_min
     elif input_str == 'x':
-        expected_pulse_val = calib_app.servo.max
+        expected_pulse_val = calib_app.servo.pulse_max
     elif 'angle' in expected_output_str:
         expected_pulse_val = calib_app.servo.deg2pulse(float(input_str))
     elif 'pulse' in expected_output_str:

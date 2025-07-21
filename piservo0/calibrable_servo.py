@@ -13,9 +13,9 @@ class CalibrableServo(PiServo):
     Attributes:
         DEF_CONF_FILE (str): デフォルトの設定ファイル名。
         conf_file (str): 使用する設定ファイルへのパス。
-        center (int): キャリブレーション後の中央位置のパルス幅。
-        min (int): キャリブレーション後の最小位置のパルス幅。
-        max (int): キャリブレーション後の最大位置のパルス幅。
+        pulse_center (int): キャリブレーション後の中央位置のパルス幅。
+        pulse_min (int): キャリブレーション後の最小位置のパルス幅。
+        pulse_max (int): キャリブレーション後の最大位置のパルス幅。
     """
     DEF_CONF_FILE = './servo.json'
 
@@ -51,9 +51,9 @@ class CalibrableServo(PiServo):
         self._config_manager = ServoConfigManager(conf_file, self._dbg)
 
         # デフォルト値を設定
-        self.min = super().MIN
-        self.center = super().CENTER
-        self.max = super().MAX
+        self._pulse_min = super().MIN
+        self._pulse_center = super().CENTER
+        self._pulse_max = super().MAX
 
         # 設定を読み込んで適用
         self.load_conf()
@@ -86,23 +86,38 @@ class CalibrableServo(PiServo):
 
         return pulse
 
-    def set_center(self, pulse=None):
+    @property
+    def pulse_center(self):
+        """中央位置のパルス幅を取得する。"""
+        return self._pulse_center
+
+    @pulse_center.setter
+    def pulse_center(self, pulse=None):
         """中央位置のパルス幅を設定し、設定ファイルに保存する。"""
-        self.center = self._normalize_pulse(pulse)
+        self._pulse_center = self._normalize_pulse(pulse)
         self.save_conf()
-        return self.center
 
-    def set_min(self, pulse=None):
+    @property
+    def pulse_min(self):
+        """最小位置のパルス幅を取得する。"""
+        return self._pulse_min
+
+    @pulse_min.setter
+    def pulse_min(self, pulse=None):
         """最小位置のパルス幅を設定し、設定ファイルに保存する。"""
-        self.min = self._normalize_pulse(pulse)
+        self._pulse_min = self._normalize_pulse(pulse)
         self.save_conf()
-        return self.min
 
-    def set_max(self, pulse=None):
+    @property
+    def pulse_max(self):
+        """最大位置のパルス幅を取得する。"""
+        return self._pulse_max
+
+    @pulse_max.setter
+    def pulse_max(self, pulse=None):
         """最大位置のパルス幅を設定し、設定ファイルに保存する。"""
-        self.max = self._normalize_pulse(pulse)
+        self._pulse_max = self._normalize_pulse(pulse)
         self.save_conf()
-        return self.max
 
     def move_pulse(self, pulse, forced=False):
         """サーボモーターを、キャリブレーション値を考慮して移動させる。
@@ -111,11 +126,11 @@ class CalibrableServo(PiServo):
         """
 
         if not forced:
-            if pulse < self.min:
-                self._log.warning(f'pulse({pulse}) < self.min({self.min})')
+            if pulse < self.pulse_min:
+                self._log.warning(f'pulse({pulse}) < self.pulse_min({self.pulse_min})')
                 return
-            if pulse > self.max:
-                self._log.warning(f'pulse({pulse}) > self.max({self.max})')
+            if pulse > self.pulse_max:
+                self._log.warning(f'pulse({pulse}) > self.pulse_max({self.pulse_max})')
                 return
         
         super().move_pulse(pulse)
@@ -123,26 +138,26 @@ class CalibrableServo(PiServo):
     def move_center(self):
         """サーボモーターをキャリブレーションされた中央位置に移動させる。"""
         self._log.debug('')
-        self.move_pulse(self.center)
+        self.move_pulse(self.pulse_center)
         
     def move_min(self):
         """サーボモーターをキャリブレーションされた最小位置に移動させる。"""
         self._log.debug('')
-        self.move_pulse(self.min)
+        self.move_pulse(self.pulse_min)
         
     def move_max(self):
         """サーボモーターをキャリブレーションされた最大位置に移動させる。"""
         self._log.debug('')
-        self.move_pulse(self.max)
+        self.move_pulse(self.pulse_max)
 
     def deg2pulse(self, deg:float) -> int:
         """角度をパルス幅に変換する。"""
         if deg >= self.ANGLE_CENTER:
-            d = self.max - self.center
+            d = self.pulse_max - self.pulse_center
         else:
-            d = self.center - self.min
+            d = self.pulse_center - self.pulse_min
 
-        pulse_float = d / self.ANGLE_MAX * deg + self.center
+        pulse_float = d / self.ANGLE_MAX * deg + self.pulse_center
         pulse_int = int(round(pulse_float))
         self._log.debug(
             f'deg={deg},pulse_float={pulse_float},pulse_int={pulse_int}'
@@ -152,12 +167,12 @@ class CalibrableServo(PiServo):
 
     def pulse2deg(self, pulse:int) -> float:
         """パルス幅を角度に変換する。"""
-        if pulse >= self.center:
-            d = self.max - self.center
+        if pulse >= self.pulse_center:
+            d = self.pulse_max - self.pulse_center
         else:
-            d = self.center - self.min
+            d = self.pulse_center - self.pulse_min
 
-        deg = (pulse - self.center) / d * self.ANGLE_MAX
+        deg = (pulse - self.pulse_center) / d * self.ANGLE_MAX
         self._log.debug(f'pulse={pulse},deg={deg}')
 
         return deg
@@ -201,18 +216,18 @@ class CalibrableServo(PiServo):
         """設定ファイルからこのサーボのキャリブレーション値を読み込む。"""
         config = self._config_manager.get_config(self.pin)
         if config:
-            self.min = config.get('min', self.min)
-            self.center = config.get('center', self.center)
-            self.max = config.get('max', self.max)
-        self._log.debug(f"Loaded: pin={self.pin}, min={self.min}, center={self.center}, max={self.max}")
+            self._pulse_min = config.get('min', self.pulse_min)
+            self._pulse_center = config.get('center', self.pulse_center)
+            self._pulse_max = config.get('max', self.pulse_max)
+        self._log.debug(f"Loaded: pin={self.pin}, min={self.pulse_min}, center={self.pulse_center}, max={self.pulse_max}")
 
     def save_conf(self):
         """現在のキャリブレーション値を設定ファイルに保存する。"""
         new_config = {
             'pin': self.pin,
-            'min': self.min,
-            'center': self.center,
-            'max': self.max
+            'min': self.pulse_min,
+            'center': self.pulse_center,
+            'max': self.pulse_max
         }
         self._config_manager.save_config(new_config)
         self._log.debug(f"Saved: {new_config}")

@@ -145,21 +145,21 @@ class CmdCalib:
 
                 if in_str in cmd_set_center['str']:
                     pulse = self.servo.get_pulse()
-                    self.servo.set_center(pulse)
+                    self.servo.pulse_center = pulse
                     print(f' set center: pulse = {pulse}')
                     print(f' file: {self.servo.conf_file}')
                     continue
 
                 if in_str in cmd_set_min['str']:
                     pulse = self.servo.get_pulse()
-                    self.servo.set_min(pulse)
+                    self.servo.pulse_min = pulse
                     print(f' set min: pulse = {pulse}')
                     print(f' file: {self.servo.conf_file}')
                     continue
 
                 if in_str in cmd_set_max['str']:
                     pulse = self.servo.get_pulse()
-                    self.servo.set_max(pulse)
+                    self.servo.pulse_max = pulse
                     print(f' set max: pulse = {pulse}')
                     print(f' file: {self.servo.conf_file}')
                     continue

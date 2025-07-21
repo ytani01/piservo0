@@ -158,28 +158,28 @@ class CalibApp:
         cur_pulse = servo.get_pulse()
 
         if calib_type == 'center':
-            if servo.min < cur_pulse < servo.max:
-                servo.center = cur_pulse
+            if servo.pulse_min < cur_pulse < servo.pulse_max:
+                servo.pulse_center = cur_pulse
             else:
                 print(
                     f'\n {cur_pulse}: ' +
-                    f'out of range:{servo.min}..{servo.max}'
+                    f'out of range:{servo.pulse_min}..{servo.pulse_max}'
                 )
                 return
         elif calib_type == 'min':
-            if cur_pulse < servo.center:
-                servo.min = cur_pulse
+            if cur_pulse < servo.pulse_center:
+                servo.pulse_min = cur_pulse
             else:
                 print(
-                    f'\n {cur_pulse}: out of range:..{servo.center}'
+                    f'\n {cur_pulse}: out of range:..{servo.pulse_center}'
                 )
                 return
         elif calib_type == 'max':
-            if cur_pulse > servo.center:
-                servo.max = cur_pulse
+            if cur_pulse > servo.pulse_center:
+                servo.pulse_max = cur_pulse
             else:
                 print(
-                    f'\n {cur_pulse}: out of range: {servo.center}..'
+                    f'\n {cur_pulse}: out of range: {servo.pulse_center}..'
                 )
                 return
         else:

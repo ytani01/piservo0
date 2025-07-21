@@ -184,3 +184,47 @@ def test_move_angle_invalid_type(multi_servo_setup, mocker):
     multi_servo._log.error.assert_called_once()
     current_angles = multi_servo.get_angle()
     assert initial_angles == current_angles
+
+
+def test_move_angle_by_string(multi_servo_setup):
+    """
+    move_angleで、文字列による角度指定ができるかをテストする。
+    """
+    pi, multi_servo = multi_servo_setup
+    
+    # 文字列と数値の混合リスト
+    target_angles_str = ['center', 'min', 'max', 0]
+    expected_angles_deg = [0.0, -90.0, 90.0, 0.0]
+    
+    multi_servo.move_angle(target_angles_str)
+    time.sleep(SLEEP_SEC)
+    
+    current_angles = multi_servo.get_angle()
+    assert len(current_angles) == len(expected_angles_deg)
+    for i, angle in enumerate(current_angles):
+        assert pytest.approx(angle, abs=1.0) == expected_angles_deg[i]
+
+
+def test_move_angle_sync_by_string(multi_servo_setup):
+    """
+    move_angle_syncで、文字列による角度指定ができるかをテストする。
+    """
+    pi, multi_servo = multi_servo_setup
+
+    # 文字列と数値の混合リスト
+    target_angles_str = ['max', 'min', 45.0, -45.0]
+    expected_angles_deg = [90.0, -90.0, 45.0, -45.0]
+    move_sec = 1.5
+
+    start_time = time.time()
+    multi_servo.move_angle_sync(target_angles_str, estimated_sec=move_sec)
+    end_time = time.time()
+
+    # 実行時間が指定した時間に近いことを確認
+    assert pytest.approx(end_time - start_time, abs=0.5) == move_sec
+
+    # 最終的な角度が目標と一致することを確認
+    current_angles = multi_servo.get_angle()
+    assert len(current_angles) == len(expected_angles_deg)
+    for i, angle in enumerate(current_angles):
+        assert pytest.approx(angle, abs=1.0) == expected_angles_deg[i]

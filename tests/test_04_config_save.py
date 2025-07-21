@@ -58,12 +58,12 @@ def test_config_save_and_load(test_config):
         conf_file=test_config["conf_file"]
     )
     
-    # 初期値��デフォルト値であることを確認
-    assert servo1.center == 1450
+    # 初期値がデフォルト値であることを確認
+    assert servo1.pulse_center == 1450
 
     # 値を変更
-    servo1.center = test_config["new_pulse_center"]
-    assert servo1.center == test_config["new_pulse_center"]
+    servo1.pulse_center = test_config["new_pulse_center"]
+    assert servo1.pulse_center == test_config["new_pulse_center"]
 
     # 設定を保存
     servo1.save_conf()
@@ -83,4 +83,4 @@ def test_config_save_and_load(test_config):
     )
 
     # 保存した値が正しく読み込まれていることを検証
-    assert servo2.center == test_config["new_pulse_center"]
+    assert servo2.pulse_center == test_config["new_pulse_center"]

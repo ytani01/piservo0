@@ -84,19 +84,19 @@ def test_set_and_load_calibration():
     
     servo1.move_pulse(new_min, forced=True)
     time.sleep(SLEEP_SEC)
-    servo1.set_min()
+    servo1.pulse_min = new_min
     
     servo1.move_pulse(new_center, forced=True)
     time.sleep(SLEEP_SEC)
-    servo1.set_center()
+    servo1.pulse_center = new_center
 
     servo1.move_pulse(new_max, forced=True)
     time.sleep(SLEEP_SEC)
-    servo1.set_max()
+    servo1.pulse_max = new_max
 
-    assert servo1.min == new_min
-    assert servo1.center == new_center
-    assert servo1.max == new_max
+    assert servo1.pulse_min == new_min
+    assert servo1.pulse_center == new_center
+    assert servo1.pulse_max == new_max
 
     # --- クリーンアップ1 ---
     servo1.move_center()
@@ -110,9 +110,9 @@ def test_set_and_load_calibration():
         pytest.fail("pigpio daemon not connected (second connection).")
     servo2 = CalibrableServo(pi2, TEST_PIN, conf_file=TEST_CONF_FILE)
     
-    assert servo2.min == new_min
-    assert servo2.center == new_center
-    assert servo2.max == new_max
+    assert servo2.pulse_min == new_min
+    assert servo2.pulse_center == new_center
+    assert servo2.pulse_max == new_max
     
     # --- 最終クリーンアップ ---
     servo2.move_center()
