@@ -1,7 +1,6 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-import sys
 import time
 
 import click
@@ -9,6 +8,7 @@ import click
 from piservo0 import get_logger
 
 from .app import TinyRobotApp
+from .thr_worker import ThrWorker
 
 
 @click.command(
@@ -61,25 +61,26 @@ Tiny Robot: Manual mode
     help="Config file path",
 )
 @click.option("--debug", "-d", is_flag=True, help="Enable debug mode")
-def manual(pins, angle_unit, move_sec, interval_sec, conf_file, debug):
-    """Tiny Robot manual mode"""
+def thr_manual(pins, angle_unit, move_sec, interval_sec, conf_file, debug):
+    """Tiny Robot manual mode (Thread version)"""
+
     _log = get_logger(__name__, debug)
+
     _fmt = "pins=%s,angle_unit=%s,move_sec=%s,"
     _fmt += "interval_sec=%s,conf_file=%s"
     _log.debug(_fmt, pins, angle_unit, move_sec, interval_sec, conf_file)
 
-    app = ManualApp(
+    app = ThrManualApp(
         pins, angle_unit, move_sec, interval_sec, conf_file, debug=debug
     )
     app.start()
 
 
-class ManualApp(TinyRobotApp):
+class ThrManualApp(TinyRobotApp):
     """Tiny Robot Manual Mode"""
 
     def __init__(
-        self, pins, angle_unit, move_sec, interval_sec, conf_file,
-        debug=False
+        self, pins, angle_unit, move_sec, interval_sec, conf_file, debug=False
     ):
         """constractor"""
         super().__init__(pins, conf_file, debug=debug)
@@ -94,6 +95,19 @@ class ManualApp(TinyRobotApp):
         self.move_sec = move_sec
         self.interval_sec = interval_sec
 
+    def init(self):
+        """ init """
+        super().init()
+        
+        self._log.debug("")
+        
+        self.worker = ThrWorker(
+            self.mservo, self.move_sec, self.angle_unit,
+            self.interval_sec,
+            debug=self._dbg
+        )
+        self.worker.start()
+
     def main(self):
         """main function"""
         self._log.debug("")
@@ -106,22 +120,7 @@ class ManualApp(TinyRobotApp):
                 if not line:
                     break
 
-                cmds = line.split()
-                self._log.debug("cmds=%s", cmds)
-
-                for cmd in cmds:
-                    res = self.util.parse_cmd(cmd)
-
-                    if res["cmd"] == "angles":
-                        angles = res["angles"]
-                        self.mservo.move_angle_sync(angles, self.move_sec)
-                        time.sleep(self.interval_sec)
-
-                    if res["cmd"] == "interval":
-                        time.sleep(float(res["sec"]))
-
-                    if res["cmd"] == "error":
-                        print(f"ERROR: {cmd}: {res['err']}", file=sys.stderr)
+                self.worker.send(line)
 
         except (EOFError, KeyboardInterrupt):
             self._log.warning("End of Input")
@@ -129,4 +128,5 @@ class ManualApp(TinyRobotApp):
     def end(self):
         """end: post-processing"""
         self._log.debug("")
+        self.worker.end()
         super().end()
