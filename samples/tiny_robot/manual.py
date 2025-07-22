@@ -8,7 +8,7 @@ import click
 
 from piservo0 import get_logger
 
-from .app import TinyRobotApp
+from .tiny_robot_app import TinyRobotApp
 
 
 @click.command(
