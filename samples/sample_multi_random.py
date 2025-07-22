@@ -1,8 +1,9 @@
-import sys
 import random
+import sys
+
 import pigpio
-from piservo0 import get_logger
-from piservo0 import MultiServo
+
+from piservo0 import MultiServo, get_logger
 
 
 class App:

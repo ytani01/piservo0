@@ -2,8 +2,11 @@
 # (c) 2025 Yoichi Tanibayashi
 #
 import time
+
 import click
+
 from piservo0 import get_logger
+
 from .app import TinyRobotApp
 
 
@@ -27,7 +30,12 @@ One or more `SCRIPT_FILE`s
 @click.argument("pins", type=int, nargs=4)
 @click.argument("script_file", type=str, nargs=-1)
 @click.option(
-    "--count", "-c", type=int, default=1, show_default=True, help="execution count"
+    "--count",
+    "-c",
+    type=int,
+    default=1,
+    show_default=True,
+    help="execution count",
 )
 @click.option(
     "--angle_unit",
@@ -64,7 +72,14 @@ One or more `SCRIPT_FILE`s
 )
 @click.option("--debug", "-d", is_flag=True, help="Enable debug mode")
 def exec(
-    pins, script_file, count, angle_unit, move_sec, interval_sec, conf_file, debug
+    pins,
+    script_file,
+    count,
+    angle_unit,
+    move_sec,
+    interval_sec,
+    conf_file,
+    debug,
 ):
     """Tiny Robot Demo #1"""
     _log = get_logger(__name__, debug)
@@ -73,7 +88,14 @@ def exec(
     _fmt += "count=%s,angle_unit=%s,move_sec=%s,"
     _fmt += "interval_sec=%s,conf_file=%s"
     _log.debug(
-        _fmt, pins, script_file, count, angle_unit, move_sec, interval_sec, conf_file
+        _fmt,
+        pins,
+        script_file,
+        count,
+        angle_unit,
+        move_sec,
+        interval_sec,
+        conf_file,
     )
 
     app = ExecApp(
@@ -108,7 +130,9 @@ class ExecApp(TinyRobotApp):
         self._log = get_logger(__class__.__name__, self._dbg)
         self._log.debug("script_file=%s", script_file)
         self._log.debug("count=%s, angle_unit=%s", count, angle_unit)
-        self._log.debug("move_sec=%s, interval_sec=%s", move_sec, interval_sec)
+        self._log.debug(
+            "move_sec=%s, interval_sec=%s", move_sec, interval_sec
+        )
 
         self.script_file = script_file
         self.count = count

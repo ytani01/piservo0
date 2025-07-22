@@ -1,5 +1,7 @@
 import time
+
 import pigpio
+
 from piservo0 import CalibrableServo
 
 # pigpio.piのインスタンスを生成

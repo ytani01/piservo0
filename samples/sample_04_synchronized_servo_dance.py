@@ -1,6 +1,8 @@
-import time
 import math
+import time
+
 import pigpio
+
 from piservo0.multi_servo import MultiServo
 
 
@@ -12,12 +14,16 @@ def synchronized_servo_dance():
     print("シンクロナイズド・サーボ・ダンスを開始する。")
 
     # サーボ設定ファイルのパス
-    config_file = "samples/sample_servo.json"  # samplesディレクトリのファイルを使用
+    config_file = (
+        "samples/sample_servo.json"  # samplesディレクトリのファイルを使用
+    )
 
     # pigpioデーモンに接続
     pi = pigpio.pi()
     if not pi.connected:
-        print("pigpioデーモンに接続できない。実行前に 'sudo pigpiod' を実行する。")
+        print(
+            "pigpioデーモンに接続できない。"
+        )
         return
 
     # サーボのピン番号を固定する

@@ -3,9 +3,10 @@
 #
 # Servo Tool Command
 #
+import blessed
 import click
 import pigpio
-import blessed
+
 from piservo0 import MultiServo, get_logger
 
 # clickで、'-h'もヘルプオプションするために
@@ -13,7 +14,9 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
 @click.group(
-    invoke_without_command=True, context_settings=CONTEXT_SETTINGS, help="Servo Tool"
+    invoke_without_command=True,
+    context_settings=CONTEXT_SETTINGS,
+    help="Servo Tool",
 )
 @click.option("-debug", "-d", is_flag=True, help="debug flag")
 @click.pass_context
@@ -37,7 +40,9 @@ class CalibApp:
 
         self.pi = pigpio.pi()
         self.term = blessed.Terminal()
-        self.mservo = MultiServo(self.pi, pins, conf_file=conf_file, debug=debug)
+        self.mservo = MultiServo(
+            self.pi, pins, conf_file=conf_file, debug=debug
+        )
 
         self.selected_servo = self.SELECTED_SERVO_ALL
         self.running = True
@@ -138,7 +143,9 @@ class CalibApp:
         cur_pulse = self.mservo.get_pulse()
         if self.selected_servo >= 0:
             dst_pulse = cur_pulse[self.selected_servo] + diff_pulse
-            self.mservo.servo[self.selected_servo].move_pulse(dst_pulse, forced=True)
+            self.mservo.servo[self.selected_servo].move_pulse(
+                dst_pulse, forced=True
+            )
         else:
             dst_pulse = [p + diff_pulse for p in cur_pulse]
             self.mservo.move_pulse(dst_pulse, forced=True)
@@ -246,7 +253,9 @@ def calib(pins, conf_file, debug):
 
     if not pins:
         log.error("No GPIO pins specified.")
-        print("Error: Please specify GPIO pins. e.g. `servo_tool calib 17 27`")
+        print(
+            "Error: Please specify GPIO pins. e.g. `servo_tool calib 17 27`"
+        )
         return
 
     app = CalibApp(pins, conf_file, debug=debug)

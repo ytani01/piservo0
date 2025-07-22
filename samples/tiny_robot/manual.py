@@ -3,8 +3,11 @@
 #
 import sys
 import time
+
 import click
+
 from piservo0 import get_logger
+
 from .app import TinyRobotApp
 
 
@@ -65,7 +68,9 @@ def manual(pins, angle_unit, move_sec, interval_sec, conf_file, debug):
     _fmt += "interval_sec=%s,conf_file=%s"
     _log.debug(_fmt, pins, angle_unit, move_sec, interval_sec, conf_file)
 
-    app = ManualApp(pins, angle_unit, move_sec, interval_sec, conf_file, debug=debug)
+    app = ManualApp(
+        pins, angle_unit, move_sec, interval_sec, conf_file, debug=debug
+    )
     app.start()
 
 

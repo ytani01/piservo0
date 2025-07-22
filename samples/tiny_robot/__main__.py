@@ -2,19 +2,21 @@
 # (c) 2025 Yoichi Tanibayashi
 #
 import click
+
 from piservo0 import get_logger
 
 from .demo1 import demo1
-from .manual import manual
 from .exec import exec
-
+from .manual import manual
 
 # clickで、'-h'もヘルプオプションするために
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 
 @click.group(
-    invoke_without_command=True, context_settings=CONTEXT_SETTINGS, help="Tiny Robot"
+    invoke_without_command=True,
+    context_settings=CONTEXT_SETTINGS,
+    help="Tiny Robot",
 )
 @click.option("-debug", "-d", is_flag=True, help="debug flag")
 @click.pass_context

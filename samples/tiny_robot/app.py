@@ -2,9 +2,11 @@
 # (c) 2025 Yoichi Tanibayashi
 #
 import sys
+
 import pigpio
-from piservo0 import get_logger
-from piservo0 import MultiServo
+
+from piservo0 import MultiServo, get_logger
+
 from .util import Util
 
 
@@ -35,7 +37,9 @@ class TinyRobotApp:
         self.mservo = MultiServo(
             self.pi, self.pins, conf_file=self.conf_file, debug=False
         )
-        self.util = Util(self.mservo, self.move_sec, self.angle_unit, debug=self._dbg)
+        self.util = Util(
+            self.mservo, self.move_sec, self.angle_unit, debug=self._dbg
+        )
 
     def main(self):
         """main loop

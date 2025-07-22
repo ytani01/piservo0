@@ -2,6 +2,7 @@
 # (c) 2025 Yoichi Tanibayashi
 #
 import time
+
 from piservo0 import get_logger
 
 
@@ -20,10 +21,22 @@ class Util:
     CH_BACKWARD = "b"
     CH_DONT_MOVE = "."
 
-    ANGLE_CHS = [CH_CENTER, CH_MIN, CH_MAX, CH_FORWARD, CH_BACKWARD, CH_DONT_MOVE]
+    ANGLE_CHS = [
+        CH_CENTER,
+        CH_MIN,
+        CH_MAX,
+        CH_FORWARD,
+        CH_BACKWARD,
+        CH_DONT_MOVE,
+    ]
 
     def __init__(
-        self, mservo, move_sec, angle_unit, angle_factor=DEF_ANGLE_FACTOR, debug=False
+        self,
+        mservo,
+        move_sec,
+        angle_unit,
+        angle_factor=DEF_ANGLE_FACTOR,
+        debug=False,
     ):
         """constructor"""
         self._dbg = debug

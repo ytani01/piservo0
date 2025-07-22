@@ -1,5 +1,7 @@
 import time
+
 import pigpio
+
 from piservo0 import MultiServo
 
 PIN = [17, 22, 23]  # !! Ajust your configuration

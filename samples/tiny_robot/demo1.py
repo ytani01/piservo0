@@ -2,8 +2,11 @@
 # (c) 2025 Yoichi Tanibayashi
 #
 import time
+
 import click
+
 from piservo0 import get_logger
+
 from .app import TinyRobotApp
 
 
@@ -23,7 +26,9 @@ Tiny Robot Demo #1
 """
 )
 @click.argument("pins", type=int, nargs=4)
-@click.option("--count", "-c", type=int, default=10, show_default=True, help="count")
+@click.option(
+    "--count", "-c", type=int, default=10, show_default=True, help="count"
+)
 @click.option(
     "--angle_unit",
     "-a",
@@ -63,10 +68,18 @@ def demo1(pins, count, angle_unit, move_sec, interval_sec, conf_file, debug):
     _log = get_logger(__name__, debug)
     _fmt = "pins=%s,count=%s,angle_unit=%s,move_sec=%s,"
     _fmt += "interval_sec=%s,conf_file=%s"
-    _log.debug(_fmt, pins, count, angle_unit, move_sec, interval_sec, conf_file)
+    _log.debug(
+        _fmt, pins, count, angle_unit, move_sec, interval_sec, conf_file
+    )
 
     app = Demo1App(
-        pins, count, angle_unit, move_sec, interval_sec, conf_file, debug=debug
+        pins,
+        count,
+        angle_unit,
+        move_sec,
+        interval_sec,
+        conf_file,
+        debug=debug,
     )
     app.start()
 
@@ -106,13 +119,22 @@ class Demo1App(TinyRobotApp):
     ]
 
     def __init__(
-        self, pins, count, angle_unit, move_sec, interval_sec, conf_file, debug=False
+        self,
+        pins,
+        count,
+        angle_unit,
+        move_sec,
+        interval_sec,
+        conf_file,
+        debug=False,
     ):
         """constractor"""
         super().__init__(pins, conf_file, debug=debug)
         self._log = get_logger(__class__.__name__, self._dbg)
         self._log.debug("count=%s, angle_unit=%s", count, angle_unit)
-        self._log.debug("move_sec=%s, interval_sec=%s", move_sec, interval_sec)
+        self._log.debug(
+            "move_sec=%s, interval_sec=%s", move_sec, interval_sec
+        )
 
         self.count = count
         self.angle_unit = angle_unit
