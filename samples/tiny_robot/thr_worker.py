@@ -1,11 +1,12 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-import time
-import threading
 import queue
+import threading
+import time
 
 from piservo0 import get_logger
+
 from .util import Util
 
 
@@ -105,4 +106,4 @@ class ThrWorker(threading.Thread):
                     self._log.error('%s: %s',_cmd, _res["err"])
                     print("> ", end="", flush=True)
 
-        self._log.debug('done')
+        self._log.info('done')

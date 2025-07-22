@@ -122,8 +122,8 @@ class ThrManualApp(TinyRobotApp):
 
                 self.worker.send(line)
 
-        except (EOFError, KeyboardInterrupt):
-            self._log.warning("End of Input")
+        except (EOFError, KeyboardInterrupt) as _e:
+            self._log.info("End of Input")
 
     def end(self):
         """end: post-processing"""
