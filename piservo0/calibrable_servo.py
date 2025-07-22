@@ -166,7 +166,9 @@ class CalibrableServo(PiServo):
 
         pulse_float = d / self.ANGLE_MAX * deg + self.pulse_center
         pulse_int = int(round(pulse_float))
-        self._log.debug(f"deg={deg},pulse_float={pulse_float},pulse_int={pulse_int}")
+        self._log.debug(
+            f"deg={deg},pulse_float={pulse_float},pulse_int={pulse_int}"
+        )
 
         return pulse_int
 
@@ -247,5 +249,7 @@ class CalibrableServo(PiServo):
     def _ensure_config_exists(self):
         """もし設定がなければ、現在の値で保存する。(プライベートメソッド)"""
         if self._config_manager.get_config(self.pin) is None:
-            self._log.warning("No config for pin %s. Saving current val.", self.pin)
+            self._log.warning(
+                "No config for pin %s. Saving current val.", self.pin
+            )
             self.save_conf()

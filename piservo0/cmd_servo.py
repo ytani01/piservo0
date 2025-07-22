@@ -40,7 +40,9 @@ class CmdServo:
             elif self.pulse_str == "center":
                 pulse_int = PiServo.CENTER
             else:
-                self._log.warning('"%s": invalid pulse string', self.pulse_str)
+                self._log.warning(
+                    '"%s": invalid pulse string', self.pulse_str
+                )
                 pulse_int = -1
 
             self._log.debug("pulse_int=%s", pulse_int)
@@ -49,7 +51,9 @@ class CmdServo:
             self.servo.move_pulse(pulse_int)
             time.sleep(self.sec)
         else:
-            self._log.error("pulse_int=%s: invalid value. do nothing", pulse_int)
+            self._log.error(
+                "pulse_int=%s: invalid value. do nothing", pulse_int
+            )
 
     def end(self):
         """end"""

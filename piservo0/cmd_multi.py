@@ -25,7 +25,9 @@ class CmdMulti:
             raise ConnectionError("pigpio daemon not connected.")
 
         try:
-            self.servo = MultiServo(self.pi, self.pin, self.conf_file, debug=self._dbg)
+            self.servo = MultiServo(
+                self.pi, self.pin, self.conf_file, debug=self._dbg
+            )
         except Exception as _e:
             self._log.error("%s: %s", type(_e).__name__, _e)
             self.pi.stop()
