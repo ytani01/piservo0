@@ -55,7 +55,7 @@ class Util:
 
     def clip(self, v, v_min, v_max):
         """min <= v <= max"""
-        self._log.debug("v=%s,min=%s,max=%s", v, v_min, v_max)
+        #self._log.debug("v=%s,min=%s,max=%s", v, v_min, v_max)
 
         return max(min(v, v_max), v_min)
 
@@ -87,7 +87,7 @@ class Util:
                 self._log.debug("cmd=%s:_ch=%s: False", cmd, _ch)
                 return False
 
-        self._log.debug("cmd=%s: True", cmd)
+        #self._log.debug("cmd=%s: True", cmd)
         return True
 
     def is_float_str(self, s):
@@ -149,7 +149,7 @@ class Util:
                     _angle = self.clip(_angle, -90, 90)
                     angles.append(_angle)
 
-            self._log.debug("angles=%s", angles)
+            #self._log.debug("angles=%s", angles)
 
             ret = {"cmd": "angles", "angles": angles}
 

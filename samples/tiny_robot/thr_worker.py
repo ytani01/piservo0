@@ -49,6 +49,7 @@ class ThrWorker(threading.Thread):
         """ end """
         self._log.debug('')
         self._active = False
+        self.cmdq_clear()
         self.join()
 
         self._log.debug('done')
@@ -70,6 +71,15 @@ class ThrWorker(threading.Thread):
 
         return cmd
 
+    def cmdq_clear(self):
+        """ clear queue """
+
+        _count = 0
+        while not self._cmdq.empty():
+            _count += 1
+            _cmd = self._cmdq.get()
+            self._log.info('%2d:%s', _count, _cmd)
+
     def run(self):
         """ run """
 
@@ -86,19 +96,26 @@ class ThrWorker(threading.Thread):
             _cmds = _cmdline.split()
 
             for _cmd in _cmds:
+                if not self._active:
+                    break
+
                 _res = self.util.parse_cmd(_cmd)
 
                 if _res["cmd"] == "angles":
                     _angles = _res["angles"]
                     self.mservo.move_angle_sync(_angles, self.move_sec)
 
-                    self._log.debug('sleep %s sec', self.interval_sec)
+                    self._log.debug(
+                        'sleep interval_sec: %s sec', self.interval_sec
+                    )
                     time.sleep(self.interval_sec)
 
                 if _res["cmd"] == "interval":
                     _sec = float(_res["sec"])
 
-                    self._log.debug('sleep %s sec', _sec)
+                    self._log.debug(
+                        "sleep command: %s sec", _sec
+                    )
                     time.sleep(_sec)
 
                 if _res["cmd"] == "error":
