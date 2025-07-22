@@ -61,7 +61,7 @@ def test_config_save_and_load(test_config):
     )
 
     # 初期値がデフォルト値であることを確認
-    assert servo1.pulse_center == 1450
+    assert servo1.pulse_center == 1500
 
     # 値を変更
     servo1.pulse_center = test_config["new_pulse_center"]
