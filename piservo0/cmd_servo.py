@@ -2,7 +2,6 @@
 # (c) 2025 Yoichi Tanibayashi
 #
 import time
-import pigpio
 from .piservo import PiServo
 from .my_logger import get_logger
 

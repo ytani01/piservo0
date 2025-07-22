@@ -7,9 +7,7 @@ import pigpio
 import time
 import os
 import json
-from unittest.mock import patch
 from piservo0.cmd_calib import CmdCalib
-from piservo0.piservo import PiServo
 
 SLEEP_SEC = 0.5
 

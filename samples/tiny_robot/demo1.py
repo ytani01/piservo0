@@ -5,7 +5,6 @@ import time
 import click
 from piservo0 import get_logger
 from .app import TinyRobotApp
-from .util import Util
 
 
 @click.command(help="""

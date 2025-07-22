@@ -2,8 +2,6 @@
 # (c) 2025 Yoichi Tanibayashi
 #
 import time
-import click
-import pigpio
 from .piservo import PiServo
 from .calibrable_servo import CalibrableServo
 from .my_logger import get_logger

@@ -5,7 +5,6 @@ import os
 import json
 import pytest
 import pigpio
-from unittest.mock import patch
 from piservo0.cmd_multi import CmdMulti
 
 

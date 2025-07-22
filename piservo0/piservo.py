@@ -13,14 +13,13 @@ class PiServo:
     Attributes:
         OFF (int): サーボをオフにするパルス幅（0）。
         MIN (int): 最小パルス幅（500マイクロ秒）。
-        MAX (int): 最大パルス幅（2400マイクロ秒）。
-        CENTER (int): 中央位置のパルス幅（1450マイクロ秒）。
+        MAX (int): 最大パルス幅（2500マイクロ秒）。
+        CENTER (int): 中央位置のパルス幅（1500マイクロ秒）。
     """
     OFF = 0
     MIN = 500
-    #MAX = 2400
     MAX = 2500
-    CENTER = 1450
+    CENTER = 1500
 
     def __init__(self, pi, pin, debug=False):
         """PiServoクラスのコンストラクタ。
@@ -40,6 +39,17 @@ class PiServo:
 
         self.pi = pi
         self.pin = pin
+
+    def get_pulse(self):
+        """現在のサーボモーターのパルス幅を取得する。
+
+        Returns:
+            int: 現在のパルス幅 (マイクロ秒)。
+        """
+        pulse = self.pi.get_servo_pulsewidth(self.pin)
+        self._log.debug(f'pulse={pulse}')
+
+        return pulse
 
     def move_pulse(self, pulse):
         """サーボモーターを指定されたパルス幅に移動させる。
@@ -99,14 +109,3 @@ class PiServo:
         self._log.debug(f'pin={self.pin}')
 
         self.pi.set_servo_pulsewidth(self.pin, self.OFF)
-
-    def get_pulse(self):
-        """現在のサーボモーターのパルス幅を取得する。
-
-        Returns:
-            int: 現在のパルス幅 (マイクロ秒)。
-        """
-        pulse = self.pi.get_servo_pulsewidth(self.pin)
-        self._log.debug(f'pulse={pulse}')
-
-        return pulse

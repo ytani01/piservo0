@@ -27,8 +27,7 @@ class CalibrableServo(PiServo):
     POS_MIN = 'min'
     POS_MAX = 'max'
 
-    def __init__(self, pi, pin,
-                 conf_file=DEF_CONF_FILE,
+    def __init__(self, pi, pin, conf_file=DEF_CONF_FILE,
                  debug=False):
         """CalibrableServoオブジェクトを初期化する。
 
@@ -122,16 +121,21 @@ class CalibrableServo(PiServo):
     def move_pulse(self, pulse, forced=False):
         """サーボモーターを、キャリブレーション値を考慮して移動させる。
 
-        指定されたパルス幅がキャリブレーション範囲外の場合、モーターは動かない。
+        指定されたパルス幅がキャリブレーション範囲外の場合、範囲内に調整される。
+
+        `forced`が`True`の場合は、範囲外でも動かす。
         """
 
         if not forced:
             if pulse < self.pulse_min:
-                self._log.warning(f'pulse({pulse}) < self.pulse_min({self.pulse_min})')
-                return
+                self._log.warning('pulse(%s) < self.pulse_min(%s)',
+                                  pulse, self.pulse_min)
+                pulse = self.pulse_min
+
             if pulse > self.pulse_max:
-                self._log.warning(f'pulse({pulse}) > self.pulse_max({self.pulse_max})')
-                return
+                self._log.warning('pulse(%s) > self.pulse_max(%s)',
+                                  pulse, self.pulse_max)
+                pulse = self.pulse_max
         
         super().move_pulse(pulse)
 
@@ -197,7 +201,8 @@ class CalibrableServo(PiServo):
             elif deg == self.POS_MAX:
                 deg = self.ANGLE_MAX
             else:
-                self._log.error(f'deg="{deg}": invalid string. do nothing')
+                self._log.error('deg="%s": invalid string. do nothing',
+                                deg)
                 return
 
         if deg < self.ANGLE_MIN:
@@ -219,7 +224,10 @@ class CalibrableServo(PiServo):
             self._pulse_min = config.get('min', self.pulse_min)
             self._pulse_center = config.get('center', self.pulse_center)
             self._pulse_max = config.get('max', self.pulse_max)
-        self._log.debug(f"Loaded: pin={self.pin}, min={self.pulse_min}, center={self.pulse_center}, max={self.pulse_max}")
+
+        self._log.debug("Loaded: pin=%s, min=%s, center=%s, max=%s",
+                        self.pin,
+                        self.pulse_min, self.pulse_center, self.pulse_max)
 
     def save_conf(self):
         """現在のキャリブレーション値を設定ファイルに保存する。"""
@@ -235,5 +243,6 @@ class CalibrableServo(PiServo):
     def _ensure_config_exists(self):
         """もし設定がなければ、現在の値で保存する。(プライベートメソッド)"""
         if self._config_manager.get_config(self.pin) is None:
-            self._log.warning(f"No config for pin {self.pin}. Saving current values.")
+            self._log.warning('No config for pin %s. Saving current val.',
+                              self.pin)
             self.save_conf()
