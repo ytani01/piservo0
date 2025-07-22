@@ -2,8 +2,9 @@
 # (c) 2025 Yoichi Tanibayashi
 #
 import time
-from .piservo import PiServo
+
 from .my_logger import get_logger
+from .piservo import PiServo
 
 
 class CmdServo:

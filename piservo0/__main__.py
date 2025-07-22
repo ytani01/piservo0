@@ -3,11 +3,12 @@
 #
 import click
 import pigpio
+
 from piservo0 import get_logger
-from .cmd_servo import CmdServo
+
 from .cmd_calib import CmdCalib
 from .cmd_multi import CmdMulti
-
+from .cmd_servo import CmdServo
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 

@@ -9,10 +9,10 @@ from importlib.metadata import version
 
 __version__ = version(__package__)
 
-from .piservo import PiServo
 from .calibrable_servo import CalibrableServo
 from .multi_servo import MultiServo
 from .my_logger import get_logger
+from .piservo import PiServo
 
 __all__ = [
     "__author__",

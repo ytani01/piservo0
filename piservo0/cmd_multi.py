@@ -2,6 +2,7 @@
 # (c) 2025 Yoichi Tanibayashi
 #
 import time
+
 from .multi_servo import MultiServo
 from .my_logger import get_logger
 

@@ -1,9 +1,11 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
+
 import time
-from .my_logger import get_logger
+
 from .calibrable_servo import CalibrableServo
+from .my_logger import get_logger
 
 
 class MultiServo:

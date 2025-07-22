@@ -42,6 +42,6 @@ lint.select = ["E", "F", "I"]
 exclude = ["tests/data"]
 
 [tool.pytest.ini_options]
-pythonpath = "."
+pythonpath = "tests"
 
 [dependency-groups]
