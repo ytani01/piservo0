@@ -1,6 +1,6 @@
 [project]
 name = "piservo0"
-version = "0.4.5"
+dynamic = ["version"]
 description = "Python library for servo motor control."
 readme = "README.md"
 authors = [
@@ -13,8 +13,11 @@ dependencies = [
 ]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
 
 [project.optional-dependencies]
 dev = [

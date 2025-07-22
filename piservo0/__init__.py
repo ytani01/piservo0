@@ -4,6 +4,7 @@
 """
 mypkg
 """
+__version__ = version(__package__)
 __prog_name__ = 'piservo0'
 
 from .my_logger import get_logger
