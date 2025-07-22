@@ -8,6 +8,7 @@ from piservo0.piservo import PiServo
 
 PIN = 17
 
+
 def check_pigpiod():
     """Check if pigpiod is running"""
     try:
@@ -71,5 +72,5 @@ def test_cmd_servo_end(capsys):
     app = CmdServo(pi, PIN, "1500", 1.0, debug=True)
     app.end()
     captured = capsys.readouterr()
-    assert captured.out == 'bye!\n'
+    assert captured.out == "bye!\n"
     pi.stop()

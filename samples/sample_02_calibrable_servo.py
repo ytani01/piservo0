@@ -23,7 +23,7 @@ servo2.move_angle(angle2)
 time.sleep(2)
 
 time_start = time.time()
-print(f'{time.time() - time_start:.3f}: --- START ---')
+print(f"{time.time() - time_start:.3f}: --- START ---")
 
 for i in range(LOOP_N):
     angle1 += TOTAL_ANGLE1 / LOOP_N
@@ -34,7 +34,7 @@ for i in range(LOOP_N):
 
     time.sleep(SLEEP_SEC)
 
-    print(f'{time.time() - time_start:.3f}: {angle1: >6},{angle2: >6}')
+    print(f"{time.time() - time_start:.3f}: {angle1: >6},{angle2: >6}")
 
 servo1.off()
 servo2.off()

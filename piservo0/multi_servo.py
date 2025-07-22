@@ -11,9 +11,14 @@ class MultiServo:
     複数のサーボモーターを制御する。
     """
 
-    def __init__(self, pi, pins, first_move=True,
-                 conf_file=CalibrableServo.DEF_CONF_FILE,
-                 debug=False):
+    def __init__(
+        self,
+        pi,
+        pins,
+        first_move=True,
+        conf_file=CalibrableServo.DEF_CONF_FILE,
+        debug=False,
+    ):
         """
         MultiServoのインスタンスを初期化する。
 
@@ -32,7 +37,7 @@ class MultiServo:
         """
         self._dbg = debug
         self._log = get_logger(self.__class__.__name__, self._dbg)
-        self._log.debug('pins=%s, conf_file=%s', pins, conf_file)
+        self._log.debug("pins=%s, conf_file=%s", pins, conf_file)
 
         self.pi = pi
         self.pins = pins
@@ -64,11 +69,15 @@ class MultiServo:
             検証結果。
         """
         if not isinstance(angles, (list, tuple)):
-            self._log.error(f'角度はリストまたはタプルでなければなりません: {type(angles)}')
+            self._log.error(
+                f"角度はリストまたはタプルでなければなりません: {type(angles)}"
+            )
             return False
 
         if len(angles) != self.servo_n:
-            self._log.error(f'角度の数がサーボの数と一致しません: len(angles)={len(angles)} != {self.servo_n}')
+            self._log.error(
+                f"角度の数がサーボの数と一致しません: len(angles)={len(angles)} != {self.servo_n}"
+            )
             return False
 
         return True
@@ -77,7 +86,7 @@ class MultiServo:
         """
         すべてのサーボをオフにする。
         """
-        self._log.debug('')
+        self._log.debug("")
         for s in self.servo:
             s.off()
 
@@ -91,7 +100,7 @@ class MultiServo:
             各サーボのパルス幅のリスト。
         """
         pulses = [s.get_pulse() for s in self.servo]
-        self._log.debug(f'pulses={pulses}')
+        self._log.debug(f"pulses={pulses}")
         return pulses
 
     def move_pulse(self, pulses, forced=False):
@@ -106,7 +115,7 @@ class MultiServo:
             Trueの場合、可動範囲外のパルス幅も強制的に設定する。
         """
         for i, s in enumerate(self.servo):
-            self._log.debug(f'pin=s.pin, pulse={pulses[i]}')
+            self._log.debug(f"pin=s.pin, pulse={pulses[i]}")
             s.move_pulse(pulses[i], forced)
 
     def get_angle(self):
@@ -119,7 +128,7 @@ class MultiServo:
             各サーボの角度のリスト。
         """
         angles = [s.get_angle() for s in self.servo]
-        self._log.debug(f'angles={angles}')
+        self._log.debug(f"angles={angles}")
         return angles
 
     def move_angle(self, angles):
@@ -131,13 +140,13 @@ class MultiServo:
         angles: list[float]
             各サーボに設定する角度のリスト。
         """
-        self._log.debug(f'angles={angles}')
+        self._log.debug(f"angles={angles}")
 
         if not self._validate_angle_list(angles):
             return
 
         for i, s in enumerate(self.servo):
-            self._log.debug(f'pin={s.pin}, angle={angles[i]}')
+            self._log.debug(f"pin={s.pin}, angle={angles[i]}")
             s.move_angle(angles[i])
 
     def move_angle_sync(self, target_angles, estimated_sec=1.0, step_n=50):
@@ -154,8 +163,10 @@ class MultiServo:
             動作を分割するステップ数。
         """
         self._log.debug(
-            'target_angles=%s, estimated_sec=%s, step_n=%s',
-            target_angles, estimated_sec, step_n
+            "target_angles=%s, estimated_sec=%s, step_n=%s",
+            target_angles,
+            estimated_sec,
+            step_n,
         )
 
         if not self._validate_angle_list(target_angles):
@@ -166,10 +177,10 @@ class MultiServo:
             return
 
         step_sec = estimated_sec / step_n
-        self._log.debug(f'step_sec={step_sec}')
+        self._log.debug(f"step_sec={step_sec}")
 
         start_angles = self.get_angle()
-        self._log.debug(f'start_angles={start_angles}')
+        self._log.debug(f"start_angles={start_angles}")
 
         # 文字列を数値に変換
         processed_target_angles = []
@@ -193,7 +204,7 @@ class MultiServo:
         diff_angles = [
             processed_target_angles[i] - start_angles[i] for i in range(self.servo_n)
         ]
-        self._log.debug(f'diff_angles={diff_angles}')
+        self._log.debug(f"diff_angles={diff_angles}")
 
         for step_i in range(1, step_n + 1):
             next_angles = [
@@ -202,8 +213,8 @@ class MultiServo:
             ]
             self.move_angle(next_angles)
             self._log.debug(
-                f'step {step_i}/{step_n}: ' +
-                f'next_angles={next_angles}, ' +
-                f'step_sec={step_sec}'
+                f"step {step_i}/{step_n}: "
+                + f"next_angles={next_angles}, "
+                + f"step_sec={step_sec}"
             )
             time.sleep(step_sec)

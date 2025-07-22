@@ -7,7 +7,8 @@ from .my_logger import get_logger
 
 
 class CmdServo:
-    """ servo command """
+    """servo command"""
+
     def __init__(self, pi, pin, pulse, sec=1.0, debug=False):
         self._dbg = debug
         self._log = get_logger(__class__.__name__, self._dbg)
@@ -19,14 +20,14 @@ class CmdServo:
 
         self.pi = pi
         if not self.pi.connected:
-            self._log.error('pigpio daemon not connected.')
-            raise ConnectionError('pigpio daemon not connected.')
+            self._log.error("pigpio daemon not connected.")
+            raise ConnectionError("pigpio daemon not connected.")
 
         self.servo = PiServo(self.pi, self.pin, debug=self._dbg)
 
     def main(self):
-        """ main """
-        self._log.debug('')
+        """main"""
+        self._log.debug("")
 
         try:
             pulse_int = int(self.pulse_str)
@@ -41,17 +42,16 @@ class CmdServo:
                 self._log.warning('"%s": invalid pulse string', self.pulse_str)
                 pulse_int = -1
 
-            self._log.debug('pulse_int=%s', pulse_int)
+            self._log.debug("pulse_int=%s", pulse_int)
 
         if PiServo.MIN <= pulse_int <= PiServo.MAX:
             self.servo.move_pulse(pulse_int)
             time.sleep(self.sec)
         else:
-            self._log.error('pulse_int=%s: invalid value. do nothing',
-                            pulse_int)
+            self._log.error("pulse_int=%s: invalid value. do nothing", pulse_int)
 
     def end(self):
-        """ end """
-        self._log.debug('')
+        """end"""
+        self._log.debug("")
         self.servo.off()
-        print('bye!')
+        print("bye!")

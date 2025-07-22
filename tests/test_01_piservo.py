@@ -6,6 +6,7 @@ from piservo0 import PiServo
 SLEEP_SEC = 0.8
 TEST_PIN = 17
 
+
 def check_pigpiod():
     """Check if pigpiod is running"""
     try:
@@ -17,7 +18,9 @@ def check_pigpiod():
     except Exception:
         return False
 
+
 pytestmark = pytest.mark.skipif(not check_pigpiod(), reason="pigpiod is not running")
+
 
 @pytest.fixture(scope="function")
 def servo_test_setup():
@@ -28,17 +31,18 @@ def servo_test_setup():
     pi = pigpio.pi()
     if not pi.connected:
         pytest.fail("pigpio daemon not connected.")
-    
+
     servo = PiServo(pi, TEST_PIN, debug=True)
-    
+
     # テスト関数に (pi, servo) を渡す
     yield pi, servo
-    
+
     # テスト関数実行後のクリーンアップ
     servo.move_center()
     time.sleep(SLEEP_SEC)
     servo.off()
     pi.stop()
+
 
 def test_new(servo_test_setup):
     """
@@ -46,6 +50,7 @@ def test_new(servo_test_setup):
     """
     pi, servo = servo_test_setup
     assert isinstance(servo, PiServo)
+
 
 def test_move_center(servo_test_setup):
     """
@@ -56,6 +61,7 @@ def test_move_center(servo_test_setup):
     time.sleep(SLEEP_SEC)
     assert servo.get_pulse() == PiServo.CENTER
 
+
 def test_move_min(servo_test_setup):
     """
     サーボが最小位置に正しく移動するかテストする。
@@ -64,6 +70,7 @@ def test_move_min(servo_test_setup):
     servo.move_min()
     time.sleep(SLEEP_SEC)
     assert servo.get_pulse() == PiServo.MIN
+
 
 def test_move_max(servo_test_setup):
     """
@@ -74,14 +81,18 @@ def test_move_max(servo_test_setup):
     time.sleep(SLEEP_SEC)
     assert servo.get_pulse() == PiServo.MAX
 
-@pytest.mark.parametrize(('pulse', "expected"), [
-    (1000, 1000),
-    (PiServo.MIN, PiServo.MIN),
-    (PiServo.MAX, PiServo.MAX),
-    (PiServo.MIN - 1, PiServo.MIN),  # 範囲外(下)
-    (PiServo.MAX + 1, PiServo.MAX),  # 範囲外(上)
-    (PiServo.CENTER, PiServo.CENTER),
-])
+
+@pytest.mark.parametrize(
+    ("pulse", "expected"),
+    [
+        (1000, 1000),
+        (PiServo.MIN, PiServo.MIN),
+        (PiServo.MAX, PiServo.MAX),
+        (PiServo.MIN - 1, PiServo.MIN),  # 範囲外(下)
+        (PiServo.MAX + 1, PiServo.MAX),  # 範囲外(上)
+        (PiServo.CENTER, PiServo.CENTER),
+    ],
+)
 def test_move_pulse(servo_test_setup, pulse, expected):
     """
     任意のパルス幅でサーボが正しく移動するかテストする。

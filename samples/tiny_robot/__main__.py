@@ -10,19 +10,19 @@ from .exec import exec
 
 
 # clickで、'-h'もヘルプオプションするために
-CONTEXT_SETTINGS = {'help_option_names': ['-h', '--help']}
+CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 
-@click.group(invoke_without_command=True,
-             context_settings=CONTEXT_SETTINGS,
-             help="Tiny Robot")
-@click.option('-debug', '-d', is_flag=True, help="debug flag")
+@click.group(
+    invoke_without_command=True, context_settings=CONTEXT_SETTINGS, help="Tiny Robot"
+)
+@click.option("-debug", "-d", is_flag=True, help="debug flag")
 @click.pass_context
 def cli(ctx, debug):
-    """ CLI top """
+    """CLI top"""
 
     _log = get_logger(__name__, debug)
-    _log.debug('ctx=%s', dir(ctx))
+    _log.debug("ctx=%s", dir(ctx))
 
     if ctx.invoked_subcommand is None:
         print(ctx.get_help())
@@ -33,5 +33,5 @@ cli.add_command(manual)
 cli.add_command(exec)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()
