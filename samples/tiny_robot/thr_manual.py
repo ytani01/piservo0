@@ -63,11 +63,11 @@ Tiny Robot: Manual mode
 def thr_manual(pins, angle_unit, move_sec, interval_sec, conf_file, debug):
     """Tiny Robot manual mode (Thread version)"""
 
-    _log = get_logger(__name__, debug)
+    __log = get_logger(__name__, debug)
 
     _fmt = "pins=%s,angle_unit=%s,move_sec=%s,"
     _fmt += "interval_sec=%s,conf_file=%s"
-    _log.debug(_fmt, pins, angle_unit, move_sec, interval_sec, conf_file)
+    __log.debug(_fmt, pins, angle_unit, move_sec, interval_sec, conf_file)
 
     app = ThrManualApp(
         pins, angle_unit, move_sec, interval_sec, conf_file, debug=debug
@@ -85,9 +85,9 @@ class ThrManualApp(TinyRobotApp):
         """constractor"""
         super().__init__(pins, conf_file, debug=debug)
 
-        self._log = get_logger(__class__.__name__, self._debug)
-        self._log.debug("angle_unit=%s", angle_unit)
-        self._log.debug(
+        self.__log = get_logger(__class__.__name__, self._debug)
+        self.__log.debug("angle_unit=%s", angle_unit)
+        self.__log.debug(
             "move_sec=%s,interval_sec=%s", move_sec, interval_sec
         )
 
@@ -99,7 +99,7 @@ class ThrManualApp(TinyRobotApp):
         """init"""
         super().init()
 
-        self._log.debug("")
+        self.__log.debug("")
 
         self.worker = ThrWorker(self.mservo, debug=self._debug)
         self.worker.move_sec = self.move_sec
@@ -108,7 +108,7 @@ class ThrManualApp(TinyRobotApp):
 
     def main(self):
         """main function"""
-        self._log.debug("")
+        self.__log.debug("")
 
         time.sleep(1.0)
 
@@ -119,23 +119,23 @@ class ThrManualApp(TinyRobotApp):
                     break
 
                 cmds = line.split()
-                self._log.debug("cmds=%s", cmds)
+                self.__log.debug("cmds=%s", cmds)
 
                 for _cmd in cmds:
                     res = self.str_cmd.parse_cmd(_cmd)
-                    self._log.debug("res=%s", res)
+                    self.__log.debug("res=%s", res)
 
                     if res["cmd"] == "error":
-                        self._log.error('"%s": %s', _cmd, res["err"])
+                        self.__log.error('"%s": %s', _cmd, res["err"])
                         continue
 
                     self.worker.send(res)
 
         except (EOFError, KeyboardInterrupt):
-            self._log.info("End of Input")
+            self.__log.info("End of Input")
 
     def end(self):
         """end: post-processing"""
-        self._log.debug("")
+        self.__log.debug("")
         self.worker.end()
         super().end()

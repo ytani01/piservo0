@@ -40,8 +40,8 @@ class MultiServo:
             デバッグモードを有効にするかどうかのフラグ。
         """
         self._debug = debug
-        self._log = get_logger(self.__class__.__name__, self._debug)
-        self._log.debug("pins=%s, conf_file=%s", pins, conf_file)
+        self.__log = get_logger(self.__class__.__name__, self._debug)
+        self.__log.debug("pins=%s, conf_file=%s", pins, conf_file)
 
         self.pi = pi
         self.pins = pins
@@ -73,13 +73,13 @@ class MultiServo:
             検証結果。
         """
         if not isinstance(angles, (list, tuple)):
-            self._log.error(
+            self.__log.error(
                 f"角度はリストまたはタプル: {type(angles)}"
             )
             return False
 
         if len(angles) != self.servo_n:
-            self._log.error(
+            self.__log.error(
                 f"len(angles)={len(angles)} != servo_n={self.servo_n}"
             )
             return False
@@ -90,7 +90,7 @@ class MultiServo:
         """
         すべてのサーボをオフにする。
         """
-        self._log.debug("")
+        self.__log.debug("")
         for s in self.servo:
             s.off()
 
@@ -104,7 +104,7 @@ class MultiServo:
             各サーボのパルス幅のリスト。
         """
         pulses = [s.get_pulse() for s in self.servo]
-        self._log.debug(f"pulses={pulses}")
+        self.__log.debug(f"pulses={pulses}")
         return pulses
 
     def move_pulse(self, pulses, forced=False):
@@ -119,7 +119,7 @@ class MultiServo:
             Trueの場合、可動範囲外のパルス幅も強制的に設定する。
         """
         for i, s in enumerate(self.servo):
-            self._log.debug(f"pin=s.pin, pulse={pulses[i]}")
+            self.__log.debug(f"pin=s.pin, pulse={pulses[i]}")
             s.move_pulse(pulses[i], forced)
 
     def get_angle(self):
@@ -132,7 +132,7 @@ class MultiServo:
             各サーボの角度のリスト。
         """
         angles = [s.get_angle() for s in self.servo]
-        self._log.debug(f"angles={angles}")
+        self.__log.debug(f"angles={angles}")
         return angles
 
     def move_angle(self, angles):
@@ -144,13 +144,13 @@ class MultiServo:
         angles: list[float]
             各サーボに設定する角度のリスト。
         """
-        self._log.debug(f"angles={angles}")
+        self.__log.debug(f"angles={angles}")
 
         if not self._validate_angle_list(angles):
             return
 
         for i, s in enumerate(self.servo):
-            self._log.debug(f"pin={s.pin}, angle={angles[i]}")
+            self.__log.debug(f"pin={s.pin}, angle={angles[i]}")
             s.move_angle(angles[i])
 
     def move_angle_sync(
@@ -171,7 +171,7 @@ class MultiServo:
         step_n: int
             動作を分割するステップ数。
         """
-        self._log.debug(
+        self.__log.debug(
             "target_angles=%s, estimated_sec=%s, step_n=%s",
             target_angles,
             estimated_sec,
@@ -186,10 +186,10 @@ class MultiServo:
             return
 
         step_sec = estimated_sec / step_n
-        self._log.debug(f"step_sec={step_sec}")
+        self.__log.debug(f"step_sec={step_sec}")
 
         start_angles = self.get_angle()
-        self._log.debug(f"start_angles={start_angles}")
+        self.__log.debug(f"start_angles={start_angles}")
 
         # 文字列を数値に変換
         processed_target_angles = []
@@ -212,7 +212,7 @@ class MultiServo:
                 else:
                     # 不明な文字列の場合は現在の角度を維持
                     # （エラーログはmove_angleで出力）
-                    self._log.warning(
+                    self.__log.warning(
                         f'不明な角度文字列 "{angle}" を無視します。'
                     )
                     processed_target_angles.append(start_angles[i])
@@ -223,7 +223,7 @@ class MultiServo:
             processed_target_angles[i] - start_angles[i]
             for i in range(self.servo_n)
         ]
-        self._log.debug(f"diff_angles={diff_angles}")
+        self.__log.debug(f"diff_angles={diff_angles}")
 
         for step_i in range(1, step_n + 1):
             next_angles = [
@@ -231,7 +231,7 @@ class MultiServo:
                 for i in range(self.servo_n)
             ]
             self.move_angle(next_angles)
-            self._log.debug(
+            self.__log.debug(
                 f"step {step_i}/{step_n}: "
                 + f"next_angles={next_angles}, "
                 + f"step_sec={step_sec}"

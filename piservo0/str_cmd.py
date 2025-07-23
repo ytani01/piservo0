@@ -52,7 +52,7 @@ class StrCmd:
             debug (bool): デバッグログを有効にするか。
         """
         self._debug = debug
-        self._log = get_logger(self.__class__.__name__, self._debug)
+        self.__log = get_logger(self.__class__.__name__, self._debug)
 
         self.mservo = mservo
         self.angle_unit = angle_unit
@@ -75,23 +75,23 @@ class StrCmd:
         else:
             self.cmd_chars = cmd_chars
 
-        self._log.debug(f"servo_n={self.mservo.servo_n}")
-        self._log.debug(f"angle_unit={self.angle_unit}")
-        self._log.debug(f"move_sec={self.move_sec}")
-        self._log.debug(f"angle_factor={self.angle_factor}")
-        self._log.debug(f"cmd_chars={self.cmd_chars}")
+        self.__log.debug(f"servo_n={self.mservo.servo_n}")
+        self.__log.debug(f"angle_unit={self.angle_unit}")
+        self.__log.debug(f"move_sec={self.move_sec}")
+        self.__log.debug(f"angle_factor={self.angle_factor}")
+        self.__log.debug(f"cmd_chars={self.cmd_chars}")
 
     def set_angle_unit(self, angle: float):
         """基本角度を設定する。"""
         if angle > 0:
             self.angle_unit = angle
-        self._log.debug(f"angle_unit={self.angle_unit}")
+        self.__log.debug(f"angle_unit={self.angle_unit}")
 
     def set_move_sec(self, sec: float):
         """1ポーズの移動時間を設定する。"""
         if sec >= 0:
             self.move_sec = sec
-        self._log.debug(f"move_sec={self.move_sec}")
+        self.__log.debug(f"move_sec={self.move_sec}")
 
     def _is_float_str(self, s: str) -> bool:
         """文字列がfloatに変換可能か判定する。"""
@@ -130,7 +130,7 @@ class StrCmd:
                   例: {'cmd': 'sleep', 'sec': 0.5}
                   例: {'cmd': 'error', 'err': 'invalid command'}
         """
-        self._log.debug(f"cmd='{cmd}'")
+        self.__log.debug(f"cmd='{cmd}'")
 
         if self._is_str_cmd(cmd):
             angles = []
@@ -181,7 +181,7 @@ class StrCmd:
             cmd (str): ポーズ文字列またはスリープ時間。
         """
         parsed_cmd = self.parse_cmd(cmd)
-        self._log.debug(f"parsed_cmd={parsed_cmd}")
+        self.__log.debug(f"parsed_cmd={parsed_cmd}")
 
         cmd_type = parsed_cmd.get("cmd")
 
@@ -195,7 +195,7 @@ class StrCmd:
                 time.sleep(sec)
 
         elif cmd_type == "error":
-            self._log.error(parsed_cmd.get("err"))
+            self.__log.error(parsed_cmd.get("err"))
 
     
 

@@ -65,10 +65,10 @@ Tiny Robot Demo #1
 @click.option("--debug", "-d", is_flag=True, help="Enable debug mode")
 def demo1(pins, count, angle_unit, move_sec, interval_sec, conf_file, debug):
     """Tiny Robot Demo #1"""
-    _log = get_logger(__name__, debug)
+    __log = get_logger(__name__, debug)
     _fmt = "pins=%s,count=%s,angle_unit=%s,move_sec=%s,"
     _fmt += "interval_sec=%s,conf_file=%s"
-    _log.debug(
+    __log.debug(
         _fmt, pins, count, angle_unit, move_sec, interval_sec, conf_file
     )
 
@@ -130,9 +130,9 @@ class Demo1App(TinyRobotApp):
     ):
         """constractor"""
         super().__init__(pins, conf_file, debug=debug)
-        self._log = get_logger(__class__.__name__, self._debug)
-        self._log.debug("count=%s, angle_unit=%s", count, angle_unit)
-        self._log.debug(
+        self.__log = get_logger(__class__.__name__, self._debug)
+        self.__log.debug("count=%s, angle_unit=%s", count, angle_unit)
+        self.__log.debug(
             "move_sec=%s, interval_sec=%s", move_sec, interval_sec
         )
 
@@ -143,7 +143,7 @@ class Demo1App(TinyRobotApp):
 
     def main(self):
         """main function"""
-        self._log.debug("")
+        self.__log.debug("")
 
         time.sleep(1.0)
 
@@ -161,11 +161,11 @@ class Demo1App(TinyRobotApp):
                     time.sleep(self.interval_sec)
 
         except KeyboardInterrupt as _e:
-            self._log.warning("%s", type(_e).__name__)
+            self.__log.warning("%s", type(_e).__name__)
 
     def end(self):
         """end: post-processing"""
-        self._log.debug("")
+        self.__log.debug("")
         self.str_cmd.set_move_sec(0.5)
         self.str_cmd.exec_cmd("cccc")
         self.str_cmd.set_move_sec(1.5)

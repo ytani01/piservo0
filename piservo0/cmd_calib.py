@@ -13,8 +13,8 @@ class CmdCalib:
 
     def __init__(self, pi, pin, conf_file, sec=1.0, debug=False):
         self._debug = debug
-        self._log = get_logger(__class__.__name__, self._debug)
-        self._log.debug("pin=%s,conf_file=%s,sec=%s", pin, conf_file, sec)
+        self.__log = get_logger(__class__.__name__, self._debug)
+        self.__log.debug("pin=%s,conf_file=%s,sec=%s", pin, conf_file, sec)
 
         self.pin = pin
         self.conf_file = conf_file
@@ -22,7 +22,7 @@ class CmdCalib:
 
         self.pi = pi
         if not self.pi.connected:
-            self._log.error("pigpio daemon not connected.")
+            self.__log.error("pigpio daemon not connected.")
             raise ConnectionError("pigpio daemon not connected.")
 
         try:
@@ -31,7 +31,7 @@ class CmdCalib:
                 debug=self._debug
             )
         except Exception as _e:
-            self._log.error("%s: %s", type(_e).__name__, _e)
+            self.__log.error("%s: %s", type(_e).__name__, _e)
             self.pi.stop()
             raise _e
 
@@ -81,7 +81,7 @@ class CmdCalib:
         try:
             while True:
                 in_str = input(prompt_str)
-                self._log.debug("in_str=%s", in_str)
+                self.__log.debug("in_str=%s", in_str)
 
                 # 数値が入力されたか？
                 try:
@@ -103,7 +103,7 @@ class CmdCalib:
                         time.sleep(self.sec)
                         continue
 
-                    self._log.error("%s: out of range", val)
+                    self.__log.error("%s: out of range", val)
                     continue
 
                 except ValueError:
@@ -181,13 +181,13 @@ class CmdCalib:
                 if in_str in cmd_exit["str"]:
                     break
 
-                self._log.error("%s: invalid command", in_str)
+                self.__log.error("%s: invalid command", in_str)
 
         except (EOFError, KeyboardInterrupt) as _e:
-            self._log.debug("%s: %s", type(_e).__name__, _e)
+            self.__log.debug("%s: %s", type(_e).__name__, _e)
 
     def end(self):
         """end"""
-        self._log.debug("")
+        self.__log.debug("")
         print("\n Bye!\n")
         self.servo.off()

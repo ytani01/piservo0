@@ -82,12 +82,12 @@ def exec(
     debug,
 ):
     """Tiny Robot Demo #1"""
-    _log = get_logger(__name__, debug)
+    __log = get_logger(__name__, debug)
     _fmt = "pins=%s,"
     _fmt += "script_file=%s,"
     _fmt += "count=%s,angle_unit=%s,move_sec=%s,"
     _fmt += "interval_sec=%s,conf_file=%s"
-    _log.debug(
+    __log.debug(
         _fmt,
         pins,
         script_file,
@@ -127,10 +127,10 @@ class ExecApp(TinyRobotApp):
     ):
         """constractor"""
         super().__init__(pins, conf_file, debug=debug)
-        self._log = get_logger(__class__.__name__, self._debug)
-        self._log.debug("script_file=%s", script_file)
-        self._log.debug("count=%s, angle_unit=%s", count, angle_unit)
-        self._log.debug(
+        self.__log = get_logger(__class__.__name__, self._debug)
+        self.__log.debug("script_file=%s", script_file)
+        self.__log.debug("count=%s, angle_unit=%s", count, angle_unit)
+        self.__log.debug(
             "move_sec=%s, interval_sec=%s", move_sec, interval_sec
         )
 
@@ -142,7 +142,7 @@ class ExecApp(TinyRobotApp):
 
     def main(self):
         """main function"""
-        self._log.debug("")
+        self.__log.debug("")
 
         time.sleep(1.0)
 
@@ -151,7 +151,7 @@ class ExecApp(TinyRobotApp):
                 print(f"===== count={_count}")
 
                 for _file in self.script_file:
-                    self._log.debug("_file=%s", _file)
+                    self.__log.debug("_file=%s", _file)
 
                     with open(_file) as _f:
                         for line in _f:
@@ -159,10 +159,10 @@ class ExecApp(TinyRobotApp):
                             if not line or line.startswith("#"):
                                 continue
 
-                            self._log.debug("line=%s", line)
+                            self.__log.debug("line=%s", line)
 
                             cmds = line.split()
-                            self._log.debug("cmds=%s", cmds)
+                            self.__log.debug("cmds=%s", cmds)
 
                             for cmd in cmds:
                                 print(f" {cmd}")
@@ -172,11 +172,11 @@ class ExecApp(TinyRobotApp):
                                 time.sleep(self.interval_sec)
 
         except KeyboardInterrupt as _e:
-            self._log.warning("%s", type(_e).__name__)
+            self.__log.warning("%s", type(_e).__name__)
 
     def end(self):
         """end: post-processing"""
-        self._log.debug("")
+        self.__log.debug("")
         self.str_cmd.set_move_sec(0.5)
         self.str_cmd.exec_cmd("cccc")
         self.str_cmd.set_move_sec(1.5)

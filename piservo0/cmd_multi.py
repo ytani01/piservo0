@@ -12,8 +12,8 @@ class CmdMulti:
 
     def __init__(self, pi, pin, conf_file, sec=1.0, debug=False):
         self._debug = debug
-        self._log = get_logger(__class__.__name__, self._debug)
-        self._log.debug("pin=%s,conf_file=%s,sec=%s", pin, conf_file, sec)
+        self.__log = get_logger(__class__.__name__, self._debug)
+        self.__log.debug("pin=%s,conf_file=%s,sec=%s", pin, conf_file, sec)
 
         self.pin = pin
         self.conf_file = conf_file
@@ -21,7 +21,7 @@ class CmdMulti:
 
         self.pi = pi
         if not self.pi.connected:
-            self._log.error("pigpio daemon not connected.")
+            self.__log.error("pigpio daemon not connected.")
             raise ConnectionError("pigpio daemon not connected.")
 
         try:
@@ -29,7 +29,7 @@ class CmdMulti:
                 self.pi, self.pin, self.conf_file, debug=self._debug
             )
         except Exception as _e:
-            self._log.error("%s: %s", type(_e).__name__, _e)
+            self.__log.error("%s: %s", type(_e).__name__, _e)
             self.pi.stop()
             raise _e
 
@@ -45,17 +45,17 @@ class CmdMulti:
         try:
             while True:
                 in_str = input(prompt_str)
-                self._log.debug('in_str="%s"', in_str)
+                self.__log.debug('in_str="%s"', in_str)
 
                 if in_str in cmd_exit:
                     break
 
                 words = in_str.split()
-                self._log.debug("words=%s", words)
+                self.__log.debug("words=%s", words)
 
                 try:
                     angles = [float(word) for word in words]
-                    self._log.debug("angles=%s", angles)
+                    self.__log.debug("angles=%s", angles)
 
                     time_start = time.time()
                     self.servo.move_angle_sync(angles, self.sec)
@@ -68,16 +68,16 @@ class CmdMulti:
                     print(f" {angles_str} ... {elapsed_time:.3f} sec")
 
                 except ValueError as _e:
-                    self._log.error("%s: %s", type(_e).__name__, _e)
+                    self.__log.error("%s: %s", type(_e).__name__, _e)
 
         except (EOFError, KeyboardInterrupt) as _e:
-            self._log.debug("%s: %s", type(_e).__name__, _e)
+            self.__log.debug("%s: %s", type(_e).__name__, _e)
 
         except Exception as _e:
-            self._log.error("%s: %s", type(_e).__name__, _e)
+            self.__log.error("%s: %s", type(_e).__name__, _e)
 
     def end(self):
         """end"""
-        self._log.debug("")
+        self.__log.debug("")
         print("\n Bye!\n")
         self.servo.off()

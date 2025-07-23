@@ -24,8 +24,8 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 def cli(ctx, debug):
     """CLI top"""
 
-    _log = get_logger(__name__, debug)
-    _log.debug("ctx=%s", dir(ctx))
+    __log = get_logger(__name__, debug)
+    __log.debug("ctx=%s", dir(ctx))
 
     if ctx.invoked_subcommand is None:
         print(ctx.get_help())

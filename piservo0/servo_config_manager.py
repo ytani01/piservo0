@@ -20,9 +20,9 @@ class ServoConfigManager:
             debug (bool, optional): デバッグログを有効にするフラグ。
                                     デフォルトはFalse。
         """
-        self._log = get_logger(self.__class__.__name__, debug)
+        self.__log = get_logger(self.__class__.__name__, debug)
         self.conf_file = conf_file
-        self._log.debug(f"conf_file={self.conf_file}")
+        self.__log.debug(f"conf_file={self.conf_file}")
 
     def read_all_configs(self):
         """設定ファイルからすべてのピンのデータを読み込む。
@@ -31,15 +31,15 @@ class ServoConfigManager:
             list: 読み込んだ設定データのリスト。
                   ファイルが存在しない、または不正な形式の場合は空のリストを返す。
         """
-        self._log.debug(f"Reading from {self.conf_file}")
+        self.__log.debug(f"Reading from {self.conf_file}")
         try:
             with open(self.conf_file, "r", encoding="utf-8") as f:
                 return json.load(f)
         except FileNotFoundError:
-            self._log.warning(f"Config file not found: {self.conf_file}")
+            self.__log.warning(f"Config file not found: {self.conf_file}")
             return []
         except json.JSONDecodeError as e:
-            self._log.error(f"Invalid JSON format in {self.conf_file}: {e}")
+            self.__log.error(f"Invalid JSON format in {self.conf_file}: {e}")
             return []
 
     def save_all_configs(self, data):
@@ -48,14 +48,14 @@ class ServoConfigManager:
         Args:
             data (list): 書き込む設定データのリスト。
         """
-        self._log.debug(f"Writing to {self.conf_file}")
+        self.__log.debug(f"Writing to {self.conf_file}")
         try:
             # ピン番号でソートしてから書き込むと、ファイルが綺麗になる
             sorted_data = sorted(data, key=lambda d: d["pin"])
             with open(self.conf_file, "w", encoding="utf-8") as f:
                 json.dump(sorted_data, f, indent=2, ensure_ascii=False)
         except IOError as e:
-            self._log.error(f"Failed to write to {self.conf_file}: {e}")
+            self.__log.error(f"Failed to write to {self.conf_file}: {e}")
 
     def get_config(self, pin):
         """指定されたピンの設定を読み込む。

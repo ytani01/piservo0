@@ -12,8 +12,8 @@ class CmdServo:
 
     def __init__(self, pi, pin, pulse, sec=1.0, debug=False):
         self._debug = debug
-        self._log = get_logger(__class__.__name__, self._debug)
-        self._log.debug('pin=%s, pulse="%s", sec=%s', pin, pulse, sec)
+        self.__log = get_logger(__class__.__name__, self._debug)
+        self.__log.debug('pin=%s, pulse="%s", sec=%s', pin, pulse, sec)
 
         self.pin = pin
         self.pulse_str = pulse
@@ -21,14 +21,14 @@ class CmdServo:
 
         self.pi = pi
         if not self.pi.connected:
-            self._log.error("pigpio daemon not connected.")
+            self.__log.error("pigpio daemon not connected.")
             raise ConnectionError("pigpio daemon not connected.")
 
         self.servo = PiServo(self.pi, self.pin, debug=self._debug)
 
     def main(self):
         """main"""
-        self._log.debug("")
+        self.__log.debug("")
 
         try:
             pulse_int = int(self.pulse_str)
@@ -40,23 +40,23 @@ class CmdServo:
             elif self.pulse_str == "center":
                 pulse_int = PiServo.CENTER
             else:
-                self._log.warning(
+                self.__log.warning(
                     '"%s": invalid pulse string', self.pulse_str
                 )
                 pulse_int = -1
 
-            self._log.debug("pulse_int=%s", pulse_int)
+            self.__log.debug("pulse_int=%s", pulse_int)
 
         if PiServo.MIN <= pulse_int <= PiServo.MAX:
             self.servo.move_pulse(pulse_int)
             time.sleep(self.sec)
         else:
-            self._log.error(
+            self.__log.error(
                 "pulse_int=%s: invalid value. do nothing", pulse_int
             )
 
     def end(self):
         """end"""
-        self._log.debug("")
+        self.__log.debug("")
         self.servo.off()
         print("bye!")

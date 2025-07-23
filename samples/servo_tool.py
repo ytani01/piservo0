@@ -35,8 +35,8 @@ class CalibApp:
 
     def __init__(self, pins, conf_file, debug=False):
         self._debug = debug
-        self._log = get_logger(self.__class__.__name__, self._debug)
-        self._log.debug("pins=%s, conf_file=%s", pins, conf_file)
+        self.__log = get_logger(self.__class__.__name__, self._debug)
+        self.__log.debug("pins=%s, conf_file=%s", pins, conf_file)
 
         self.pi = pigpio.pi()
         self.term = blessed.Terminal()
@@ -84,7 +84,7 @@ class CalibApp:
 
     def main(self):
         """メインループ"""
-        self._log.debug("starting main loop")
+        self.__log.debug("starting main loop")
         with self.term.cbreak():
             while self.running:
                 self.draw_prompt()
@@ -136,7 +136,7 @@ class CalibApp:
         else:
             self.selected_servo = self.SELECTED_SERVO_ALL
             print("select ALL")
-        self._log.debug("selected_servo: %s", self.selected_servo)
+        self.__log.debug("selected_servo: %s", self.selected_servo)
 
     def move_diff(self, diff_pulse):
         """パルス幅を相対的に変更する"""

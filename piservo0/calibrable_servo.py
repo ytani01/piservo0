@@ -44,8 +44,8 @@ class CalibrableServo(PiServo):
         super().__init__(pi, pin, debug)
 
         self._debug = debug
-        self._log = get_logger(self.__class__.__name__, self._debug)
-        self._log.debug(f"pin={pin}, conf_file={conf_file}")
+        self.__log = get_logger(self.__class__.__name__, self._debug)
+        self.__log.debug(f"pin={pin}, conf_file={conf_file}")
 
         self.conf_file = conf_file
         self._config_manager = ServoConfigManager(conf_file, self._debug)
@@ -77,11 +77,11 @@ class CalibrableServo(PiServo):
             pulse = self.get_pulse()
 
         if pulse < super().MIN:
-            self._log.warning(f"pulse({pulse}) < {super().MIN}")
+            self.__log.warning(f"pulse({pulse}) < {super().MIN}")
             pulse = super().MIN
 
         if pulse > super().MAX:
-            self._log.warning(f"pulse({pulse}) > {super().MAX}")
+            self.__log.warning(f"pulse({pulse}) > {super().MAX}")
             pulse = super().MAX
 
         return pulse
@@ -129,13 +129,13 @@ class CalibrableServo(PiServo):
 
         if not forced:
             if pulse < self.pulse_min:
-                self._log.warning(
+                self.__log.warning(
                     "pulse(%s) < self.pulse_min(%s)", pulse, self.pulse_min
                 )
                 pulse = self.pulse_min
 
             if pulse > self.pulse_max:
-                self._log.warning(
+                self.__log.warning(
                     "pulse(%s) > self.pulse_max(%s)", pulse, self.pulse_max
                 )
                 pulse = self.pulse_max
@@ -144,17 +144,17 @@ class CalibrableServo(PiServo):
 
     def move_center(self):
         """サーボモーターをキャリブレーションされた中央位置に移動させる。"""
-        self._log.debug("")
+        self.__log.debug("")
         self.move_pulse(self.pulse_center)
 
     def move_min(self):
         """サーボモーターをキャリブレーションされた最小位置に移動させる。"""
-        self._log.debug("")
+        self.__log.debug("")
         self.move_pulse(self.pulse_min)
 
     def move_max(self):
         """サーボモーターをキャリブレーションされた最大位置に移動させる。"""
-        self._log.debug("")
+        self.__log.debug("")
         self.move_pulse(self.pulse_max)
 
     def deg2pulse(self, deg: float) -> int:
@@ -166,7 +166,7 @@ class CalibrableServo(PiServo):
 
         pulse_float = d / self.ANGLE_MAX * deg + self.pulse_center
         pulse_int = int(round(pulse_float))
-        self._log.debug(
+        self.__log.debug(
             f"deg={deg},pulse_float={pulse_float},pulse_int={pulse_int}"
         )
 
@@ -180,7 +180,7 @@ class CalibrableServo(PiServo):
             d = self.pulse_center - self.pulse_min
 
         deg = (pulse - self.pulse_center) / d * self.ANGLE_MAX
-        self._log.debug(f"pulse={pulse},deg={deg}")
+        self.__log.debug(f"pulse={pulse},deg={deg}")
 
         return deg
 
@@ -188,13 +188,13 @@ class CalibrableServo(PiServo):
         """現在のサーボの角度を取得する。"""
         pulse = self.get_pulse()
         angle = self.pulse2deg(pulse)
-        self._log.debug(f"pulse={pulse}, angle={angle}")
+        self.__log.debug(f"pulse={pulse}, angle={angle}")
 
         return angle
 
     def move_angle(self, deg: float):
         """指定された角度にサーボモーターを移動させる。"""
-        self._log.debug(f"deg={deg}")
+        self.__log.debug(f"deg={deg}")
 
         if isinstance(deg, str):
             if deg == self.POS_CENTER:
@@ -204,15 +204,15 @@ class CalibrableServo(PiServo):
             elif deg == self.POS_MAX:
                 deg = self.ANGLE_MAX
             else:
-                self._log.error('deg="%s": invalid string. do nothing', deg)
+                self.__log.error('deg="%s": invalid string. do nothing', deg)
                 return
 
         if deg < self.ANGLE_MIN:
-            self._log.error(f"deg={deg} < ANGLE_MIN({self.ANGLE_MIN})")
+            self.__log.error(f"deg={deg} < ANGLE_MIN({self.ANGLE_MIN})")
             deg = self.ANGLE_MIN
 
         if deg > self.ANGLE_MAX:
-            self._log.error(f"deg={deg} > ANGLE_MAX({self.ANGLE_MAX})")
+            self.__log.error(f"deg={deg} > ANGLE_MAX({self.ANGLE_MAX})")
             deg = self.ANGLE_MAX
 
         pulse = self.deg2pulse(deg)
@@ -227,7 +227,7 @@ class CalibrableServo(PiServo):
             self._pulse_center = config.get("center", self.pulse_center)
             self._pulse_max = config.get("max", self.pulse_max)
 
-        self._log.debug(
+        self.__log.debug(
             "Loaded: pin=%s, min=%s, center=%s, max=%s",
             self.pin,
             self.pulse_min,
@@ -244,12 +244,12 @@ class CalibrableServo(PiServo):
             "max": self.pulse_max,
         }
         self._config_manager.save_config(new_config)
-        self._log.debug(f"Saved: {new_config}")
+        self.__log.debug(f"Saved: {new_config}")
 
     def _ensure_config_exists(self):
         """もし設定がなければ、現在の値で保存する。(プライベートメソッド)"""
         if self._config_manager.get_config(self.pin) is None:
-            self._log.warning(
+            self.__log.warning(
                 "No config for pin %s. Saving current val.", self.pin
             )
             self.save_conf()
