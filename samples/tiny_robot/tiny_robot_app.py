@@ -5,7 +5,7 @@ import sys
 
 import pigpio
 
-from piservo0 import MultiServo, PoseInterpreter, get_logger
+from piservo0 import MultiServo, StrCmd, get_logger
 
 
 class TinyRobotApp:
@@ -22,7 +22,7 @@ class TinyRobotApp:
 
         self.pi = None
         self.mservo = None
-        self.interpreter = None
+        self.str_cmd = None
 
     def init(self):
         """initialize"""
@@ -35,7 +35,7 @@ class TinyRobotApp:
         self.mservo = MultiServo(
             self.pi, self.pins, conf_file=self.conf_file, debug=False
         )
-        self.interpreter = PoseInterpreter(
+        self.str_cmd = StrCmd(
             self.mservo,
             angle_unit=self.angle_unit,
             move_sec=self.move_sec,

@@ -7,7 +7,7 @@ from .multi_servo import MultiServo
 from .my_logger import get_logger
 
 
-class PoseInterpreter:
+class StrCmd:
     """
     文字列ベースのコマンドを解釈し、
     複数のサーボモーター（MultiServo）を制御するクラス。
@@ -37,7 +37,7 @@ class PoseInterpreter:
         debug: bool = False,
     ):
         """
-        PoseInterpreterのコンストラクタ。
+        StrCmdのコンストラクタ。
 
         Args:
             mservo (MultiServo): 制御対象のMultiServoオブジェクト。
@@ -101,7 +101,7 @@ class PoseInterpreter:
         except ValueError:
             return False
 
-    def _is_pose_cmd(self, cmd: str) -> bool:
+    def _is_str_cmd(self, cmd: str) -> bool:
         """文字列がポーズコマンドか判定する。"""
         if len(cmd) != self.mservo.servo_n:
             return False
@@ -121,7 +121,8 @@ class PoseInterpreter:
         単一のコマンド文字列を解析し、実行可能な辞書形式に変換する。
 
         Args:
-            cmd (str): 'fbcb'のようなポーズ文字列、または'0.5'のような数値文字列。
+            cmd (str): 'fbcb'のようなポーズ文字列、
+            または'0.5'のような数値文字列。
 
         Returns:
             dict: 解析結果。
@@ -131,7 +132,7 @@ class PoseInterpreter:
         """
         self._log.debug(f"cmd='{cmd}'")
 
-        if self._is_pose_cmd(cmd):
+        if self._is_str_cmd(cmd):
             angles = []
             for i, ch in enumerate(cmd):
                 factor = self.angle_factor[i]
