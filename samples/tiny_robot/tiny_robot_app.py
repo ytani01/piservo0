@@ -14,8 +14,8 @@ class TinyRobotApp:
     def __init__(self, pins, conf_file, debug=False):
         """constractor"""
         self._debug = debug
-        self._log = get_logger(__class__.__name__, self._debug)
-        self._log.debug("pins=%s, conf_file=%s", pins, conf_file)
+        self.__log = get_logger(__class__.__name__, self._debug)
+        self.__log.debug("pins=%s, conf_file=%s", pins, conf_file)
 
         self.pins = pins
         self.conf_file = conf_file
@@ -26,10 +26,10 @@ class TinyRobotApp:
 
     def init(self):
         """initialize"""
-        self._log.debug("")
+        self.__log.debug("")
         self.pi = pigpio.pi()
         if not self.pi.connected:
-            self._log.error("pigpio daemon is not running.")
+            self.__log.error("pigpio daemon is not running.")
             raise RuntimeError("pigpio daemon is not running.")
 
         self.mservo = MultiServo(
@@ -47,12 +47,12 @@ class TinyRobotApp:
         """main loop
         (override this method)
         """
-        self._log.debug("")
+        self.__log.debug("")
         raise NotImplementedError()
 
     def end(self):
         """post-process"""
-        self._log.debug("")
+        self.__log.debug("")
         if self.mservo:
             self.mservo.off()
         if self.pi:
@@ -61,12 +61,12 @@ class TinyRobotApp:
 
     def start(self):
         """start application"""
-        self._log.debug("")
+        self.__log.debug("")
         try:
             self.init()
             self.main()
         except Exception as e:
-            self._log.error("%s: %s", type(e).__name__, e, exc_info=True)
+            self.__log.error("%s: %s", type(e).__name__, e, exc_info=True)
             print(f"ERROR: {type(e).__name__}: {e}", file=sys.stderr)
         finally:
             self.end()
