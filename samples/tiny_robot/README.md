@@ -2,6 +2,7 @@
 
 `piservo0` を使ったシンプルな四足歩行ロボットです。
 
+![Tiny Robot](tiny_robot.jpg)
 
 ## == Install 
 
