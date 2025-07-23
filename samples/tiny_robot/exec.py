@@ -155,6 +155,10 @@ class ExecApp(TinyRobotApp):
 
                     with open(_file) as _f:
                         for line in _f:
+                            line = line.strip()
+                            if not line or line.startswith("#"):
+                                continue
+
                             self._log.debug("line=%s", line)
 
                             cmds = line.split()
@@ -163,7 +167,7 @@ class ExecApp(TinyRobotApp):
                             for cmd in cmds:
                                 print(f" {cmd}")
 
-                                self.util.exec_cmd(cmd)
+                                self.interpreter.exec_cmd(cmd)
 
                                 time.sleep(self.interval_sec)
 
@@ -173,8 +177,8 @@ class ExecApp(TinyRobotApp):
     def end(self):
         """end: post-processing"""
         self._log.debug("")
-        self.util.set_move_sec(0.5)
-        self.util.exec_cmd("cccc")
-        self.util.set_move_sec(1.5)
-        self.util.exec_cmd("cFFc")
+        self.interpreter.set_move_sec(0.5)
+        self.interpreter.exec_cmd("cccc")
+        self.interpreter.set_move_sec(1.5)
+        self.interpreter.exec_cmd("cFFc")
         super().end()

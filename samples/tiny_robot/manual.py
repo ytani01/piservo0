@@ -111,19 +111,13 @@ class ManualApp(TinyRobotApp):
                 self._log.debug("cmds=%s", cmds)
 
                 for _cmd in cmds:
-                    res = self.util.parse_cmd(_cmd)
-                    self._log.debug("res=%s", res)
+                    parsed_cmd = self.interpreter.parse_cmd(_cmd)
+                    self._log.debug("parsed_cmd=%s", parsed_cmd)
 
-                    if res["cmd"] == "angles":
-                        angles = res["angles"]
-                        self.mservo.move_angle_sync(angles, self.move_sec)
+                    self.interpreter.exec_cmd(_cmd)
+
+                    if parsed_cmd.get("type") == "pose" and self.interval_sec > 0:
                         time.sleep(self.interval_sec)
-
-                    if res["cmd"] == "interval":
-                        time.sleep(float(res["sec"]))
-
-                    if res["cmd"] == "error":
-                        self._log.error('"%s": %s', _cmd, res["err"])
 
         except (EOFError, KeyboardInterrupt):
             self._log.info("End of Input")
