@@ -1,8 +1,10 @@
 # tests/test_04_config_save.py
-import os
 import json
+import os
 import pytest
+
 import pigpio
+
 from piservo0 import CalibrableServo
 
 
@@ -18,7 +20,9 @@ def check_pigpiod():
         return False
 
 
-pytestmark = pytest.mark.skipif(not check_pigpiod(), reason="pigpiod is not running")
+pytestmark = pytest.mark.skipif(
+    not check_pigpiod(), reason="pigpiod is not running"
+)
 
 
 @pytest.fixture
@@ -57,7 +61,9 @@ def test_config_save_and_load(test_config):
     """
     # --- 1. 初期オブジェクトを作成し、値を変更して保存 ---
     servo1 = CalibrableServo(
-        test_config["pi"], test_config["pin"], conf_file=test_config["conf_file"]
+        test_config["pi"],
+        test_config["pin"],
+        conf_file=test_config["conf_file"]
     )
 
     # 初期値がデフォルト値であることを確認
@@ -79,7 +85,9 @@ def test_config_save_and_load(test_config):
 
     # --- 2. 新しいオブジェクトを作成し、値が読み込まれているか検証 ---
     servo2 = CalibrableServo(
-        test_config["pi"], test_config["pin"], conf_file=test_config["conf_file"]
+        test_config["pi"],
+        test_config["pin"],
+        conf_file=test_config["conf_file"]
     )
 
     # 保存した値が正しく読み込まれていることを検証

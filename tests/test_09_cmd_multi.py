@@ -20,7 +20,9 @@ def check_pigpiod():
         return False
 
 
-pytestmark = pytest.mark.skipif(not check_pigpiod(), reason="pigpiod is not running")
+pytestmark = pytest.mark.skipif(
+    not check_pigpiod(), reason="pigpiod is not running"
+)
 
 
 @pytest.fixture
@@ -32,7 +34,7 @@ def multi_app():
     # テスト用の設定ファイルを初期化
     initial_config = [
         {"pin": test_pin, "min": 500, "center": 1500, "max": 2500},
-        {"pin": 17, "min": 2500, "center": 2500, "max": 2500},  # 他のピンは現状維持
+        {"pin": 17, "min": 2500, "center": 2500, "max": 2500},
     ]
     with open(test_conf_file, "w") as f:
         json.dump(initial_config, f, indent=2)
@@ -59,7 +61,8 @@ def test_cmd_multi_init_ok(multi_app):
 def test_cmd_multi_main(multi_app, mocker, capsys):
     """CmdMulti.main()"""
     mocker.patch(
-        "builtins.input", side_effect=["10.5 -20.0 30.0 -40.0", "invalid", "q"]
+        "builtins.input",
+        side_effect=["10.5 -20.0 30.0 -40.0", "invalid", "q"]
     )
 
     mock_ctx = mocker.MagicMock()

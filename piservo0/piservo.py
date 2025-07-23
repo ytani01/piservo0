@@ -34,8 +34,8 @@ class PiServo:
                 デバッグログを有効にするかどうかのフラグ。
                 Trueの場合、詳細なログが出力される。デフォルトはFalse。
         """
-        self._dbg = debug
-        self._log = get_logger(self.__class__.__name__, self._dbg)
+        self._debug = debug
+        self._log = get_logger(self.__class__.__name__, self._debug)
         self._log.debug(f"pin={pin}")
 
         self.pi = pi

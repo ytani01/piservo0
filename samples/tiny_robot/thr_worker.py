@@ -18,8 +18,8 @@ class ThrWorker(threading.Thread):
     def __init__(self, mservo, move_sec, angle_unit, interval_sec,
                  debug=False
     ):
-        self._dbg = debug
-        self._log = get_logger(__class__.__name__, self._dbg)
+        self._debug = debug
+        self._log = get_logger(__class__.__name__, self._debug)
         self._log.debug('mservo.pins=%s', mservo.pins)
         self._log.debug('move_sec=%s,angle_unit=%s,interval_sec=%s',
                         move_sec, angle_unit, interval_sec)
@@ -34,7 +34,7 @@ class ThrWorker(threading.Thread):
 
         self.util = Util(
             self.mservo, self.move_sec, self.angle_unit,
-            debug=self._dbg
+            debug=self._debug
         )
 
         super().__init__(daemon=True)

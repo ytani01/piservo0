@@ -1,7 +1,6 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-
 import time
 
 from .calibrable_servo import CalibrableServo
@@ -13,6 +12,9 @@ class MultiServo:
     複数のサーボモーターを制御する。
     """
 
+    DEF_ESTIMATED_TIME = 0.5  # sec
+    DEF_STEP_N = 50
+    
     def __init__(
         self,
         pi,
@@ -37,8 +39,8 @@ class MultiServo:
         debug: bool
             デバッグモードを有効にするかどうかのフラグ。
         """
-        self._dbg = debug
-        self._log = get_logger(self.__class__.__name__, self._dbg)
+        self._debug = debug
+        self._log = get_logger(self.__class__.__name__, self._debug)
         self._log.debug("pins=%s, conf_file=%s", pins, conf_file)
 
         self.pi = pi
@@ -72,13 +74,13 @@ class MultiServo:
         """
         if not isinstance(angles, (list, tuple)):
             self._log.error(
-                f"角度はリストまたはタプルでなければなりません: {type(angles)}"
+                f"角度はリストまたはタプル: {type(angles)}"
             )
             return False
 
         if len(angles) != self.servo_n:
             self._log.error(
-                f"角度の数がサーボの数と一致しません: len(angles)={len(angles)} != {self.servo_n}"
+                f"len(angles)={len(angles)} != servo_n={self.servo_n}"
             )
             return False
 
@@ -151,7 +153,12 @@ class MultiServo:
             self._log.debug(f"pin={s.pin}, angle={angles[i]}")
             s.move_angle(angles[i])
 
-    def move_angle_sync(self, target_angles, estimated_sec=1.0, step_n=50):
+    def move_angle_sync(
+        self,
+        target_angles,
+        estimated_sec=DEF_ESTIMATED_TIME,
+        step_n=DEF_STEP_N
+    ):
         """
         すべてのサーボを目標角度まで同期的かつ滑らかに動かす。
 
@@ -195,11 +202,16 @@ class MultiServo:
                         servo_instance.ANGLE_CENTER
                     )
                 elif angle == servo_instance.POS_MIN:
-                    processed_target_angles.append(servo_instance.ANGLE_MIN)
+                    processed_target_angles.append(
+                        servo_instance.ANGLE_MIN
+                    )
                 elif angle == servo_instance.POS_MAX:
-                    processed_target_angles.append(servo_instance.ANGLE_MAX)
+                    processed_target_angles.append(
+                        servo_instance.ANGLE_MAX
+                    )
                 else:
-                    # 不明な文字列の場合は現在の角度を維持（エラーログはmove_angleで出力）
+                    # 不明な文字列の場合は現在の角度を維持
+                    # （エラーログはmove_angleで出力）
                     self._log.warning(
                         f'不明な角度文字列 "{angle}" を無視します。'
                     )

@@ -7,8 +7,8 @@ import click
 
 from piservo0 import get_logger
 
-from .tiny_robot_app import TinyRobotApp
 from .thr_worker import ThrWorker
+from .tiny_robot_app import TinyRobotApp
 
 
 @click.command(
@@ -85,7 +85,7 @@ class ThrManualApp(TinyRobotApp):
         """constractor"""
         super().__init__(pins, conf_file, debug=debug)
 
-        self._log = get_logger(__class__.__name__, self._dbg)
+        self._log = get_logger(__class__.__name__, self._debug)
         self._log.debug("angle_unit=%s", angle_unit)
         self._log.debug(
             "move_sec=%s,interval_sec=%s", move_sec, interval_sec
@@ -104,7 +104,7 @@ class ThrManualApp(TinyRobotApp):
         self.worker = ThrWorker(
             self.mservo, self.move_sec, self.angle_unit,
             self.interval_sec,
-            debug=self._dbg
+            debug=self._debug
         )
         self.worker.start()
 

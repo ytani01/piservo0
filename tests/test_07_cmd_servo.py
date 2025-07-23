@@ -21,7 +21,9 @@ def check_pigpiod():
         return False
 
 
-pytestmark = pytest.mark.skipif(not check_pigpiod(), reason="pigpiod is not running")
+pytestmark = pytest.mark.skipif(
+    not check_pigpiod(), reason="pigpiod is not running"
+)
 
 
 def test_cmd_servo_init_ok():

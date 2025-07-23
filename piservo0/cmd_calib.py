@@ -12,8 +12,8 @@ class CmdCalib:
     """calibration tool"""
 
     def __init__(self, pi, pin, conf_file, sec=1.0, debug=False):
-        self._dbg = debug
-        self._log = get_logger(__class__.__name__, self._dbg)
+        self._debug = debug
+        self._log = get_logger(__class__.__name__, self._debug)
         self._log.debug("pin=%s,conf_file=%s,sec=%s", pin, conf_file, sec)
 
         self.pin = pin
@@ -27,7 +27,8 @@ class CmdCalib:
 
         try:
             self.servo = CalibrableServo(
-                self.pi, self.pin, conf_file=self.conf_file, debug=self._dbg
+                self.pi, self.pin, conf_file=self.conf_file,
+                debug=self._debug
             )
         except Exception as _e:
             self._log.error("%s: %s", type(_e).__name__, _e)

@@ -34,8 +34,8 @@ class CalibApp:
     SELECTED_SERVO_ALL = -1
 
     def __init__(self, pins, conf_file, debug=False):
-        self._dbg = debug
-        self._log = get_logger(self.__class__.__name__, self._dbg)
+        self._debug = debug
+        self._log = get_logger(self.__class__.__name__, self._debug)
         self._log.debug("pins=%s, conf_file=%s", pins, conf_file)
 
         self.pi = pigpio.pi()

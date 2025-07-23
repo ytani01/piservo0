@@ -39,8 +39,8 @@ class Util:
         debug=False,
     ):
         """constructor"""
-        self._dbg = debug
-        self._log = get_logger(__class__.__name__, self._dbg)
+        self._debug = debug
+        self._log = get_logger(__class__.__name__, self._debug)
         self._log.debug(
             "move_sec=%s,angle_unit=%s,angle_factor=%s",
             move_sec,

@@ -24,7 +24,9 @@ def check_pigpiod():
         return False
 
 
-pytestmark = pytest.mark.skipif(not check_pigpiod(), reason="pigpiod is not running")
+pytestmark = pytest.mark.skipif(
+    not check_pigpiod(), reason="pigpiod is not running"
+)
 
 
 @pytest.fixture
@@ -36,7 +38,7 @@ def calib_app():
     # テスト用の設定ファイルを初期化
     initial_config = [
         {"pin": test_pin, "min": 500, "center": 1500, "max": 2500},
-        {"pin": 17, "min": 2500, "center": 2500, "max": 2500},  # 他のピンは現状維持
+        {"pin": 17, "min": 2500, "center": 2500, "max": 2500},
     ]
     with open(test_conf_file, "w") as f:
         json.dump(initial_config, f, indent=2)
@@ -102,7 +104,8 @@ def test_cmd_calib_main_angle(calib_app, mocker, capsys):
     ],
 )
 def test_cmd_calib_main_input(
-    calib_app, mocker, capsys, input_str, expected_output_str, expect_error_log
+    calib_app, mocker, capsys, input_str, expected_output_str,
+    expect_error_log
 ):
     """CmdCalib.main() input (angle and pulse)"""
     mocker.patch("builtins.input", side_effect=[input_str, "q"])
@@ -124,7 +127,9 @@ def test_cmd_calib_main_input(
             "%s: out of range", float(input_str)
         )
         assert f"{float(input_str)}{expected_output_str}" in captured.err
-        assert expected_output_str not in captured.out  # 範囲外の場合は出力されない
+
+        # 範囲外の場合は出力されない
+        assert expected_output_str not in captured.out
     else:
         calib_app._log.error.assert_not_called()
         assert expected_output_str in captured.out
@@ -160,7 +165,9 @@ def test_cmd_calib_main_commands(calib_app, mocker, capsys):
     mocker.patch.object(calib_app._log, "error")
     calib_app.main(mock_ctx)
 
-    calib_app._log.error.assert_called_once_with("%s: invalid command", "invalid")
+    calib_app._log.error.assert_called_once_with(
+        "%s: invalid command", "invalid"
+    )
 
     captured = capsys.readouterr()
     assert "USAGE" in captured.out

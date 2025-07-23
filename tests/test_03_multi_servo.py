@@ -1,9 +1,12 @@
-import pytest
-import time
-import pigpio
-import os
 import json
+import time
+import os
+import pytest
+
+import pigpio
+
 from piservo0 import MultiServo
+
 
 SLEEP_SEC = 1.0
 TEST_PINS = [17, 27, 22, 23]
@@ -22,7 +25,9 @@ def check_pigpiod():
         return False
 
 
-pytestmark = pytest.mark.skipif(not check_pigpiod(), reason="pigpiod is not running")
+pytestmark = pytest.mark.skipif(
+    not check_pigpiod(), reason="pigpiod is not running"
+)
 
 
 @pytest.fixture(scope="function")
@@ -42,7 +47,9 @@ def multi_servo_setup():
     if not pi.connected:
         pytest.fail("pigpio daemon not connected.")
 
-    multi_servo = MultiServo(pi, TEST_PINS, conf_file=TEST_CONF_FILE, debug=True)
+    multi_servo = MultiServo(
+        pi, TEST_PINS, conf_file=TEST_CONF_FILE, debug=True
+    )
 
     yield pi, multi_servo
 
@@ -112,7 +119,9 @@ def test_move_angle_sync(multi_servo_setup):
     move_sec = 1.5
 
     start_time = time.time()
-    multi_servo.move_angle_sync(target_angles, estimated_sec=move_sec, step_n=20)
+    multi_servo.move_angle_sync(
+        target_angles, estimated_sec=move_sec, step_n=20
+    )
     end_time = time.time()
 
     # 実行時間が指定した時間に近いことを確認
@@ -127,7 +136,7 @@ def test_move_angle_sync(multi_servo_setup):
 
 def test_off(multi_servo_setup):
     """
-    offメソッドで全てのサーボが停止するかをテスト��る。
+    offメソッドで全てのサーボが停止するか
     """
     pi, multi_servo = multi_servo_setup
 

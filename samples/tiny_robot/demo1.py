@@ -130,7 +130,7 @@ class Demo1App(TinyRobotApp):
     ):
         """constractor"""
         super().__init__(pins, conf_file, debug=debug)
-        self._log = get_logger(__class__.__name__, self._dbg)
+        self._log = get_logger(__class__.__name__, self._debug)
         self._log.debug("count=%s, angle_unit=%s", count, angle_unit)
         self._log.debug(
             "move_sec=%s, interval_sec=%s", move_sec, interval_sec

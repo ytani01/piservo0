@@ -15,8 +15,8 @@ class TinyRobotApp:
 
     def __init__(self, pins, conf_file, debug=False):
         """constractor"""
-        self._dbg = debug
-        self._log = get_logger(__class__.__name__, self._dbg)
+        self._debug = debug
+        self._log = get_logger(__class__.__name__, self._debug)
         self._log.debug("pins=%s, conf_file=%s", pins, conf_file)
 
         self.pins = pins
@@ -38,7 +38,7 @@ class TinyRobotApp:
             self.pi, self.pins, conf_file=self.conf_file, debug=False
         )
         self.util = Util(
-            self.mservo, self.move_sec, self.angle_unit, debug=self._dbg
+            self.mservo, self.move_sec, self.angle_unit, debug=self._debug
         )
 
     def main(self):

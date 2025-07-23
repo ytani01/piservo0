@@ -24,7 +24,9 @@ def check_pigpiod():
         return False
 
 
-pytestmark = pytest.mark.skipif(not check_pigpiod(), reason="pigpiod is not running")
+pytestmark = pytest.mark.skipif(
+    not check_pigpiod(), reason="pigpiod is not running"
+)
 
 
 @pytest.fixture
@@ -88,7 +90,7 @@ def test_move_angle_single_servo(calib_app_setup):
     # 選択したサーボの角度のみが変化していることを確認
     current_angles = app.mservo.get_angle()
     assert pytest.approx(current_angles[0], abs=1.0) == target_angle
-    assert pytest.approx(current_angles[1], abs=1.0) == 0.0  # 2番目は初期位置のまま
+    assert pytest.approx(current_angles[1], abs=1.0) == 0.0
 
 
 def test_move_angle_all_servos(calib_app_setup):
@@ -154,8 +156,9 @@ def test_set_calibration_and_save(calib_app_setup):
     assert servo_config["max"] == max_pulse
 
     # アプリケーションを再起動して設定が読み込まれることを確認する
-    # CalibAppの設計上、pigpio.pi()のインスタンスを外部から注入できないため、
-    # ここで新しいCalibAppインスタンスを作成するとpigpioの二重初期化でエラーになる可能性がある。
+    # CalibAppの設計上、pigpio.pi()のインスタンスを外部から
+    # 注入できないため、ここで新しいCalibAppインスタンスを作成すると
+    # pigpioの二重初期化でエラーになる可能性がある。
     # そのため、ここではファイルの内容が正しいことの確認に留める。
     # 実際の動作確認は手動テストまたは別の方法で行う必要がある。
     pass

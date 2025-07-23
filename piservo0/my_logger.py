@@ -1,12 +1,9 @@
 #
 # Copyright (c) 2025 Yoichi Tanibayashi
 #
-
 import inspect
-
 from logging import getLogger, StreamHandler, Formatter
 from logging import DEBUG, INFO
-# from logging import NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 def get_logger(name, debug=False):
@@ -20,7 +17,8 @@ def get_logger(name, debug=False):
         False  # Prevent messages from being passed to the root logger
     )
 
-    # Clear existing handlers to prevent duplicates if get_logger is called multiple times for the same name
+    # Clear existing handlers to prevent duplicates
+    # if get_logger is called multiple times for the same name
     if logger.handlers:
         logger.handlers.clear()
 

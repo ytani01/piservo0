@@ -11,8 +11,8 @@ class CmdServo:
     """servo command"""
 
     def __init__(self, pi, pin, pulse, sec=1.0, debug=False):
-        self._dbg = debug
-        self._log = get_logger(__class__.__name__, self._dbg)
+        self._debug = debug
+        self._log = get_logger(__class__.__name__, self._debug)
         self._log.debug('pin=%s, pulse="%s", sec=%s', pin, pulse, sec)
 
         self.pin = pin
@@ -24,7 +24,7 @@ class CmdServo:
             self._log.error("pigpio daemon not connected.")
             raise ConnectionError("pigpio daemon not connected.")
 
-        self.servo = PiServo(self.pi, self.pin, debug=self._dbg)
+        self.servo = PiServo(self.pi, self.pin, debug=self._debug)
 
     def main(self):
         """main"""

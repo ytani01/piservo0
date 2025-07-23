@@ -1,8 +1,9 @@
-import pytest
-import time
-import pigpio
-import os
 import json
+import time
+import os
+import pigpio
+import pytest
+
 from piservo0 import CalibrableServo
 
 SLEEP_SEC = 0.8
@@ -22,7 +23,9 @@ def check_pigpiod():
         return False
 
 
-pytestmark = pytest.mark.skipif(not check_pigpiod(), reason="pigpiod is not running")
+pytestmark = pytest.mark.skipif(
+    not check_pigpiod(), reason="pigpiod is not running"
+)
 
 
 @pytest.fixture(scope="function")
@@ -38,7 +41,9 @@ def calib_servo_setup():
     if not pi.connected:
         pytest.fail("pigpio daemon not connected.")
 
-    servo = CalibrableServo(pi, TEST_PIN, conf_file=TEST_CONF_FILE, debug=True)
+    servo = CalibrableServo(
+        pi, TEST_PIN, conf_file=TEST_CONF_FILE, debug=True
+    )
 
     yield pi, servo
 
@@ -80,7 +85,9 @@ def test_set_and_load_calibration():
     pi1 = pigpio.pi()
     if not pi1.connected:
         pytest.fail("pigpio daemon not connected (first connection).")
-    servo1 = CalibrableServo(pi1, TEST_PIN, conf_file=TEST_CONF_FILE, debug=True)
+    servo1 = CalibrableServo(
+        pi1, TEST_PIN, conf_file=TEST_CONF_FILE, debug=True
+    )
 
     # --- アクション1: 値を設定して保存 ---
     new_min = 1000
