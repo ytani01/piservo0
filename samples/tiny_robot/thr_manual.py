@@ -5,10 +5,10 @@ import time
 
 import click
 
-from piservo0 import get_logger
+from piservo0 import ThrWorker, get_logger
 
-from .thr_worker import ThrWorker
 from .tiny_robot_app import TinyRobotApp
+from .util import Util
 
 
 @click.command(
@@ -96,17 +96,19 @@ class ThrManualApp(TinyRobotApp):
         self.interval_sec = interval_sec
 
     def init(self):
-        """ init """
+        """init"""
         super().init()
-        
+
         self._log.debug("")
-        
-        self.worker = ThrWorker(
-            self.mservo, self.move_sec, self.angle_unit,
-            self.interval_sec,
-            debug=self._debug
-        )
+
+        self.worker = ThrWorker(self.mservo, debug=self._debug)
+        self.worker.move_sec = self.move_sec
+        self.worker.interval_sec = self.interval_sec
         self.worker.start()
+
+        self.util = Util(
+            self.mservo, self.move_sec, self.angle_unit, debug=self._debug
+        )
 
     def main(self):
         """main function"""
@@ -120,7 +122,16 @@ class ThrManualApp(TinyRobotApp):
                 if not line:
                     break
 
-                self.worker.send(line)
+                cmds = line.split()
+                for cmd_str in cmds:
+                    res = self.util.parse_cmd(cmd_str)
+                    self._log.debug("res=%s", res)
+
+                    if res["cmd"] == "error":
+                        self._log.error('"%s": %s', cmd_str, res["err"])
+                        continue
+
+                    self.worker.send(res)
 
         except (EOFError, KeyboardInterrupt) as _e:
             self._log.info("End of Input")

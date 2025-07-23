@@ -107,7 +107,7 @@ class Util:
           self.angle_unit = 40
           self.angle_factor = [-1, -1, 1, 1]
 
-          'FBCF' --> {'angles', [-40, 40, 0, 40]}
+          'fbcf' --> {'angles', [-40, 40, 0, 40]}
 
         """
         self._log.debug("cmd=%s", cmd)
@@ -154,7 +154,7 @@ class Util:
             ret = {"cmd": "angles", "angles": angles}
 
         elif self.is_float_str(cmd):
-            ret = {"cmd": "interval", "sec": float(cmd)}
+            ret = {"cmd": "sleep", "sec": float(cmd)}
 
         else:
             ret = {"cmd": "error", "err": "invalid command"}
@@ -167,11 +167,16 @@ class Util:
         res = self.parse_cmd(cmd)
 
         if res["cmd"] == "angles":
-            angles = res["angles"]
-            self.mservo.move_angle_sync(angles, self.move_sec)
+            _angles = res["angles"]
+
+            self._log.debug("move:%s", _angles)
+            self.mservo.move_angle_sync(_angles, self.move_sec)
             return
 
-        if res["cmd"] == "interval":
+        if res["cmd"] == "sleep":
+            _sec = float(res["sec"])
+
+            self._log.debug("sleep %s sec", _sec)
             time.sleep(float(res["sec"]))
             return
 
