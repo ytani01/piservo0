@@ -93,22 +93,9 @@ class Demo1App(TinyRobotApp):
     # - ここでは、プラスの角度が前方向になるように書く。
     # - F:前、C:中央、B:後
     #
-    # (左右反転パターンは、flip_strs()で生成できる)
+    # (左右反転パターンは、flip_cmds()で生成できる)
     #
-    """
-    SEQ = [
-        'fccc',
-        'fbbb',
-        'cbbb',
-        'ccbb',
-        'cfbb',
-        'cfbc',
-        'bccc',
-        'cccc',
-    ]
-    """
-
-    SEQ = [
+    CMDS = [
         "fccc",
         "cbbb",
         ".c..",
@@ -147,13 +134,13 @@ class Demo1App(TinyRobotApp):
 
         time.sleep(1.0)
 
-        _seq = self.SEQ + self.str_cmd.flip_sequence(self.SEQ)
+        _cmds = self.CMDS + self.str_cmd.flip_cmds(self.CMDS)
 
         try:
             for _count in range(self.count):
                 print(f"===== count={_count}")
 
-                for angles_str in _seq:
+                for angles_str in _cmds:
                     print(f" {angles_str}")
 
                     self.str_cmd.exec_cmd(angles_str)
@@ -166,8 +153,9 @@ class Demo1App(TinyRobotApp):
     def end(self):
         """end: post-processing"""
         self.__log.debug("")
-        self.str_cmd.set_move_sec(0.5)
+        self.str_cmd.set_move_sec(1)
+        self.str_cmd.exec_cmd("fbbf")
         self.str_cmd.exec_cmd("cccc")
-        self.str_cmd.set_move_sec(1.5)
+        self.str_cmd.exec_cmd(".5")
         self.str_cmd.exec_cmd("cFFc")
         super().end()

@@ -79,8 +79,7 @@ class ManualApp(TinyRobotApp):
     """Tiny Robot Manual Mode"""
 
     def __init__(
-        self, pins, angle_unit, move_sec, interval_sec, conf_file,
-        debug=False
+        self, pins, angle_unit, move_sec, interval_sec, conf_file, debug=False
     ):
         """constractor"""
         super().__init__(pins, conf_file, debug=debug)
@@ -116,13 +115,11 @@ class ManualApp(TinyRobotApp):
 
                     self.str_cmd.exec_cmd(_cmd)
 
-                    if parsed_cmd.get("type") == "pose" and self.interval_sec > 0:
+                    if (
+                        parsed_cmd.get("type") == "pose"
+                        and self.interval_sec > 0
+                    ):
                         time.sleep(self.interval_sec)
 
         except (EOFError, KeyboardInterrupt):
             self.__log.info("End of Input")
-
-    def end(self):
-        """end: post-processing"""
-        self.__log.debug("")
-        super().end()

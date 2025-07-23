@@ -130,36 +130,36 @@ class StrCmd:
                   例: {'cmd': 'sleep', 'sec': 0.5}
                   例: {'cmd': 'error', 'err': 'invalid command'}
         """
-        self.__log.debug(f"cmd='{cmd}'")
+        self.__log.debug("cmd=%s", cmd)
 
         if self._is_str_cmd(cmd):
             angles = []
-            for i, ch in enumerate(cmd):
+            for i, _ch in enumerate(cmd):
                 factor = self.angle_factor[i]
-                if ch.isupper():
+                if _ch.isupper():
                     factor *= 2  # 大文字の場合は角度を2倍
-                    ch = ch.lower()
+                    _ch = _ch.lower()
 
                 angle = None
                 cc = self.cmd_chars
                 s = self.mservo.servo[i]  # CalibrableServo instance
 
-                if ch == cc["center"]:
+                if _ch == cc["center"]:
                     angle = s.ANGLE_CENTER
-                elif ch == cc["min"]:
+                elif _ch == cc["min"]:
                     angle = s.ANGLE_MIN
-                elif ch == cc["max"]:
+                elif _ch == cc["max"]:
                     angle = s.ANGLE_MAX
-                elif ch == cc["forward"]:
+                elif _ch == cc["forward"]:
                     angle = self.angle_unit
-                elif ch == cc["backward"]:
+                elif _ch == cc["backward"]:
                     angle = -self.angle_unit
-                elif ch == cc["dont_move"]:
+                elif _ch == cc["dont_move"]:
                     angle = s.get_angle()
 
                 if angle is not None:
                     # `dont_move`以外は係数を適用
-                    if ch != cc["dont_move"]:
+                    if _ch != cc["dont_move"]:
                         angle *= factor
 
                     # 可動範囲内にクリップ
@@ -197,26 +197,25 @@ class StrCmd:
         elif cmd_type == "error":
             self.__log.error(parsed_cmd.get("err"))
 
-    
 
     @staticmethod
-    def flip_sequence(cmd_sequence: list[str]) -> list[str]:
+    def flip_cmds(cmds: list[str]) -> list[str]:
         """
-        ポーズ文字列を左右反転させたシーケンスを返す。
-        数値（スリープ）はそのまま。
+        コマンド文字列を左右反転させたシーケンスを返す。
+        数値（float: スリープ秒数）はそのまま。
 
         Args:
-            cmd_sequence (list[str]): コマンドシーケンス。
+            cmds (list[str]): コマンドシーケンス。
 
         Returns:
             list[str]: 反転されたコマンドシーケンス。
                        例: ['fcfb'] -> ['bfcf']
         """
-        new_sequence = []
-        for cmd in cmd_sequence:
+        new_cmds = []
+        for cmd in cmds:
             try:
                 float(cmd)
-                new_sequence.append(cmd)
+                new_cmds.append(cmd)
             except ValueError:
-                new_sequence.append(cmd[::-1])
-        return new_sequence
+                new_cmds.append(cmd[::-1])
+        return new_cmds

@@ -39,12 +39,8 @@ servo command"""
 @click.argument("pin", type=int, nargs=1)
 @click.argument("pulse", type=str, nargs=1)
 @click.option(
-    "--sec",
-    "-t",
-    "-s",
-    type=float,
-    default=1.0,
-    show_default=True,
+    "--sec", "-t", "-s", type=float,
+    default=1.0, show_default=True,
     help="sec",
 )
 @click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
@@ -82,25 +78,18 @@ calibration tool"""
 )
 @click.argument("pin", type=int, nargs=1)
 @click.option(
-    "--conf_file",
-    "--file",
-    "-c",
-    "-f",
-    type=str,
-    default="./servo.json",
-    show_default=True,
-    help="config file",
+    "--conf_file", "--file", "-c", "-f", type=str,
+    default="./servo.json", show_default=True,
+    help="config file"
 )
 @click.option(
-    "--sec",
-    "-t",
-    "-s",
-    type=float,
-    default=1.0,
-    show_default=True,
-    help="sec",
+    "--sec", "-t", "-s", type=float,
+    default=1.0, show_default=True,
+    help="sec"
 )
-@click.option("--debug", "-d", is_flag=True, default=False, help="debug flag") # 追加
+@click.option(
+    "--debug", "-d", is_flag=True, default=False, help="debug flag"
+)
 @click.pass_context
 def calib(ctx, pin, conf_file, sec, debug):
     """clib command"""
@@ -135,17 +124,14 @@ multi servo controller"""
 )
 @click.argument("pin", type=int, nargs=-1)
 @click.option(
-    "--conf_file",
-    "--file",
-    "-c",
-    "-f",
-    type=str,
-    default="./servo.json",
-    show_default=True,
-    help="config file",
+    "--conf_file", "--file", "-c", "-f", type=str,
+    default="./servo.json", show_default=True,
+    help="config file"
 )
 @click.option(
-    "--sec", "-t", "-s", type=float, default=1, show_default=True, help="sec"
+    "--sec", "-t", "-s", type=float,
+    default=1, show_default=True,
+    help="move sec"
 )
 @click.option("--debug", "-d", is_flag=True, help="debug flag")
 @click.pass_context

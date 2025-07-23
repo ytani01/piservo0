@@ -27,8 +27,7 @@ class CmdCalib:
 
         try:
             self.servo = CalibrableServo(
-                self.pi, self.pin, conf_file=self.conf_file,
-                debug=self._debug
+                self.pi, self.pin, conf_file=self.conf_file, debug=self._debug
             )
         except Exception as _e:
             self.__log.error("%s: %s", type(_e).__name__, _e)
@@ -50,7 +49,7 @@ class CmdCalib:
         cmd_set_center = {"help": "set center", "str": ("set center", "sc")}
         cmd_set_min = {"help": "set min", "str": ("set min", "sn")}
         cmd_set_max = {"help": "set max", "str": ("set max", "sx")}
-        cmd_save = {"help": "save config", "str": ("save", "s")} # 追加
+        cmd_save = {"help": "save config", "str": ("save", "s")}  # 追加
         cmd_exit = {"help": "exit", "str": ("exit", "quit", "q", "bye")}
         cmd_help = {"help": "help", "str": ("help", "h", "?")}
 
@@ -64,7 +63,7 @@ class CmdCalib:
             cmd_set_center,
             cmd_set_min,
             cmd_set_max,
-            cmd_save, # 追加
+            cmd_save,  # 追加
             cmd_help,
             cmd_exit,
         ]
@@ -149,7 +148,11 @@ class CmdCalib:
                 if in_str in cmd_get["str"]:
                     pulse = self.servo.get_pulse()
                     print(f" pulse = {pulse}")
-                    print(f" min={self.servo.pulse_min}, center={self.servo.pulse_center}, max={self.servo.pulse_max}") # 追加
+                    print(
+                        f" min={self.servo.pulse_min}, "
+                        f"center={self.servo.pulse_center}, "
+                        f"max={self.servo.pulse_max}"
+                    )
                     continue
 
                 if in_str in cmd_set_center["str"]:
