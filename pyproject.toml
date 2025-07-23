@@ -46,3 +46,8 @@ exclude = ["tests/data"]
 pythonpath = "tests"
 
 [dependency-groups]
+
+[[tool.mypy.overrides]]
+module = ['pigpio']
+#ignore_untyped_imports = true
+ignore_missing_imports = true
