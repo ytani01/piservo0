@@ -26,7 +26,7 @@ def multi_servo(mocker_pigpio, tmp_path):
     with open(conf_file, "w") as f:
         json.dump(conf_data, f)
 
-    pi = mocker_pigpigpio()
+    pi = mocker_pigpio()
     multi_servo = MultiServo(
         pi, TEST_PINS, conf_file=str(conf_file), first_move=False, debug=True
     )

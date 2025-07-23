@@ -39,7 +39,7 @@ def mocker_pigpio():
 
         # get_servo_pulsewidthのデフォルトの戻り値を設定
         # 具体的なテストケースで上書き可能
-        mock_pi_instance.get_servo_pulsewidth.return_value = 1500
+        mock_pi_instance.reset_mock() # 初期化時のoff()呼び出しをクリア
 
         # pi()が呼ばれたら、上記で作成したインスタンスのモックを返すように設定
         mock_pi_constructor.return_value = mock_pi_instance

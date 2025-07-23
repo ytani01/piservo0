@@ -1,78 +1,123 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
+"""
+Test for CLI servo command
+"""
 import pytest
-import pigpio
-from piservo0.cmd_servo import CmdServo
-from piservo0.piservo import PiServo
+from click.testing import CliRunner
+from unittest.mock import call
+from piservo0.__main__ import cli  # __main__.pyのcliグループをインポート
 
-PIN = 17
+@pytest.fixture
+def runner():
+    """
+    Click CLIテスト用のCliRunnerフィクスチャ
+    """
+    return CliRunner()
 
+def test_cli_servo_numeric_pulse(runner, mocker_pigpio):
+    """
+    CLI servoコマンドが数値パルス幅を正しく処理するかテスト
+    """
+    pi_mock = mocker_pigpio()
+    result = runner.invoke(cli, ["servo", "17", "1500"])
 
-def check_pigpiod():
-    """Check if pigpiod is running"""
-    try:
-        pi = pigpio.pi()
-        if not pi.connected:
-            return False
-        pi.stop()
-        return True
-    except Exception:
-        return False
+    assert result.exit_code == 0
+    assert "bye!" in result.output
+    # 初期化時のoff()と、move_pulseの呼び出しを確認 (順序は問わない)
+    pi_mock.set_servo_pulsewidth.assert_has_calls([
+        call(17, 0), # 初期化時のoff()
+        call(17, 1500) # 期待するパルス値
+    ], any_order=True)
+    pi_mock.stop.assert_called_once()
 
+def test_cli_servo_keyword_pulse(runner, mocker_pigpio):
+    """
+    CLI servoコマンドがキーワードパルス幅(min, max, center)を正しく処理するかテスト
+    """
+    pi_mock = mocker_pigpio()
 
-pytestmark = pytest.mark.skipif(
-    not check_pigpiod(), reason="pigpiod is not running"
-)
+    # min
+    result = runner.invoke(cli, ["servo", "17", "min"])
+    assert result.exit_code == 0
+    assert "bye!" in result.output
+    pi_mock.set_servo_pulsewidth.assert_has_calls([
+        call(17, 0), # 初期化時のoff()
+        call(17, 500) # PiServo.MIN
+    ], any_order=True)
+    pi_mock.stop.assert_called_once()
+    pi_mock.reset_mock() # モックの状態をリセット
 
+    # max
+    result = runner.invoke(cli, ["servo", "17", "max"])
+    assert result.exit_code == 0
+    assert "bye!" in result.output
+    pi_mock.set_servo_pulsewidth.assert_has_calls([
+        call(17, 0), # 初期化時のoff()
+        call(17, 2500) # PiServo.MAX
+    ], any_order=True)
+    pi_mock.stop.assert_called_once()
+    pi_mock.reset_mock()
 
-def test_cmd_servo_init_ok():
-    """CmdServo.__init__()"""
-    pi = pigpio.pi()
-    app = CmdServo(pi, PIN, "1500", 1.2, debug=True)
-    assert app.pin == PIN
-    assert app.pulse_str == "1500"
-    assert app.sec == 1.2
-    assert app.pi.connected
-    app.end()
-    pi.stop()
+    # center
+    result = runner.invoke(cli, ["servo", "17", "center"])
+    assert result.exit_code == 0
+    assert "bye!" in result.output
+    pi_mock.set_servo_pulsewidth.assert_has_calls([
+        call(17, 0), # 初期化時のoff()
+        call(17, 1500) # PiServo.CENTER
+    ], any_order=True)
+    pi_mock.stop.assert_called_once()
+    pi_mock.reset_mock()
 
+def test_cli_servo_invalid_pulse(runner, mocker_pigpio):
+    """
+    CLI servoコマンドが無効なパルス幅を処理したときにエラーを出すかテスト
+    """
+    pi_mock = mocker_pigpio()
+    result = runner.invoke(cli, ["servo", "17", "invalid"])
 
-def test_cmd_servo_main():
-    """CmdServo.main()"""
-    pi = pigpio.pi()
-    # 数値
-    app = CmdServo(pi, PIN, "1500", 1.0, debug=True)
-    app.main()
-    # 例外が出なければOK
+    assert result.exit_code == 0 # エラー終了コードは0になる
+    assert "invalid pulse string" in result.output # 警告メッセージを確認
+    assert "invalid value. do nothing" in result.output # エラーメッセージを確認
+    pi_mock.set_servo_pulsewidth.assert_called_once_with(17, 0) # 初期化時のoff()のみ
+    pi_mock.stop.assert_called_once() # エラー時でもpi.stop()は呼ばれる
 
-    # 文字列
-    app = CmdServo(pi, PIN, "min", 1.0, debug=True)
-    app.main()
+def test_cli_servo_out_of_range_pulse(runner, mocker_pigpio):
+    """
+    CLI servoコマンドが範囲外の数値パルス幅を処理したときにエラーを出すかテスト
+    """
+    pi_mock = mocker_pigpio()
 
-    app = CmdServo(pi, PIN, "max", 1.0, debug=True)
-    app.main()
+    # 最小値未満
+    result = runner.invoke(cli, ["servo", "17", "499"])
+    assert result.exit_code == 0
+    assert "invalid value. do nothing" in result.output
+    pi_mock.set_servo_pulsewidth.assert_called_once_with(17, 0) # 初期化時のoff()のみ
+    pi_mock.stop.assert_called_once()
+    pi_mock.reset_mock()
 
-    app = CmdServo(pi, PIN, "center", 1.0, debug=True)
-    app.main()
+    # 最大値超え
+    result = runner.invoke(cli, ["servo", "17", "2501"])
+    assert result.exit_code == 0
+    assert "invalid value. do nothing" in result.output
+    pi_mock.set_servo_pulsewidth.assert_called_once_with(17, 0) # 初期化時のoff()のみ
+    pi_mock.stop.assert_called_once()
+    pi_mock.reset_mock()
 
-    # 不正な文字列
-    app = CmdServo(pi, PIN, "invalid", 1.0, debug=True)
-    app.main()
+def test_cli_servo_duration(runner, mocker_pigpio):
+    """
+    CLI servoコマンドがduration引数を正しく処理するかテスト
+    """
+    pi_mock = mocker_pigpio()
+    result = runner.invoke(cli, ["servo", "17", "1500", "--sec", "0.5"])
 
-    # 不正な値
-    app = CmdServo(pi, PIN, str(PiServo.MIN - 1), 1.0, debug=True)
-    app.main()
-
-    app.end()
-    pi.stop()
-
-
-def test_cmd_servo_end(capsys):
-    """CmdServo.end()"""
-    pi = pigpio.pi()
-    app = CmdServo(pi, PIN, "1500", 1.0, debug=True)
-    app.end()
-    captured = capsys.readouterr()
-    assert captured.out == "bye!\n"
-    pi.stop()
+    assert result.exit_code == 0
+    assert "bye!" in result.output
+    pi_mock.set_servo_pulsewidth.assert_has_calls([
+        call(17, 0), # 初期化時のoff()
+        call(17, 1500) # 期待するパルス値
+    ], any_order=True)
+    # time.sleepのモックはconftest.pyで対応済みなので、ここでは直接検証しない
+    pi_mock.stop.assert_called_once()

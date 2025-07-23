@@ -48,7 +48,8 @@ servo command"""
     help="sec",
 )
 @click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
-def servo(pin, pulse, sec, debug):
+@click.pass_context
+def servo(ctx, pin, pulse, sec, debug):
     """servo command"""
     log = get_logger(__name__, debug)
     log.debug('pin=%s, pulse="%s", sec=%s', pin, pulse, sec)
@@ -99,6 +100,8 @@ calibration tool"""
     show_default=True,
     help="sec",
 )
+@click.option("--debug", "-d", is_flag=True, default=False, help="debug flag") # 追加
+@click.pass_context
 def calib(ctx, pin, conf_file, sec, debug):
     """clib command"""
     log = get_logger(__name__, debug)

@@ -50,6 +50,7 @@ class CmdCalib:
         cmd_set_center = {"help": "set center", "str": ("set center", "sc")}
         cmd_set_min = {"help": "set min", "str": ("set min", "sn")}
         cmd_set_max = {"help": "set max", "str": ("set max", "sx")}
+        cmd_save = {"help": "save config", "str": ("save", "s")} # 追加
         cmd_exit = {"help": "exit", "str": ("exit", "quit", "q", "bye")}
         cmd_help = {"help": "help", "str": ("help", "h", "?")}
 
@@ -63,6 +64,7 @@ class CmdCalib:
             cmd_set_center,
             cmd_set_min,
             cmd_set_max,
+            cmd_save, # 追加
             cmd_help,
             cmd_exit,
         ]
@@ -147,6 +149,7 @@ class CmdCalib:
                 if in_str in cmd_get["str"]:
                     pulse = self.servo.get_pulse()
                     print(f" pulse = {pulse}")
+                    print(f" min={self.servo.pulse_min}, center={self.servo.pulse_center}, max={self.servo.pulse_max}") # 追加
                     continue
 
                 if in_str in cmd_set_center["str"]:
@@ -168,6 +171,11 @@ class CmdCalib:
                     self.servo.pulse_max = pulse
                     print(f" set max: pulse = {pulse}")
                     print(f" file: {self.servo.conf_file}")
+                    continue
+
+                if in_str in cmd_save["str"]:
+                    self.servo.save_conf()
+                    print(f" Configuration saved to {self.servo.conf_file}")
                     continue
 
                 if in_str in cmd_exit["str"]:
