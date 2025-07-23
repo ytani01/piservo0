@@ -122,7 +122,7 @@ class ThrWorker(threading.Thread):
                 if _cmd["cmd"] == "interval":
                     self.interval_sec = float(_cmd["sec"])
                     self._log.debug(
-                        "interval_sec=%s", self.interval_sec
+                        "set interval_sec=%s", self.interval_sec
                     )
                     continue
 
