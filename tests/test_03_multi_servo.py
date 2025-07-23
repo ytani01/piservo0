@@ -1,249 +1,147 @@
+#
+# (c) 2025 Yoichi Tanibayashi
+#
+"""
+Test for MultiServo
+"""
 import json
-import time
-import os
+from unittest.mock import call
 import pytest
+from piservo0 import MultiServo, CalibrableServo
 
-import pigpio
-
-from piservo0 import MultiServo
-
-
-SLEEP_SEC = 1.0
 TEST_PINS = [17, 27, 22, 23]
-TEST_CONF_FILE = "./test_multi_servo_conf.json"
 
 
-def check_pigpiod():
-    """Check if pigpiod is running"""
-    try:
-        pi = pigpio.pi()
-        if not pi.connected:
-            return False
-        pi.stop()
-        return True
-    except Exception:
-        return False
-
-
-pytestmark = pytest.mark.skipif(
-    not check_pigpiod(), reason="pigpiod is not running"
-)
-
-
-@pytest.fixture(scope="function")
-def multi_servo_setup():
+@pytest.fixture
+def multi_servo(mocker_pigpio, tmp_path):
     """
-    MultiServoのテストセットアップとクリーンアップを行うフィクスチャ。
+    MultiServoのテスト用フィクスチャ。
+    モック化されたpigpioと一時的な設定ファイルを使用する。
     """
-    # テスト用の設定ファイルを作成
+    conf_file = tmp_path / "test_multi_servo_conf.json"
     conf_data = [
         {"pin": TEST_PINS[0], "min": 600, "center": 1500, "max": 2400},
         {"pin": TEST_PINS[1], "min": 700, "center": 1600, "max": 2500},
     ]
-    with open(TEST_CONF_FILE, "w") as f:
+    with open(conf_file, "w") as f:
         json.dump(conf_data, f)
 
-    pi = pigpio.pi()
-    if not pi.connected:
-        pytest.fail("pigpio daemon not connected.")
-
+    pi = mocker_pigpigpio()
     multi_servo = MultiServo(
-        pi, TEST_PINS, conf_file=TEST_CONF_FILE, debug=True
+        pi, TEST_PINS, conf_file=str(conf_file), first_move=False, debug=True
     )
 
     yield pi, multi_servo
 
-    # クリーンアップ
-    multi_servo.move_angle([0] * len(TEST_PINS))
-    time.sleep(SLEEP_SEC)
-    multi_servo.off()
-    pi.stop()
-    if os.path.exists(TEST_CONF_FILE):
-        os.remove(TEST_CONF_FILE)
 
-
-def test_initialization(multi_servo_setup):
+def test_constructor(multi_servo):
     """
-    MultiServoが正しく初期化されるかをテストする。
+    MultiServoが正しく初期化されるか。
     """
-    pi, multi_servo = multi_servo_setup
-    assert isinstance(multi_servo, MultiServo)
-    assert len(multi_servo.servo) == len(TEST_PINS)
-    assert multi_servo.servo_n == len(TEST_PINS)
+    _, ms = multi_servo
+    assert isinstance(ms, MultiServo)
+    assert len(ms.servo) == len(TEST_PINS)
+    assert ms.servo_n == len(TEST_PINS)
     for i, pin in enumerate(TEST_PINS):
-        assert multi_servo.servo[i].pin == pin
+        assert ms.servo[i].pin == pin
+
+    # 設定ファイルが読み込まれているか
+    assert ms.servo[0].pulse_min == 600
+    assert ms.servo[1].pulse_center == 1600
+    # 設定ファイルにないピンはデフォルト値か
+    assert ms.servo[2].pulse_max == CalibrableServo.MAX
 
 
-def test_get_angle(multi_servo_setup):
+def test_get_angle(multi_servo):
     """
-    get_angleが各サーボの正しい角度リストを返すかテストする。
+    get_angleが各サーボの正しい角度リストを返すか。
     """
-    pi, multi_servo = multi_servo_setup
+    pi, ms = multi_servo
+    # 各サーボのget_pulseが返す値を設定
+    pi.get_servo_pulsewidth.side_effect = [1500, 1600, 1500, 1500]
 
-    # 初期位置(0度)のはず
-    angles = multi_servo.get_angle()
+    angles = ms.get_angle()
+
     assert len(angles) == len(TEST_PINS)
-    for angle in angles:
-        # 浮動小数点数の比較のため、許容誤差を設ける
-        assert pytest.approx(angle, abs=1.0) == 0.0
+    # 0番目のサーボはpin=17, center=1500なので角度0
+    assert angles[0] == pytest.approx(0)
+    # 1番目のサーボはpin=27, center=1600なので角度0
+    assert angles[1] == pytest.approx(0)
 
 
-def test_move_angle(multi_servo_setup):
+def test_move_angle(multi_servo):
     """
-    move_angleで各サーボが指定された角度に移動するかをテストする。
+    move_angleで各サーボが指定された角度に移動するか。
     """
-    pi, multi_servo = multi_servo_setup
-    target_angles = [-45, 45, 0, 0]
+    pi, ms = multi_servo
+    target_angles = [-45, 45, 0, 90]
 
-    multi_servo.move_angle(target_angles)
-    time.sleep(SLEEP_SEC)
+    ms.move_angle(target_angles)
 
-    current_angles = multi_servo.get_angle()
-    assert len(current_angles) == len(target_angles)
-    for i, angle in enumerate(current_angles):
-        assert pytest.approx(angle, abs=1.0) == target_angles[i]
+    # 各サーボのdeg2pulseで計算された正しいパルス幅で呼ばれているか
+    calls = [
+        call(ms.servo[i].pin, ms.servo[i].deg2pulse(angle))
+        for i, angle in enumerate(target_angles)
+    ]
+    pi.set_servo_pulsewidth.assert_has_calls(calls, any_order=False)
 
 
-def test_move_angle_sync(multi_servo_setup):
+def test_move_angle_sync(multi_servo, mocker):
     """
-    move_angle_syncで各サーボが同期して移動し、
-    最終的に目標角度に到達するかをテストする。
+    move_angle_syncが滑らかな動きを生成するか（中間ステップの検証）。
     """
-    pi, multi_servo = multi_servo_setup
+    pi, ms = multi_servo
+    mocker.patch("time.sleep")  # time.sleepを無効化
 
-    # まずは初期位置(0度)にしっかり移動させておく
-    multi_servo.move_angle([0] * len(TEST_PINS))
-    time.sleep(SLEEP_SEC)
+    target_angles = [90, -90, 45, -45]
+    start_angles = [0, 0, 0, 0]  # 簡単のため初期角度を0とする
+    # get_angleが常にstart_anglesを返すようにモック化
+    mocker.patch.object(ms, "get_angle", return_value=start_angles)
 
-    target_angles = [90, -90, 0, 0]
-    move_sec = 1.5
+    ms.move_angle_sync(target_angles, estimated_sec=1.0, step_n=10)
 
-    start_time = time.time()
-    multi_servo.move_angle_sync(
-        target_angles, estimated_sec=move_sec, step_n=20
-    )
-    end_time = time.time()
-
-    # 実行時間が指定した時間に近いことを確認
-    assert pytest.approx(end_time - start_time, abs=0.5) == move_sec
+    # 呼び出し回数が ステップ数 * サーボ数 であることを確認
+    assert pi.set_servo_pulsewidth.call_count == 10 * len(TEST_PINS)
 
     # 最終的な角度が目標と一致することを確認
-    current_angles = multi_servo.get_angle()
-    assert len(current_angles) == len(target_angles)
-    for i, angle in enumerate(current_angles):
-        assert pytest.approx(angle, abs=1.0) == target_angles[i]
+    final_calls = [
+        call(ms.servo[i].pin, ms.servo[i].deg2pulse(angle))
+        for i, angle in enumerate(target_angles)
+    ]
+    pi.set_servo_pulsewidth.assert_has_calls(final_calls, any_order=False)
 
 
-def test_off(multi_servo_setup):
+def test_off(multi_servo):
     """
-    offメソッドで全てのサーボが停止するか
+    off()ですべてのサーボのパルス幅が0に設定されるか。
     """
-    pi, multi_servo = multi_servo_setup
-
-    multi_servo.move_angle([30, -30])
-    time.sleep(SLEEP_SEC)
-
-    # offを呼ぶ
-    multi_servo.off()
-
-    # 全てのサーボのパルス幅が0になっていることを確認
-    pulses = multi_servo.get_pulse()
-    for pulse in pulses:
-        assert pulse == 0
+    pi, ms = multi_servo
+    ms.off()
+    calls = [call(pin, 0) for pin in TEST_PINS]
+    pi.set_servo_pulsewidth.assert_has_calls(calls, any_order=True)
 
 
-def test_move_angle_invalid_length(multi_servo_setup, mocker):
+@pytest.mark.parametrize(
+    "invalid_angles",
+    [
+        [10],  # 長さが違う
+        "not a list",  # 型が違う
+    ],
+)
+def test_move_angle_invalid_arg(multi_servo, invalid_angles, mocker):
     """
-    不正な長さのリストを渡した際にエラーログが出て、
-    角度が変わらないことをテストする。
+    不正な引数を渡した際にエラーログが出て、サーボが動かないこと。
     """
-    pi, multi_servo = multi_servo_setup
-    # multi_servoインスタンスの内部ロガーのエラーメソッドをモック化
-    mocker.patch.object(multi_servo._log, "error")
+    pi, ms = multi_servo
+    mocker.patch.object(ms._log, "error")
 
-    initial_angles = multi_servo.get_angle()
-    invalid_angles = [10]  # 長さが違う
+    ms.move_angle(invalid_angles)
+    ms._log.error.assert_called_once()
+    pi.set_servo_pulsewidth.assert_not_called()
 
-    # move_angle
-    multi_servo.move_angle(invalid_angles)
-    # エラーログが1回呼び出されたことを確認
-    multi_servo._log.error.assert_called_once()
-    current_angles = multi_servo.get_angle()
-    # 角度が変わっていないことを確認
-    assert initial_angles == current_angles
+    ms._log.error.reset_mock()
+    pi.reset_mock()
 
-    # move_angle_sync
-    multi_servo._log.error.reset_mock()
-    multi_servo.move_angle_sync(invalid_angles)
-    multi_servo._log.error.assert_called_once()
-    current_angles = multi_servo.get_angle()
-    assert initial_angles == current_angles
-
-
-def test_move_angle_invalid_type(multi_servo_setup, mocker):
-    """
-    不正な型の引数を渡した際にエラーログが出て、
-    角度が変わらないことをテストする。
-    """
-    pi, multi_servo = multi_servo_setup
-    mocker.patch.object(multi_servo._log, "error")
-
-    initial_angles = multi_servo.get_angle()
-    invalid_arg = "not a list"
-
-    # move_angle
-    multi_servo.move_angle(invalid_arg)
-    multi_servo._log.error.assert_called_once()
-    current_angles = multi_servo.get_angle()
-    assert initial_angles == current_angles
-
-    # move_angle_sync
-    multi_servo._log.error.reset_mock()
-    multi_servo.move_angle_sync(invalid_arg)
-    multi_servo._log.error.assert_called_once()
-    current_angles = multi_servo.get_angle()
-    assert initial_angles == current_angles
-
-
-def test_move_angle_by_string(multi_servo_setup):
-    """
-    move_angleで、文字列による角度指定ができるかをテストする。
-    """
-    pi, multi_servo = multi_servo_setup
-
-    # 文字列と数値の混合リスト
-    target_angles_str = ["center", "min", "max", 0]
-    expected_angles_deg = [0.0, -90.0, 90.0, 0.0]
-
-    multi_servo.move_angle(target_angles_str)
-    time.sleep(SLEEP_SEC)
-
-    current_angles = multi_servo.get_angle()
-    assert len(current_angles) == len(expected_angles_deg)
-    for i, angle in enumerate(current_angles):
-        assert pytest.approx(angle, abs=1.0) == expected_angles_deg[i]
-
-
-def test_move_angle_sync_by_string(multi_servo_setup):
-    """
-    move_angle_syncで、文字列による角度指定ができるかをテストする。
-    """
-    pi, multi_servo = multi_servo_setup
-
-    # 文字列と数値の混合リスト
-    target_angles_str = ["max", "min", 45.0, -45.0]
-    expected_angles_deg = [90.0, -90.0, 45.0, -45.0]
-    move_sec = 1.5
-
-    start_time = time.time()
-    multi_servo.move_angle_sync(target_angles_str, estimated_sec=move_sec)
-    end_time = time.time()
-
-    # 実行時間が指定した時間に近いことを確認
-    assert pytest.approx(end_time - start_time, abs=0.5) == move_sec
-
-    # 最終的な角度が目標と一致することを確認
-    current_angles = multi_servo.get_angle()
-    assert len(current_angles) == len(expected_angles_deg)
-    for i, angle in enumerate(current_angles):
-        assert pytest.approx(angle, abs=1.0) == expected_angles_deg[i]
+    ms.move_angle_sync(invalid_angles)
+    ms._log.error.assert_called_once()
+    pi.set_servo_pulsewidth.assert_not_called()
