@@ -1,7 +1,6 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-import sys
 import time
 
 import click
@@ -63,7 +62,9 @@ Tiny Robot: Manual mode
 @click.option("--debug", "-d", is_flag=True, help="Enable debug mode")
 def manual(pins, angle_unit, move_sec, interval_sec, conf_file, debug):
     """Tiny Robot manual mode"""
+
     _log = get_logger(__name__, debug)
+
     _fmt = "pins=%s,angle_unit=%s,move_sec=%s,"
     _fmt += "interval_sec=%s,conf_file=%s"
     _log.debug(_fmt, pins, angle_unit, move_sec, interval_sec, conf_file)
@@ -109,8 +110,9 @@ class ManualApp(TinyRobotApp):
                 cmds = line.split()
                 self._log.debug("cmds=%s", cmds)
 
-                for cmd in cmds:
-                    res = self.util.parse_cmd(cmd)
+                for _cmd in cmds:
+                    res = self.util.parse_cmd(_cmd)
+                    self._log.debug("res=%s", res)
 
                     if res["cmd"] == "angles":
                         angles = res["angles"]
@@ -121,10 +123,10 @@ class ManualApp(TinyRobotApp):
                         time.sleep(float(res["sec"]))
 
                     if res["cmd"] == "error":
-                        print(f"ERROR: {cmd}: {res['err']}", file=sys.stderr)
+                        self._log.error('"%s": %s', _cmd, res["err"])
 
         except (EOFError, KeyboardInterrupt):
-            self._log.warning("End of Input")
+            self._log.info("End of Input")
 
     def end(self):
         """end: post-processing"""

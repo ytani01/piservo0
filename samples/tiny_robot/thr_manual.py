@@ -8,7 +8,6 @@ import click
 from piservo0 import ThrWorker, get_logger
 
 from .tiny_robot_app import TinyRobotApp
-from .util import Util
 
 
 @click.command(
@@ -80,7 +79,8 @@ class ThrManualApp(TinyRobotApp):
     """Tiny Robot Manual Mode"""
 
     def __init__(
-        self, pins, angle_unit, move_sec, interval_sec, conf_file, debug=False
+        self, pins, angle_unit, move_sec, interval_sec, conf_file,
+        debug=False
     ):
         """constractor"""
         super().__init__(pins, conf_file, debug=debug)
@@ -106,10 +106,6 @@ class ThrManualApp(TinyRobotApp):
         self.worker.interval_sec = self.interval_sec
         self.worker.start()
 
-        self.util = Util(
-            self.mservo, self.move_sec, self.angle_unit, debug=self._debug
-        )
-
     def main(self):
         """main function"""
         self._log.debug("")
@@ -123,17 +119,19 @@ class ThrManualApp(TinyRobotApp):
                     break
 
                 cmds = line.split()
-                for cmd_str in cmds:
-                    res = self.util.parse_cmd(cmd_str)
+                self._log.debug("cmds=%s", cmds)
+
+                for _cmd in cmds:
+                    res = self.util.parse_cmd(_cmd)
                     self._log.debug("res=%s", res)
 
                     if res["cmd"] == "error":
-                        self._log.error('"%s": %s', cmd_str, res["err"])
+                        self._log.error('"%s": %s', _cmd, res["err"])
                         continue
 
                     self.worker.send(res)
 
-        except (EOFError, KeyboardInterrupt) as _e:
+        except (EOFError, KeyboardInterrupt):
             self._log.info("End of Input")
 
     def end(self):
