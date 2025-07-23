@@ -2,9 +2,9 @@
 # (c) 2025 Yoichi Tanibayashi
 #
 import json
+import queue
 import threading
 import time
-import queue
 
 from .my_logger import get_logger
 
@@ -71,17 +71,16 @@ class ThrWorker(threading.Thread):
 
     def run(self):
         """ run """
-        self.__log.debug("")
+        self.__log.debug("start")
 
         self._active = True
 
         while self._active:
+            # コマンド受信
             _cmd = self.recv()
-
             if _cmd == "":
                 time.sleep(0.1)
                 continue
-
             self.__log.debug("_cmd=%a", _cmd)
 
             try:
@@ -91,10 +90,11 @@ class ThrWorker(threading.Thread):
                     self.__log.debug("json.loads() --> _cmd=%a", _cmd)
 
                 # e.g. {"cmd": "angles", "angles": [30, 0, -30, 0]}
+                # 注: Pythonの None --> JSONでは null
                 if _cmd["cmd"] == "angles":
                     _angles = _cmd["angles"]
-
                     self.__log.debug("move: %s", _angles)
+
                     self.mservo.move_angle_sync(
                         _angles, self.move_sec, self.step_n
                     )

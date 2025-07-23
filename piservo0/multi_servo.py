@@ -144,13 +144,13 @@ class MultiServo:
         angles: list[float]
             各サーボに設定する角度のリスト。
         """
-        self.__log.debug(f"angles={angles}")
+        self.__log.debug("angles=%s", angles)
 
         if not self._validate_angle_list(angles):
             return
 
         for i, s in enumerate(self.servo):
-            self.__log.debug(f"pin={s.pin}, angle={angles[i]}")
+            #self.__log.debug(f"pin={s.pin}, angle={angles[i]}")
             s.move_angle(angles[i])
 
     def move_angle_sync(
@@ -161,11 +161,14 @@ class MultiServo:
     ):
         """
         すべてのサーボを目標角度まで同期的かつ滑らかに動かす。
+        角度は、数値だけでなく、文字列、Noneでも指定できる。
 
         Parameters
         ----------
         target_angles: list[float]
             各サーボの目標角度のリスト。
+            None: 現在の角度(つまり、動かさない)
+            文字列: "center", "min", "max"
         estimated_sec: float
             動作にかかるおおよその時間（秒）。
         step_n: int
@@ -186,54 +189,64 @@ class MultiServo:
             return
 
         step_sec = estimated_sec / step_n
-        self.__log.debug(f"step_sec={step_sec}")
+        self.__log.debug("step_sec=%.3f", step_sec)
 
         start_angles = self.get_angle()
         self.__log.debug(f"start_angles={start_angles}")
 
-        # 文字列を数値に変換
-        processed_target_angles = []
-        for i, angle in enumerate(target_angles):
-            if isinstance(angle, str):
-                # 各サーボインスタンスの定数を使って変換
-                servo_instance = self.servo[i]
-                if angle == servo_instance.POS_CENTER:
-                    processed_target_angles.append(
-                        servo_instance.ANGLE_CENTER
+        # 数値に変換
+        _num_target_angles = []
+        for i, _angle in enumerate(target_angles):
+            _servo = self.servo[i]
+
+            if isinstance(_angle, str):
+                if _angle == _servo.POS_CENTER:
+                    _num_target_angles.append(
+                        _servo.ANGLE_CENTER
                     )
-                elif angle == servo_instance.POS_MIN:
-                    processed_target_angles.append(
-                        servo_instance.ANGLE_MIN
+                elif _angle == _servo.POS_MIN:
+                    _num_target_angles.append(
+                        _servo.ANGLE_MIN
                     )
-                elif angle == servo_instance.POS_MAX:
-                    processed_target_angles.append(
-                        servo_instance.ANGLE_MAX
+                elif _angle == _servo.POS_MAX:
+                    _num_target_angles.append(
+                        _servo.ANGLE_MAX
                     )
                 else:
                     # 不明な文字列の場合は現在の角度を維持
                     # （エラーログはmove_angleで出力）
                     self.__log.warning(
-                        f'不明な角度文字列 "{angle}" を無視します。'
+                        f'不明な角度文字列 "{_angle}" を無視します。'
                     )
-                    processed_target_angles.append(start_angles[i])
-            else:
-                processed_target_angles.append(angle)
+                    _num_target_angles.append(start_angles[i])
 
-        diff_angles = [
-            processed_target_angles[i] - start_angles[i]
+            elif _angle is None:
+                _num_target_angles.append(_servo.get_angle())
+
+            else: # num
+                _angle = max(min(_angle, _servo.ANGLE_MAX), _servo.ANGLE_MIN)
+                _num_target_angles.append(_angle)
+
+        self.__log.debug("_num_target_angles=%s",
+                         _num_target_angles)
+
+        _diff_angles = [
+            _num_target_angles[i] - start_angles[i]
             for i in range(self.servo_n)
         ]
-        self.__log.debug(f"diff_angles={diff_angles}")
+        self.__log.debug("_diff_angles=%s", _diff_angles)
 
         for step_i in range(1, step_n + 1):
             next_angles = [
-                start_angles[i] + diff_angles[i] * step_i / step_n
+                start_angles[i] + _diff_angles[i] * step_i / step_n
                 for i in range(self.servo_n)
             ]
+
             self.move_angle(next_angles)
+            """
             self.__log.debug(
-                f"step {step_i}/{step_n}: "
-                + f"next_angles={next_angles}, "
-                + f"step_sec={step_sec}"
+                "step %s/%s: next_angles=%s, step_sec=%s",
+                step_i, step_n, next_angles, step_sec
             )
+            """
             time.sleep(step_sec)
