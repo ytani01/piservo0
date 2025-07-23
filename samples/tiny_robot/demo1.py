@@ -147,7 +147,7 @@ class Demo1App(TinyRobotApp):
 
         time.sleep(1.0)
 
-        _seq = self.SEQ + self.interpreter.flip_sequence(self.SEQ)
+        _seq = self.SEQ + self.str_cmd.flip_sequence(self.SEQ)
 
         try:
             for _count in range(self.count):
@@ -156,7 +156,7 @@ class Demo1App(TinyRobotApp):
                 for angles_str in _seq:
                     print(f" {angles_str}")
 
-                    self.interpreter.exec_cmd(angles_str)
+                    self.str_cmd.exec_cmd(angles_str)
 
                     time.sleep(self.interval_sec)
 
@@ -166,8 +166,8 @@ class Demo1App(TinyRobotApp):
     def end(self):
         """end: post-processing"""
         self._log.debug("")
-        self.interpreter.set_move_sec(0.5)
-        self.interpreter.exec_cmd("cccc")
-        self.interpreter.set_move_sec(1.5)
-        self.interpreter.exec_cmd("cFFc")
+        self.str_cmd.set_move_sec(0.5)
+        self.str_cmd.exec_cmd("cccc")
+        self.str_cmd.set_move_sec(1.5)
+        self.str_cmd.exec_cmd("cFFc")
         super().end()

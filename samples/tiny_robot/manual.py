@@ -111,10 +111,10 @@ class ManualApp(TinyRobotApp):
                 self._log.debug("cmds=%s", cmds)
 
                 for _cmd in cmds:
-                    parsed_cmd = self.interpreter.parse_cmd(_cmd)
+                    parsed_cmd = self.str_cmd.parse_cmd(_cmd)
                     self._log.debug("parsed_cmd=%s", parsed_cmd)
 
-                    self.interpreter.exec_cmd(_cmd)
+                    self.str_cmd.exec_cmd(_cmd)
 
                     if parsed_cmd.get("type") == "pose" and self.interval_sec > 0:
                         time.sleep(self.interval_sec)

@@ -122,7 +122,7 @@ class ThrManualApp(TinyRobotApp):
                 self._log.debug("cmds=%s", cmds)
 
                 for _cmd in cmds:
-                    res = self.interpreter.parse_cmd(_cmd)
+                    res = self.str_cmd.parse_cmd(_cmd)
                     self._log.debug("res=%s", res)
 
                     if res["cmd"] == "error":

@@ -167,7 +167,7 @@ class ExecApp(TinyRobotApp):
                             for cmd in cmds:
                                 print(f" {cmd}")
 
-                                self.interpreter.exec_cmd(cmd)
+                                self.str_cmd.exec_cmd(cmd)
 
                                 time.sleep(self.interval_sec)
 
@@ -177,8 +177,8 @@ class ExecApp(TinyRobotApp):
     def end(self):
         """end: post-processing"""
         self._log.debug("")
-        self.interpreter.set_move_sec(0.5)
-        self.interpreter.exec_cmd("cccc")
-        self.interpreter.set_move_sec(1.5)
-        self.interpreter.exec_cmd("cFFc")
+        self.str_cmd.set_move_sec(0.5)
+        self.str_cmd.exec_cmd("cccc")
+        self.str_cmd.set_move_sec(1.5)
+        self.str_cmd.exec_cmd("cFFc")
         super().end()
