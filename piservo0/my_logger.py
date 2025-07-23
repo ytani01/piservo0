@@ -1,6 +1,25 @@
 #
-# Copyright (c) 2025 Yoichi Tanibayashi
+# (c) 2025 Yoichi Tanibayashi
 #
+"""
+Usage:
+
+  class AAA:
+      def __init__(self, debug_flag):
+          #
+          # **重要**
+          #
+          #   継承時にoverrideされないように、
+          #   '__'をつける
+          #
+          self.__log = get_logger(__class__.__name__, debug=debug_flag)
+          self.__log.debug("....")
+
+  def main(debug_flag):
+      log = get_logger(__name__, debug=debug_flag)
+      log.debug("....")
+
+"""
 import inspect
 from logging import getLogger, StreamHandler, Formatter
 from logging import DEBUG, INFO
