@@ -15,15 +15,26 @@ class ThrWorker(threading.Thread):
     DEF_RECV_TIMEOUT = 0.2  # sec
     DEF_INTERVAL_SEC = 0.0  # sec
 
-    def __init__(self, mservo, debug=False):
+    def __init__(
+        self, mservo, move_sec=None, step_n=None,
+        interval_sec=DEF_INTERVAL_SEC, debug=False
+    ):
         """ constructor """
         self._debug = debug
         self.__log = get_logger(__class__.__name__, self._debug)
         self.__log.debug("")
 
         self.mservo = mservo
-        self.move_sec = mservo.DEF_ESTIMATED_TIME
-        self.step_n = mservo.DEF_STEP_N
+
+        if move_sec is None:
+            self.move_sec = mservo.DEF_ESTIMATED_TIME
+        else:
+            self.move_sec = move_sec
+
+        if step_n is None:
+            self.step_n = mservo.DEF_STEP_N
+        else:
+            self.step_n = step_n
 
         self.interval_sec = self.DEF_INTERVAL_SEC
 
@@ -35,7 +46,7 @@ class ThrWorker(threading.Thread):
     def __del__(self):
         """ del """
         self._active = False
-        self.__log.info("")
+        self.__log.debug("")
 
     def end(self):
         """ end worker """
@@ -51,7 +62,7 @@ class ThrWorker(threading.Thread):
         while not self._cmdq.empty():
             _count += 1
             _cmd = self._cmdq.get()
-            self.__log.info("%2d:%s", _count, _cmd)
+            self.__log.debug("%2d:%s", _count, _cmd)
 
     def send(self, cmd):
         """ send """
@@ -89,9 +100,11 @@ class ThrWorker(threading.Thread):
                     _cmd = json.loads(_cmd)
                     self.__log.debug("json.loads() --> _cmd=%a", _cmd)
 
+                _cmd_type = _cmd["cmd"]
+
                 # e.g. {"cmd": "angles", "angles": [30, 0, -30, 0]}
                 # 注: Pythonの None --> JSONでは null
-                if _cmd["cmd"] == "angles":
+                if _cmd_type == "angles":
                     _angles = _cmd["angles"]
                     self.__log.debug("move: %s", _angles)
 
@@ -107,19 +120,19 @@ class ThrWorker(threading.Thread):
                     continue
 
                 # e.g. {"cmd": "move_sec", "sec": 1.5}
-                if _cmd["cmd"] == "move_sec":
+                if _cmd_type == "move_sec":
                     self.move_sec = float(_cmd["sec"])
                     self.__log.debug("move_sec=%s", self.move_sec)
                     continue
 
                 # e.g. {"cmd": "step_n", "n": 40}
-                if _cmd["cmd"] == "step_n":
+                if _cmd_type == "step_n":
                     self.step_n = int(_cmd["n"])
                     self.__log.debug("step_n=%s", self.step_n)
                     continue
 
                 # e.g. {"cmd": "interval", "sec": 0.5}
-                if _cmd["cmd"] == "interval":
+                if _cmd_type == "interval":
                     self.interval_sec = float(_cmd["sec"])
                     self.__log.debug(
                         "set interval_sec=%s", self.interval_sec
@@ -127,7 +140,7 @@ class ThrWorker(threading.Thread):
                     continue
 
                 # e.g. {"cmd": "sleep", "sec": 1.0}
-                if _cmd["cmd"] == "sleep":
+                if _cmd_type == "sleep":
                     _sec = float(_cmd["sec"])
                     self.__log.debug("sleep: %s sec", _sec)
                     time.sleep(_sec)

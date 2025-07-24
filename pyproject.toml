@@ -30,6 +30,8 @@ dev = [
 
 samples = [
     "blessed",
+    "fastapi",
+    "uvicorn",
 ]
 
 [project.scripts]
@@ -46,6 +48,9 @@ exclude = ["tests/data"]
 pythonpath = "tests"
 
 [dependency-groups]
+dev = [
+    "isort>=6.0.1",
+]
 
 [[tool.mypy.overrides]]
 module = ['pigpio']

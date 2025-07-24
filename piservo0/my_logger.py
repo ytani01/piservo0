@@ -21,8 +21,7 @@ Usage:
 
 """
 import inspect
-from logging import getLogger, StreamHandler, Formatter
-from logging import DEBUG, INFO
+from logging import DEBUG, INFO, Formatter, StreamHandler, getLogger
 
 
 def get_logger(name, debug=False):

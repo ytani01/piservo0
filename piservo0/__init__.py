@@ -9,7 +9,7 @@ from .calibrable_servo import CalibrableServo
 from .multi_servo import MultiServo
 from .my_logger import get_logger
 from .piservo import PiServo
-from .str_cmd import StrCmd
+from .str_control import StrControl
 from .thr_worker import ThrWorker
 
 __all__ = [
@@ -18,6 +18,6 @@ __all__ = [
     "PiServo",
     "CalibrableServo",
     "MultiServo",
-    "StrCmd",
+    "StrControl",
     "ThrWorker",
 ]

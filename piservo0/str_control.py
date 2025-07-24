@@ -7,7 +7,7 @@ from .multi_servo import MultiServo
 from .my_logger import get_logger
 
 
-class StrCmd:
+class StrControl:
     """
     文字列ベースのコマンドを解釈し、
     複数のサーボモーター（MultiServo）を制御するクラス。
@@ -16,6 +16,9 @@ class StrCmd:
     コマンド（例: 'fbcb' や '0.5'）を実行することで、
     ロボットの歩行などの複雑な動作を簡単に実現できる。
     """
+
+    DEF_ANGLE_UNIT = 30.0
+    DEF_MODE_SEC = 0.2
 
     # コマンド文字のデフォルト定義
     DEF_CMD_CHARS = {
@@ -30,14 +33,15 @@ class StrCmd:
     def __init__(
         self,
         mservo: MultiServo,
-        angle_unit: float = 40.0,
-        move_sec: float = 0.2,
+        angle_unit: float = DEF_ANGLE_UNIT,
+        move_sec: float = DEF_MODE_SEC,
+        step_n: int = MultiServo.DEF_STEP_N,
         angle_factor: list[int] | None = None,
         cmd_chars: dict[str, str] | None = None,
         debug: bool = False,
     ):
         """
-        StrCmdのコンストラクタ。
+        StrControlのコンストラクタ。
 
         Args:
             mservo (MultiServo): 制御対象のMultiServoオブジェクト。
@@ -57,6 +61,7 @@ class StrCmd:
         self.mservo = mservo
         self.angle_unit = angle_unit
         self.move_sec = move_sec
+        self.step_n = step_n
 
         if angle_factor is None:
             self.angle_factor = [1] * self.mservo.servo_n
@@ -101,16 +106,17 @@ class StrCmd:
         except ValueError:
             return False
 
-    def _is_str_cmd(self, cmd: str) -> bool:
+    def _is_str_cmd(self, cmd: str) -> (bool, str):
         """文字列がポーズコマンドか判定する。"""
         if len(cmd) != self.mservo.servo_n:
-            return False
+            return False, "invalid length"
 
         valid_chars = list(self.cmd_chars.values())
         for char in cmd.lower():
             if char not in valid_chars:
-                return False
-        return True
+                return False, "invalid char"
+
+        return True, "True"
 
     def _clip(self, v, v_min, v_max):
         """値を最小値と最大値の範囲に収める。"""
@@ -132,46 +138,47 @@ class StrCmd:
         """
         self.__log.debug("cmd=%s", cmd)
 
-        if self._is_str_cmd(cmd):
-            angles = []
-            for i, _ch in enumerate(cmd):
-                factor = self.angle_factor[i]
-                if _ch.isupper():
-                    factor *= 2  # 大文字の場合は角度を2倍
-                    _ch = _ch.lower()
-
-                angle = None
-                cc = self.cmd_chars
-                s = self.mservo.servo[i]  # CalibrableServo instance
-
-                if _ch == cc["center"]:
-                    angle = s.ANGLE_CENTER
-                elif _ch == cc["min"]:
-                    angle = s.ANGLE_MIN
-                elif _ch == cc["max"]:
-                    angle = s.ANGLE_MAX
-                elif _ch == cc["forward"]:
-                    angle = self.angle_unit
-                elif _ch == cc["backward"]:
-                    angle = -self.angle_unit
-                elif _ch == cc["dont_move"]:
-                    angle = s.get_angle()
-
-                if angle is not None:
-                    # `dont_move`以外は係数を適用
-                    if _ch != cc["dont_move"]:
-                        angle *= factor
-
-                    # 可動範囲内にクリップ
-                    angle = self._clip(angle, s.ANGLE_MIN, s.ANGLE_MAX)
-                    angles.append(angle)
-
-            return {"cmd": "angles", "angles": angles}
-
         if self._is_float_str(cmd):
             return {"cmd": "sleep", "sec": float(cmd)}
 
-        return {"cmd": "error", "err": f"invalid command: {cmd}"}
+        _res, _res_str = self._is_str_cmd(cmd)
+        if _res is False:
+            return {"cmd": "error", "err": _res_str}
+
+        angles = []
+        for i, _ch in enumerate(cmd):
+            factor = self.angle_factor[i]
+            if _ch.isupper():
+                factor *= 2  # 大文字の場合は角度を2倍
+                _ch = _ch.lower()
+
+            angle = None
+            cc = self.cmd_chars
+            s = self.mservo.servo[i]  # CalibrableServo instance
+                
+            if _ch == cc["center"]:
+                angle = s.ANGLE_CENTER
+            elif _ch == cc["min"]:
+                angle = s.ANGLE_MIN
+            elif _ch == cc["max"]:
+                angle = s.ANGLE_MAX
+            elif _ch == cc["forward"]:
+                angle = self.angle_unit
+            elif _ch == cc["backward"]:
+                angle = -self.angle_unit
+            elif _ch == cc["dont_move"]:
+                angle = s.get_angle()
+
+            if angle is not None:
+                # `dont_move`以外は係数を適用
+                if _ch != cc["dont_move"]:
+                    angle *= factor
+
+                # 可動範囲内にクリップ
+                angle = self._clip(angle, s.ANGLE_MIN, s.ANGLE_MAX)
+                angles.append(angle)
+
+        return {"cmd": "angles", "angles": angles}
 
     def exec_cmd(self, cmd: str):
         """
@@ -187,7 +194,7 @@ class StrCmd:
 
         if cmd_type == "angles":
             angles = parsed_cmd.get("angles", [])
-            self.mservo.move_angle_sync(angles, self.move_sec)
+            self.mservo.move_angle_sync(angles, self.move_sec, self.step_n)
 
         elif cmd_type == "sleep":
             sec = parsed_cmd.get("sec", 0)

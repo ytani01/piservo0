@@ -11,7 +11,7 @@ from .tiny_robot_app import TinyRobotApp
 
 
 @click.command(
-    help="""
+   help="""
 Tiny Robot Demo #1
 
 `PINS` order:
@@ -30,56 +30,42 @@ Tiny Robot Demo #1
     "--count", "-c", type=int, default=10, show_default=True, help="count"
 )
 @click.option(
-    "--angle_unit",
-    "-a",
-    "-u",
-    type=float,
-    default=35,
-    show_default=True,
+    "--angle_unit", "-a", type=float, default=35, show_default=True,
     help="angle Unit",
 )
 @click.option(
-    "--move_sec",
-    "-s",
-    type=float,
-    default=0.2,
-    show_default=True,
+    "--move_sec", "-s", type=float, default=0.2, show_default=True,
     help="move steop sec",
 )
 @click.option(
-    "--interval_sec",
-    "-i",
-    type=float,
-    default=0.0,
-    show_default=True,
+    "--step_n", "-n", type=int, default=50, show_default=True,
+    help="move steop sec",
+)
+@click.option(
+    "--interval_sec", "-i", type=float, default=0.0, show_default=True,
     help="step interval sec",
 )
 @click.option(
-    "--conf_file",
-    "-f",
-    type=str,
-    default="./servo.json",
-    show_default=True,
+    "--conf_file", "-f", type=str, default="./servo.json", show_default=True,
     help="Config file path",
 )
 @click.option("--debug", "-d", is_flag=True, help="Enable debug mode")
-def demo1(pins, count, angle_unit, move_sec, interval_sec, conf_file, debug):
+def demo1(
+    pins, count, angle_unit, move_sec, step_n, interval_sec, conf_file, debug
+):
     """Tiny Robot Demo #1"""
     __log = get_logger(__name__, debug)
-    _fmt = "pins=%s,count=%s,angle_unit=%s,move_sec=%s,"
-    _fmt += "interval_sec=%s,conf_file=%s"
+    __log.debug("pins=%s, count=%s", pins, count)
     __log.debug(
-        _fmt, pins, count, angle_unit, move_sec, interval_sec, conf_file
+        "angle_unit=%s, move_sec=%s, step_n=%s, interval_sec=%s",
+        angle_unit, move_sec, step_n, interval_sec
     )
+    __log.debug("conf_file=%s", conf_file)
 
     app = Demo1App(
-        pins,
-        count,
-        angle_unit,
-        move_sec,
-        interval_sec,
-        conf_file,
-        debug=debug,
+        pins, count,
+        angle_unit, move_sec, step_n, interval_sec, conf_file,
+        debug=debug
     )
     app.start()
 
@@ -106,35 +92,27 @@ class Demo1App(TinyRobotApp):
     ]
 
     def __init__(
-        self,
-        pins,
-        count,
-        angle_unit,
-        move_sec,
-        interval_sec,
-        conf_file,
-        debug=False,
+        self, pins, count,
+        angle_unit, move_sec, step_n, interval_sec, conf_file,
+        debug=False
     ):
         """constractor"""
-        super().__init__(pins, conf_file, debug=debug)
+        super().__init__(
+            pins, conf_file, angle_unit, move_sec, step_n, debug=debug
+        )
         self.__log = get_logger(__class__.__name__, self._debug)
-        self.__log.debug("count=%s, angle_unit=%s", count, angle_unit)
         self.__log.debug(
-            "move_sec=%s, interval_sec=%s", move_sec, interval_sec
+            "count=%s, interval_sec=%s", count, interval_sec
         )
 
         self.count = count
-        self.angle_unit = angle_unit
-        self.move_sec = move_sec
         self.interval_sec = interval_sec
 
     def main(self):
         """main function"""
         self.__log.debug("")
 
-        time.sleep(1.0)
-
-        _cmds = self.CMDS + self.str_cmd.flip_cmds(self.CMDS)
+        _cmds = self.CMDS + self.str_ctrl.flip_cmds(self.CMDS)
 
         try:
             for _count in range(self.count):
@@ -143,7 +121,7 @@ class Demo1App(TinyRobotApp):
                 for angles_str in _cmds:
                     print(f" {angles_str}")
 
-                    self.str_cmd.exec_cmd(angles_str)
+                    self.str_ctrl.exec_cmd(angles_str)
 
                     time.sleep(self.interval_sec)
 
@@ -153,9 +131,9 @@ class Demo1App(TinyRobotApp):
     def end(self):
         """end: post-processing"""
         self.__log.debug("")
-        self.str_cmd.set_move_sec(1)
-        self.str_cmd.exec_cmd("fbbf")
-        self.str_cmd.exec_cmd("cccc")
-        self.str_cmd.exec_cmd(".5")
-        self.str_cmd.exec_cmd("cFFc")
+        self.str_ctrl.set_move_sec(1)
+        self.str_ctrl.exec_cmd("fbbf")
+        self.str_ctrl.exec_cmd("cccc")
+        self.str_ctrl.exec_cmd(".5")
+        self.str_ctrl.exec_cmd("cFFc")
         super().end()

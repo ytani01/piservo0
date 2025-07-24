@@ -5,24 +5,31 @@ import sys
 
 import pigpio
 
-from piservo0 import MultiServo, StrCmd, get_logger
+from piservo0 import MultiServo, StrControl, get_logger
 
 
 class TinyRobotApp:
     """Base App for Tiny Robot"""
 
-    def __init__(self, pins, conf_file, debug=False):
+    def __init__(self, pins, conf_file, angle_unit, move_sec, step_n, debug=False):
         """constractor"""
         self._debug = debug
         self.__log = get_logger(__class__.__name__, self._debug)
         self.__log.debug("pins=%s, conf_file=%s", pins, conf_file)
+        self.__log.debug(
+            "angele_unit=%s, move_sec=%s, step_n=%s",
+            angle_unit, move_sec, step_n
+        )
 
         self.pins = pins
         self.conf_file = conf_file
+        self.angle_unit = angle_unit
+        self.move_sec = move_sec
+        self.step_n = step_n
 
         self.pi = None
         self.mservo = None
-        self.str_cmd = None
+        self.str_ctrl = None
 
     def init(self):
         """initialize"""
@@ -35,10 +42,11 @@ class TinyRobotApp:
         self.mservo = MultiServo(
             self.pi, self.pins, conf_file=self.conf_file, debug=False
         )
-        self.str_cmd = StrCmd(
+        self.str_ctrl = StrControl(
             self.mservo,
             angle_unit=self.angle_unit,
             move_sec=self.move_sec,
+            step_n=self.step_n,
             angle_factor=[-1, -1, 1, 1],
             debug=self._debug,
         )

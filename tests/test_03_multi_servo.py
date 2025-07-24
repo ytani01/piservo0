@@ -5,9 +5,12 @@
 Test for MultiServo
 """
 import json
-from unittest.mock import call
+import logging
 import pytest
+
+from unittest.mock import call
 from piservo0 import MultiServo, CalibrableServo
+
 
 TEST_PINS = [17, 27, 22, 23]
 
@@ -50,6 +53,16 @@ def test_constructor(multi_servo):
     assert ms.servo[1].pulse_center == 1600
     # 設定ファイルにないピンはデフォルト値か
     assert ms.servo[2].pulse_max == CalibrableServo.MAX
+
+
+def test_off(multi_servo):
+    """
+    off()ですべてのサーボのパルス幅が0に設定されるか。
+    """
+    pi, ms = multi_servo
+    ms.off()
+    calls = [call(pin, 0) for pin in TEST_PINS]
+    pi.set_servo_pulsewidth.assert_has_calls(calls, any_order=True)
 
 
 def test_get_angle(multi_servo):
@@ -111,16 +124,6 @@ def test_move_angle_sync(multi_servo, mocker):
     pi.set_servo_pulsewidth.assert_has_calls(final_calls, any_order=False)
 
 
-def test_off(multi_servo):
-    """
-    off()ですべてのサーボのパルス幅が0に設定されるか。
-    """
-    pi, ms = multi_servo
-    ms.off()
-    calls = [call(pin, 0) for pin in TEST_PINS]
-    pi.set_servo_pulsewidth.assert_has_calls(calls, any_order=True)
-
-
 @pytest.mark.parametrize(
     "invalid_angles",
     [
@@ -128,15 +131,20 @@ def test_off(multi_servo):
         "not a list",  # 型が違う
     ],
 )
-def test_move_angle_invalid_arg(multi_servo, invalid_angles, mocker):
-    """
-    不正な引数を渡した際にエラーログが出て、サーボが動かないこと。
-    """
+def test_move_angle_invalid_arg(caplog, multi_servo, invalid_angles, mocker):
+    caplog.set_level(logging.DEBUG)
+
     pi, ms = multi_servo
-    mocker.patch.object(ms._log, "error")
 
     ms.move_angle(invalid_angles)
-    ms._log.error.assert_called_once()
+
+    assert "len(angles)=1" in caplog.text
+
+    """
+    mocker.patch.object(ms.__log, "error")
+
+    ms.move_angle(invalid_angles)
+    ms.__log.error.assert_called_once()
     pi.set_servo_pulsewidth.assert_not_called()
 
     ms._log.error.reset_mock()
@@ -145,3 +153,4 @@ def test_move_angle_invalid_arg(multi_servo, invalid_angles, mocker):
     ms.move_angle_sync(invalid_angles)
     ms._log.error.assert_called_once()
     pi.set_servo_pulsewidth.assert_not_called()
+    """
