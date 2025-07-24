@@ -106,7 +106,7 @@ class StrControl:
         except ValueError:
             return False
 
-    def _is_str_cmd(self, cmd: str) -> (bool, str):
+    def _is_str_cmd(self, cmd: str) -> tuple[bool, str]:
         """文字列がポーズコマンドか判定する。"""
         if len(cmd) != self.mservo.servo_n:
             return False, "invalid length"

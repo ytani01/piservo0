@@ -53,6 +53,6 @@ dev = [
 ]
 
 [[tool.mypy.overrides]]
-module = ['pigpio']
+module = ['pigpio', 'fastapi']
 #ignore_untyped_imports = true
 ignore_missing_imports = true
