@@ -47,8 +47,8 @@ class CalibrableServo(PiServo):
         self.__log = get_logger(self.__class__.__name__, self._debug)
         self.__log.debug(f"pin={pin}, conf_file={conf_file}")
 
-        self.conf_file = conf_file
         self._config_manager = ServoConfigManager(conf_file, self._debug)
+        self.conf_file = self._config_manager.conf_file
 
         # デフォルト値を設定
         self._pulse_min = super().MIN

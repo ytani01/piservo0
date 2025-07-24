@@ -2,6 +2,8 @@
 # (c) 2025 Yoichi Tanibayashi
 #
 import json
+import os
+from pathlib import Path
 
 from .my_logger import get_logger
 
@@ -20,9 +22,50 @@ class ServoConfigManager:
             debug (bool, optional): デバッグログを有効にするフラグ。
                                     デフォルトはFalse。
         """
-        self.__log = get_logger(self.__class__.__name__, debug)
-        self.conf_file = conf_file
-        self.__log.debug(f"conf_file={self.conf_file}")
+        self._debug = debug
+        self.__log = get_logger(self.__class__.__name__, self._debug)
+
+        self.conf_file = self._find_conf_file(conf_file)
+        self.__log.debug(f"found conf_file: {self.conf_file}")
+
+    def _find_conf_file(self, conf_file: str) -> str:
+        """設定ファイルを検索し、有効なパスを返す。(プライベートメソッド)
+
+        1. カレントディレクトリ
+        2. ホームディレクトリ
+        3. /etc/
+
+        の順で探し、最初に見つかったファイルのパスを返す。
+        どこにも見つからない場合は、カレントディレクトリのパスを返す。
+
+        Args:
+            conf_file (str): 設定ファイル名。
+
+        Returns:
+            str: 有効な設定ファイルのパス。
+        """
+        # 絶対パスが指定された場合は、それをそのまま使う
+        if os.path.isabs(conf_file):
+            return conf_file
+
+        # 検索パスのリスト
+        search_paths = [
+            Path.cwd() / conf_file,
+            Path.home() / conf_file,
+            Path("/etc") / conf_file,
+        ]
+
+        self.__log.debug(f"Searching for {conf_file} in:")
+        for path in search_paths:
+            self.__log.debug(f"  - {path}")
+            if path.is_file():
+                self.__log.info(f"Found config file at: {path}")
+                return str(path)
+
+        # 見つからなかった場合はカレントディレクトリに作成する
+        default_path = Path.cwd() / conf_file
+        self.__log.warning(f"Config file not found. Defaulting to: {default_path}")
+        return str(default_path)
 
     def read_all_configs(self):
         """設定ファイルからすべてのピンのデータを読み込む。

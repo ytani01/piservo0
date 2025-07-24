@@ -5,36 +5,42 @@
 Test for MultiServo
 """
 import json
-import logging
 import pytest
-
 from unittest.mock import call
 from piservo0 import MultiServo, CalibrableServo
 
-
 TEST_PINS = [17, 27, 22, 23]
+TEST_CONF_FILENAME = "test_multi_servo_conf.json"
 
 
 @pytest.fixture
-def multi_servo(mocker_pigpio, tmp_path):
+def multi_servo(mocker_pigpio, tmp_path, monkeypatch):
     """
     MultiServoのテスト用フィクスチャ。
-    モック化されたpigpioと一時的な設定ファイルを使用する。
+    モック化されたpigpioと、ファイル検索ロジックを考慮した
+    一時的な設定ファイルを使用する。
     """
-    conf_file = tmp_path / "test_multi_servo_conf.json"
+    # 一時的なカレントディレクトリを作成し、移動
+    test_cwd = tmp_path / "cwd"
+    test_cwd.mkdir()
+    monkeypatch.chdir(test_cwd)
+
+    # 設定ファイルを作成
+    conf_file_path = test_cwd / TEST_CONF_FILENAME
     conf_data = [
         {"pin": TEST_PINS[0], "min": 600, "center": 1500, "max": 2400},
         {"pin": TEST_PINS[1], "min": 700, "center": 1600, "max": 2500},
     ]
-    with open(conf_file, "w") as f:
+    with open(conf_file_path, "w") as f:
         json.dump(conf_data, f)
 
     pi = mocker_pigpio()
-    multi_servo = MultiServo(
-        pi, TEST_PINS, conf_file=str(conf_file), first_move=False, debug=True
+    # ファイル名のみを渡して、検索ロジックをテスト
+    multi_servo_instance = MultiServo(
+        pi, TEST_PINS, conf_file=TEST_CONF_FILENAME, first_move=False, debug=True
     )
 
-    yield pi, multi_servo
+    yield pi, multi_servo_instance
 
 
 def test_constructor(multi_servo):
@@ -131,26 +137,25 @@ def test_move_angle_sync(multi_servo, mocker):
         "not a list",  # 型が違う
     ],
 )
-def test_move_angle_invalid_arg(caplog, multi_servo, invalid_angles, mocker):
-    caplog.set_level(logging.DEBUG)
-
-    pi, ms = multi_servo
-
-    ms.move_angle(invalid_angles)
-
-    assert "len(angles)=1" in caplog.text
-
+def test_invalid_arg_for_move_methods(multi_servo, invalid_angles, mocker):
     """
-    mocker.patch.object(ms.__log, "error")
+    move_angleとmove_angle_syncが不正な引数で呼ばれた場合、
+    エラーログを記録し、サーボを動かさないことをテストする。
+    """
+    pi, ms = multi_servo
+    # MultiServoクラスのプライベートなロガーをモック化
+    mock_logger_error = mocker.patch.object(ms, "_MultiServo__log")
 
+    # 1. move_angle のテスト
     ms.move_angle(invalid_angles)
-    ms.__log.error.assert_called_once()
+    mock_logger_error.error.assert_called_once()
     pi.set_servo_pulsewidth.assert_not_called()
 
-    ms._log.error.reset_mock()
+    # モックをリセット
+    mock_logger_error.error.reset_mock()
     pi.reset_mock()
 
+    # 2. move_angle_sync のテスト
     ms.move_angle_sync(invalid_angles)
-    ms._log.error.assert_called_once()
+    mock_logger_error.error.assert_called_once()
     pi.set_servo_pulsewidth.assert_not_called()
-    """

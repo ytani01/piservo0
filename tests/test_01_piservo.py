@@ -5,6 +5,7 @@
 Test for PiServo
 """
 import pytest
+
 from piservo0 import PiServo
 
 TEST_PIN = 17
@@ -16,11 +17,9 @@ def pi_servo(mocker_pigpio):
     PiServoのテスト用フィクスチャ。
     モック化されたpigpio.piインスタンスを使ってPiServoを初期化する。
     """
-    # mocker_pigpioフィクスチャからモック化されたpi()コンストラクタを取得
-    mock_pi_constructor = mocker_pigpio
-
-    # pi()を呼び出して、モック化されたpiインスタンスを取得
-    pi = mock_pi_constructor()
+    # mocker_pigpioフィクスチャはモック化されたpi()コンストラクタそのもの
+    # これを呼び出して、モック化されたpiインスタンスを取得
+    pi = mocker_pigpio()
 
     # テスト対象のPiServoオブジェクトを作成
     servo = PiServo(pi, TEST_PIN, debug=True)
@@ -51,40 +50,27 @@ def test_get_pulse(pi_servo):
     assert pulse == 1234
 
 
-def test_move_center(pi_servo):
+@pytest.mark.parametrize(
+    ("method_name", "expected_pulse"),
+    [
+        ("move_center", PiServo.CENTER),
+        ("move_min", PiServo.MIN),
+        ("move_max", PiServo.MAX),
+        ("off", PiServo.OFF),
+    ],
+)
+def test_simple_move_methods(pi_servo, method_name, expected_pulse):
     """
-    move_center()が中央位置のパルス幅でset_servo_pulsewidthを呼び出すか。
-    """
-    pi, servo = pi_servo
-    servo.move_center()
-    pi.set_servo_pulsewidth.assert_called_once_with(TEST_PIN, PiServo.CENTER)
-
-
-def test_move_min(pi_servo):
-    """
-    move_min()が最小位置のパルス幅でset_servo_pulsewidthを呼び出すか。
-    """
-    pi, servo = pi_servo
-    servo.move_min()
-    pi.set_servo_pulsewidth.assert_called_once_with(TEST_PIN, PiServo.MIN)
-
-
-def test_move_max(pi_servo):
-    """
-    move_max()が最大位置のパルス幅でset_servo_pulsewidthを呼び出すか。
+    move_center(), move_min(), move_max(), off() が、
+    対応する定数のパルス幅で set_servo_pulsewidth を呼び出すかテストする。
     """
     pi, servo = pi_servo
-    servo.move_max()
-    pi.set_servo_pulsewidth.assert_called_once_with(TEST_PIN, PiServo.MAX)
-
-
-def test_off(pi_servo):
-    """
-    off()がOFFのパルス幅でset_servo_pulsewidthを呼び出すか。
-    """
-    pi, servo = pi_servo
-    servo.off()
-    pi.set_servo_pulsewidth.assert_called_once_with(TEST_PIN, PiServo.OFF)
+    
+    # 文字列から呼び出すメソッドを取得
+    method_to_call = getattr(servo, method_name)
+    method_to_call()
+    
+    pi.set_servo_pulsewidth.assert_called_once_with(TEST_PIN, expected_pulse)
 
 
 @pytest.mark.parametrize(
