@@ -10,13 +10,12 @@
     uv run uvicorn samples.tiny_robot.web:app --reload --host 0.0.0.0
   
 """
-import pigpio
-
 from os.path import expanduser
+
+import pigpio
 from fastapi import FastAPI
 
 from piservo0 import MultiServo, StrControl, ThrWorker
-
 
 PINS = [17, 27, 22, 25]
 ANGLE_FACTOR = [-1, -1, 1, 1]
