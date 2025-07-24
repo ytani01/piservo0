@@ -28,7 +28,9 @@ env/
 # https://www.gnu.org/software/emacs/manual/html_node/emacs/Version-Control.html
 
 *~
-\#*\#
+.*~
+\#*
+.#*
 /.emacs.desktop
 /.emacs.desktop.lock
 .abbrev_defs
