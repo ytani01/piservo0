@@ -12,8 +12,8 @@ class MultiServo:
     複数のサーボモーターを制御する。
     """
 
-    DEF_ESTIMATED_TIME = 0.5  # sec
-    DEF_STEP_N = 50
+    DEF_ESTIMATED_TIME = 0.2  # sec
+    DEF_STEP_N = 40
     
     def __init__(
         self,
