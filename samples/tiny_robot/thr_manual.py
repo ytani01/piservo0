@@ -5,7 +5,7 @@ import time
 
 import click
 
-from piservo0 import ThrWorker, get_logger
+from piservo0 import ThreadWorker, get_logger
 
 from .tiny_robot_app import TinyRobotApp
 
@@ -91,7 +91,7 @@ class ThrManualApp(TinyRobotApp):
 
         self.__log.debug("")
 
-        self.worker = ThrWorker(
+        self.worker = ThreadWorker(
             self.mservo, self.move_sec, self.step_n,
             self.interval_sec, debug=self._debug
         )

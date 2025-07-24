@@ -10,7 +10,7 @@ from .multi_servo import MultiServo
 from .my_logger import get_logger
 from .piservo import PiServo
 from .str_control import StrControl
-from .thr_worker import ThrWorker
+from .thread_worker import ThreadWorker
 
 __all__ = [
     "__version__",
@@ -19,5 +19,5 @@ __all__ = [
     "CalibrableServo",
     "MultiServo",
     "StrControl",
-    "ThrWorker",
+    "ThreadWorker",
 ]

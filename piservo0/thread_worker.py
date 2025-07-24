@@ -9,7 +9,7 @@ import time
 from .my_logger import get_logger
 
 
-class ThrWorker(threading.Thread):
+class ThreadWorker(threading.Thread):
     """ Thred worker """
 
     DEF_RECV_TIMEOUT = 0.2  # sec

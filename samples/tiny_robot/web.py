@@ -15,7 +15,7 @@ from os.path import expanduser
 import pigpio
 from fastapi import FastAPI
 
-from piservo0 import MultiServo, StrControl, ThrWorker
+from piservo0 import MultiServo, StrControl, ThreadWorker
 
 PINS = [17, 27, 22, 25]
 ANGLE_FACTOR = [-1, -1, 1, 1]
@@ -27,7 +27,7 @@ print(f"__name__={__name__}")
 pi = pigpio.pi()
 mservo = MultiServo(pi, PINS, conf_file=CONF_FILE, debug=False)
 str_ctrl = StrControl(mservo, angle_factor=ANGLE_FACTOR, debug=False)
-thr_worker = ThrWorker(mservo, debug=True)
+thr_worker = ThreadWorker(mservo, debug=True)
 thr_worker.start()
     
 app = FastAPI()
