@@ -25,7 +25,7 @@ CONF_FILE = expanduser("~/servo.json")
 pi = pigpio.pi()
 mservo = MultiServo(pi, PINS, conf_file=CONF_FILE, debug=False)
 str_ctrl = StrControl(mservo, angle_factor=ANGLE_FACTOR, debug=False)
-thr_worker = ThrWorker(mservo, debug=False)
+thr_worker = ThrWorker(mservo, debug=True)
 thr_worker.start()
     
 app = FastAPI()
