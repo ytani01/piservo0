@@ -15,7 +15,7 @@ import pigpio
 from os.path import expanduser
 from fastapi import FastAPI
 
-from piservo0 import MultiServo, StrControl
+from piservo0 import MultiServo, StrControl, ThrWorker
 
 PINS = [17, 27, 22, 25]
 ANGLE_FACTOR = [-1, -1, 1, 1]
@@ -23,8 +23,10 @@ ANGLE_FACTOR = [-1, -1, 1, 1]
 CONF_FILE = expanduser("~/servo.json")
 
 pi = pigpio.pi()
-mservo = MultiServo(pi, PINS, conf_file=CONF_FILE, debug=True)
-str_ctrl = StrControl(mservo, angle_factor=ANGLE_FACTOR, debug=True)
+mservo = MultiServo(pi, PINS, conf_file=CONF_FILE, debug=False)
+str_ctrl = StrControl(mservo, angle_factor=ANGLE_FACTOR, debug=False)
+thr_worker = ThrWorker(mservo, debug=False)
+thr_worker.start()
     
 app = FastAPI()
 
@@ -39,6 +41,10 @@ async def exec_cmd(cmdline: str):
 
     for cmd in cmdline.split():
         print(f"cmd='{cmd}'")
-        str_ctrl.exec_cmd(cmd)
+
+        parsed_cmd = str_ctrl.parse_cmd(cmd)
+        print(f"parsed_cmd={parsed_cmd}")
+        
+        thr_worker.send(parsed_cmd)
 
     return {"cmdline": cmdline}
