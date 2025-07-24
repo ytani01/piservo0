@@ -47,7 +47,7 @@ def run_cmds(cmds: str):
         thr_worker.send(parsed_cmd)
 
 
-# 以下のコードを追加する
+# 以下のコードを追加するfccc fbbb cbbb ccbb cfbb cfbc bccc cccc cccf bbbf bbbc bbcc bbfc cbfc cccb cccc
 @app.get("/")
 async def read_root():
     """ root """
