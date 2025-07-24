@@ -66,17 +66,19 @@ class ThrWorker(threading.Thread):
 
     def send(self, cmd):
         """ send """
-        self.__log.debug("cmd=%s", cmd)
         self._cmdq.put(cmd)
+        _qsize = self._cmdq.qsize()
+        self.__log.debug("cmd=%s --> qsize=%s", cmd, _qsize)
 
     def recv(self, timeout=DEF_RECV_TIMEOUT):
         """ recv """
         try:
             _cmd = self._cmdq.get(timeout=timeout)
+            _qsize = self._cmdq.qsize()
         except queue.Empty:
             _cmd = ""
         else:
-            self.__log.debug("_cmd=%a", _cmd)
+            self.__log.debug("_cmd=%a --> qsize=%s", _cmd, _qsize)
 
         return _cmd
 
