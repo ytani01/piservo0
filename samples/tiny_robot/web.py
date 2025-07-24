@@ -45,7 +45,7 @@ async def exec_cmd(cmdline: str):
         if cmd[0] == 'S':
             thr_worker.cmdq_clear()
             continue
-
+ 
         parsed_cmd = str_ctrl.parse_cmd(cmd)
         print(f"parsed_cmd={parsed_cmd}")
         
