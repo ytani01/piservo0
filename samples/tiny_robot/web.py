@@ -12,16 +12,18 @@
 """
 import pigpio
 
+from os.path import expanduser
 from fastapi import FastAPI
 
 from piservo0 import MultiServo, StrControl
 
-PINS = [17, 27, 23, 25]
-CONF_FILE = "/home/ytani/servo.json"
+PINS = [17, 27, 22, 25]
 ANGLE_FACTOR = [-1, -1, 1, 1]
 
+CONF_FILE = expanduser("~/servo.json")
+
 pi = pigpio.pi()
-mservo = MultiServo(pi, [17, 27, 23, 25], conf_file=CONF_FILE, debug=True)
+mservo = MultiServo(pi, PINS, conf_file=CONF_FILE, debug=True)
 str_ctrl = StrControl(mservo, angle_factor=ANGLE_FACTOR, debug=True)
     
 app = FastAPI()
