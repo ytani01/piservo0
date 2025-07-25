@@ -63,7 +63,7 @@ class StrControl:
         self.move_sec = move_sec
         self.step_n = step_n
 
-        self.servo_n = len(self.mservo)
+        self.servo_n = self.mservo.servo_n
 
         if angle_factor is None:
             self.angle_factor = [1] * self.servo_n

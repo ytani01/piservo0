@@ -12,7 +12,7 @@ class MultiServo:
     複数のサーボモーターを制御する。
     """
 
-    DEF_ESTIMATED_TIME = 0.2  # sec
+    DEF_MOVE_SEC = 0.2  # sec
     DEF_STEP_N = 40
 
     def __init__(
@@ -154,9 +154,7 @@ class MultiServo:
             _s.move_angle(angles[_i])
 
     def move_angle_sync(
-        self, target_angles,
-        estimated_sec=DEF_ESTIMATED_TIME,
-        step_n=DEF_STEP_N
+        self, target_angles, move_sec=DEF_MOVE_SEC, step_n=DEF_STEP_N
     ):
         """
         すべてのサーボを目標角度まで同期的かつ滑らかに動かす。
@@ -168,16 +166,16 @@ class MultiServo:
             各サーボの目標角度のリスト。
             None: 現在の角度(つまり、動かさない)
             文字列: "center", "min", "max"
-        estimated_sec: float
+        move_sec: float
             動作にかかるおおよその時間（秒）。
         step_n: int
             動作を分割するステップ数。
             1以下の場合は、move_angle() を呼び出して、ダイレクトに動かす
         """
         self.__log.debug(
-            "target_angles=%s, estimated_sec=%s, step_n=%s",
+            "target_angles=%s, move_sec=%s, step_n=%s",
             target_angles,
-            estimated_sec,
+            move_sec,
             step_n
         )
 
@@ -189,7 +187,7 @@ class MultiServo:
             self.move_angle(target_angles)
             return
 
-        _step_sec = estimated_sec / step_n
+        _step_sec = move_sec / step_n
         self.__log.debug("_step_sec=%.3f", _step_sec)
 
         _start_angles = self.get_angle()

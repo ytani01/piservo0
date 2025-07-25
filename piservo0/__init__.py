@@ -11,6 +11,7 @@ from .my_logger import get_logger
 from .piservo import PiServo
 from .str_control import StrControl
 from .thread_worker import ThreadWorker
+from .thread_multi_servo import ThreadMultiServo
 
 __all__ = [
     "__version__",
@@ -20,4 +21,5 @@ __all__ = [
     "MultiServo",
     "StrControl",
     "ThreadWorker",
+    "ThreadMultiServo",
 ]
