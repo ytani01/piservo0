@@ -43,27 +43,32 @@ Tiny Robot: Manual mode
     help="step interval sec"
 )
 @click.option(
+    "--thread", "-t", is_flag=True, help="Multi Thread Version"
+)
+@click.option(
     "--conf_file", "-f", type=str, default="./servo.json", show_default=True,
     help="Config file path"
 )
 @click.option("--debug", "-d", is_flag=True, help="Enable debug mode")
 def manual(
-    pins, angle_unit, move_sec, step_n, interval_sec, conf_file, debug
+    pins, angle_unit, move_sec, step_n, interval_sec, conf_file,
+    thread, debug
 ):
     """Tiny Robot manual mode"""
 
     __log = get_logger(__name__, debug)
 
-    _fmt = "pins=%s,angle_unit=%s,move_sec=%s,step_n=%s"
-    _fmt += "interval_sec=%s,conf_file=%s"
+    __log.debug("pins=%s", pins)
     __log.debug(
-        _fmt,
-        pins, angle_unit, move_sec, step_n, interval_sec, conf_file
+        "angle_unit=%s, move_sec=%s, step_n=%s, interval_sec=%s",
+        angle_unit, move_sec, step_n, interval_sec
     )
+    __log.debug("thread=%s", thread)
+    __log.debug("conf_file=%s", conf_file)
 
     app = ManualApp(
         pins, angle_unit, move_sec, step_n, interval_sec, conf_file,
-        debug=debug
+        thread, debug=debug
     )
     app.start()
 
@@ -72,13 +77,12 @@ class ManualApp(TinyRobotApp):
     """Tiny Robot Manual Mode"""
 
     def __init__(
-        self, pins,
-        angle_unit, move_sec, step_n, interval_sec, conf_file,
-        debug=False
+        self, pins, angle_unit, move_sec, step_n, interval_sec, conf_file,
+        thread=False, debug=False
     ):
         """constractor"""
         super().__init__(
-            pins, conf_file, angle_unit, move_sec, step_n, debug=debug
+            pins, conf_file, angle_unit, move_sec, step_n, thread, debug=debug
         )
         self.__log = get_logger(__class__.__name__, self._debug)
         self.__log.debug("interval_sec=%s", interval_sec)

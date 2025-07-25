@@ -32,7 +32,7 @@ class StrControl:
 
     def __init__(
         self,
-        mservo: MultiServo,
+        mservo,
         angle_unit: float = DEF_ANGLE_UNIT,
         move_sec: float = DEF_MODE_SEC,
         step_n: int = MultiServo.DEF_STEP_N,
@@ -95,7 +95,7 @@ class StrControl:
         self.__log.debug("angle_unit=%s", self.angle_unit)
 
     def set_move_sec(self, sec: float):
-        """1ポーズの移動時間を設定する。"""
+        """ 移動時間を設定する。"""
         if sec >= 0:
             self.move_sec = sec
         self.__log.debug("move_sec=%s", self.move_sec)

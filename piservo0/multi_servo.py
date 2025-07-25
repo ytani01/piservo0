@@ -135,26 +135,28 @@ class MultiServo:
         self.__log.debug("angles=%s", angles)
         return angles
 
-    def move_angle(self, angles):
+    def move_angle(self, target_angles):
         """
         各サーボを指定された角度に動かす。
 
         Parameters
         ----------
-        angles: list[float]
+        target_angles: list[float]
             各サーボに設定する角度のリスト。
         """
-        self.__log.debug("angles=%s", angles)
+        self.__log.debug("target_angles=%s", target_angles)
 
-        if not self._validate_angle_list(angles):
+        if not self._validate_angle_list(target_angles):
             return
 
         for _i, _s in enumerate(self.servo):
-            # self.__log.debug(f"pin={_s.pin}, angle={angles[_i]}")
-            _s.move_angle(angles[_i])
+            # self.__log.debug(f"pin={_s.pin}, angle={target_angles[_i]}")
+            _s.move_angle(target_angles[_i])
 
     def move_angle_sync(
-        self, target_angles, move_sec=DEF_MOVE_SEC, step_n=DEF_STEP_N
+        self, target_angles,
+        move_sec: float = DEF_MOVE_SEC,
+        step_n: int = DEF_STEP_N
     ):
         """
         すべてのサーボを目標角度まで同期的かつ滑らかに動かす。

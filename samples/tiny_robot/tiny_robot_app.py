@@ -5,20 +5,24 @@ import sys
 
 import pigpio
 
-from piservo0 import MultiServo, StrControl, get_logger
+from piservo0 import MultiServo, ThreadMultiServo, StrControl, get_logger
 
 
 class TinyRobotApp:
     """Base App for Tiny Robot"""
 
-    def __init__(self, pins, conf_file, angle_unit, move_sec, step_n, debug=False):
+    def __init__(
+        self, pins, conf_file, angle_unit, move_sec, step_n,
+        thread_flag=False,
+        debug=False
+    ):
         """constractor"""
         self._debug = debug
         self.__log = get_logger(__class__.__name__, self._debug)
         self.__log.debug("pins=%s, conf_file=%s", pins, conf_file)
         self.__log.debug(
-            "angele_unit=%s, move_sec=%s, step_n=%s",
-            angle_unit, move_sec, step_n
+            "angele_unit=%s, move_sec=%s, step_n=%s, thread_flag=%s",
+            angle_unit, move_sec, step_n, thread_flag
         )
 
         self.pins = pins
@@ -26,6 +30,7 @@ class TinyRobotApp:
         self.angle_unit = angle_unit
         self.move_sec = move_sec
         self.step_n = step_n
+        self.thread_flag = thread_flag
 
         self.pi = None
         self.mservo = None
@@ -39,9 +44,15 @@ class TinyRobotApp:
             self.__log.error("pigpio daemon is not running.")
             raise RuntimeError("pigpio daemon is not running.")
 
-        self.mservo = MultiServo(
-            self.pi, self.pins, conf_file=self.conf_file, debug=False
-        )
+        if self.thread_flag:
+            self.mservo = ThreadMultiServo(
+                self.pi, self.pins, conf_file=self.conf_file, debug=self._debug
+            )
+        else:
+            self.mservo = MultiServo(
+                self.pi, self.pins, conf_file=self.conf_file, debug=self._debug
+            )
+            
         self.str_ctrl = StrControl(
             self.mservo,
             angle_unit=self.angle_unit,

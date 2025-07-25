@@ -16,7 +16,9 @@ class ThreadWorker(threading.Thread):
     DEF_INTERVAL_SEC = 0.0  # sec
 
     def __init__(
-        self, mservo, move_sec=None, step_n=None,
+        self, mservo,
+        move_sec=None,
+        step_n=None,
         interval_sec=DEF_INTERVAL_SEC, debug=False
     ):
         """ constructor """
@@ -27,7 +29,7 @@ class ThreadWorker(threading.Thread):
         self.mservo = mservo
 
         if move_sec is None:
-            self.move_sec = mservo.DEF_ESTIMATED_TIME
+            self.move_sec = mservo.DEF_MOVE_SEC
         else:
             self.move_sec = move_sec
 
@@ -103,6 +105,52 @@ class ThreadWorker(threading.Thread):
                     self.__log.debug("json.loads() --> _cmd=%a", _cmd)
 
                 _cmd_type = _cmd["cmd"]
+
+                # e.g. {
+                #        "cmd": "move_angle_sync",
+                #        "target_angles": [30, 0, -30, 0],
+                #        "move_sec": 0.2,
+                #        "step_n": 40
+                #      }
+                if _cmd_type == "move_angle_sync":
+                    _target_angles = _cmd["target_angles"]
+                    _move_sec = _cmd["move_sec"]
+                    _step_n = _cmd["step_n"]
+
+                    if _move_sec is None:
+                        _move_sec = self.move_sec
+
+                    if _step_n is None:
+                        _step_n = self.step_n
+
+                    self.mservo.move_angle_sync(
+                        _target_angles, _move_sec, _step_n
+                    )
+
+                    if self.interval_sec > 0:
+                        self.__log.debug(
+                            "sleep interval_sec: %s sec",
+                            self.interval_sec
+                        )
+                        time.sleep(self.interval_sec)
+                    continue
+
+                # e.g. {
+                #        "cmd": "move_angle",
+                #        "target_angles": [30, 0, -30, 0]
+                #      }
+                if _cmd_type == "move_angle":
+                    _target_angles = _cmd["target_angles"]
+
+                    self.mservo.move_angle(_target_angles)
+
+                    if self.interval_sec > 0:
+                        self.__log.debug(
+                            "sleep interval_sec: %s sec",
+                            self.interval_sec
+                        )
+                        time.sleep(self.interval_sec)
+                    continue
 
                 # e.g. {"cmd": "angles", "angles": [30, 0, -30, 0]}
                 # 注: Pythonの None --> JSONでは null
