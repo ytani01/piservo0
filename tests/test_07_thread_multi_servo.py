@@ -82,7 +82,7 @@ def test_move_angle_sync_async(tms_instance, mock_worker):
     step_n = 20
 
     tms_instance.move_angle_sync_async(
-        target_angles, estimated_sec=sec, step_n=step_n
+        target_angles, move_sec=sec, step_n=step_n
     )
 
     # パラメータ設定コマンドがJSON形式で送信されたか
@@ -109,7 +109,7 @@ def test_move_angle_async(tms_instance, mocker):
 
     # 期待される引数で呼び出されたか
     mock_sync_async.assert_called_once_with(
-        target_angles, estimated_sec=0.1, step_n=1
+        target_angles, move_sec=0.1, step_n=1
     )
 
 

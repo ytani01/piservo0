@@ -117,7 +117,7 @@ def test_move_angle_sync(multi_servo, mocker):
     # get_angleが常にstart_anglesを返すようにモック化
     mocker.patch.object(ms, "get_angle", return_value=start_angles)
 
-    ms.move_angle_sync(target_angles, estimated_sec=1.0, step_n=10)
+    ms.move_angle_sync(target_angles, move_sec=1.0, step_n=10)
 
     # 呼び出し回数が ステップ数 * サーボ数 であることを確認
     assert pi.set_servo_pulsewidth.call_count == 10 * len(TEST_PINS)

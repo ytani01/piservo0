@@ -61,19 +61,19 @@ class ThreadMultiServo(MultiServo):
         move_angle_sync(step_n=1) を非同期で実行することで実現する。
         """
         self.move_angle_sync_async(
-            angles, estimated_sec=move_sec, step_n=1
+            angles, move_sec=move_sec, step_n=1
         )
 
     def move_angle_sync_async(
-        self, target_angles, estimated_sec=None, step_n=None
+        self, target_angles, move_sec=None, step_n=None
     ):
         """
         同期的に角度指定で動かす（非同期）。
         関連するパラメータと角度コマンドをThreadWorkerに送信する。
         """
         # ThreadWorker側のパラメータを更新
-        if estimated_sec is not None:
-            self.set_move_sec_async(estimated_sec)
+        if move_sec is not None:
+            self.set_move_sec_async(move_sec)
         if step_n is not None:
             self.set_step_n_async(step_n)
 
