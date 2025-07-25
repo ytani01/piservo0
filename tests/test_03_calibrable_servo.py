@@ -108,20 +108,25 @@ def test_deg_pulse_conversion(calib_servo, angle, expected_pulse):
 
 
 @pytest.mark.parametrize(
-    "angle_or_str, expected_angle",
+    "angle_or_str, expected_angle", 
     [
         (45, 45),
         (-90, -90),
         (CalibrableServo.POS_CENTER, CalibrableServo.ANGLE_CENTER),
         (CalibrableServo.POS_MIN, CalibrableServo.ANGLE_MIN),
         (CalibrableServo.POS_MAX, CalibrableServo.ANGLE_MAX),
+        ('', CalibrableServo.ANGLE_MAX),
+        (None, CalibrableServo.ANGLE_MAX),
     ],
 )
 def test_move_angle(calib_servo, angle_or_str, expected_angle):
     """
     move_angle()が数値や文字列で正しく呼び出されるか。
     """
+
     pi, servo, _ = calib_servo
+    pi.get_servo_pulsewidth.return_value = servo.deg2pulse(expected_angle)
+
     servo.move_angle(angle_or_str)
     expected_pulse = servo.deg2pulse(expected_angle)
     pi.set_servo_pulsewidth.assert_called_with(TEST_PIN, expected_pulse)

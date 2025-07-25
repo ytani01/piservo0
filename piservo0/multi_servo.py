@@ -14,14 +14,11 @@ class MultiServo:
 
     DEF_ESTIMATED_TIME = 0.2  # sec
     DEF_STEP_N = 40
-    
+
     def __init__(
-        self,
-        pi,
-        pins,
-        first_move=True,
+        self, pi, pins: list[int], first_move=True,
         conf_file=CalibrableServo.DEF_CONF_FILE,
-        debug=False,
+        debug=False
     ):
         """
         MultiServoのインスタンスを初期化する。
@@ -41,17 +38,20 @@ class MultiServo:
         """
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
-        self.__log.debug("pins=%s, conf_file=%s", pins, conf_file)
+        self.__log.debug("pins=%s, first_move=%s, conf_file=%s",
+                         pins, first_move, conf_file)
 
-        self.pi = pi
+        self._pi = pi
         self.pins = pins
-        self.servo_n = len(pins)
         self.conf_file = conf_file
         self.first_move = first_move
 
+        self.servo_n = len(pins)
+
         self.servo = [
-            CalibrableServo(pi, pin, conf_file=self.conf_file, debug=False)
-            for pin in pins
+            CalibrableServo(
+                self._pi, _pin, conf_file=self.conf_file, debug=False
+            ) for _pin in self.pins
         ]
 
         if self.first_move:
@@ -74,13 +74,13 @@ class MultiServo:
         """
         if not isinstance(angles, (list, tuple)):
             self.__log.error(
-                f"角度はリストまたはタプル: {type(angles)}"
+                "angles:%s must be list or tupple:%s", angles, type(angles)
             )
             return False
 
         if len(angles) != self.servo_n:
             self.__log.error(
-                f"len(angles)={len(angles)} != servo_n={self.servo_n}"
+                "len(%s)=%s != servo_n=%s", angles, len(angles), self.servo_n
             )
             return False
 
@@ -104,7 +104,7 @@ class MultiServo:
             各サーボのパルス幅のリスト。
         """
         pulses = [s.get_pulse() for s in self.servo]
-        self.__log.debug(f"pulses={pulses}")
+        self.__log.debug("pulses=%s", pulses)
         return pulses
 
     def move_pulse(self, pulses, forced=False):
@@ -132,7 +132,7 @@ class MultiServo:
             各サーボの角度のリスト。
         """
         angles = [s.get_angle() for s in self.servo]
-        self.__log.debug(f"angles={angles}")
+        self.__log.debug("angles=%s", angles)
         return angles
 
     def move_angle(self, angles):
@@ -149,13 +149,12 @@ class MultiServo:
         if not self._validate_angle_list(angles):
             return
 
-        for i, s in enumerate(self.servo):
-            #self.__log.debug(f"pin={s.pin}, angle={angles[i]}")
-            s.move_angle(angles[i])
+        for _i, _s in enumerate(self.servo):
+            # self.__log.debug(f"pin={_s.pin}, angle={angles[_i]}")
+            _s.move_angle(angles[_i])
 
     def move_angle_sync(
-        self,
-        target_angles,
+        self, target_angles,
         estimated_sec=DEF_ESTIMATED_TIME,
         step_n=DEF_STEP_N
     ):
@@ -173,28 +172,30 @@ class MultiServo:
             動作にかかるおおよその時間（秒）。
         step_n: int
             動作を分割するステップ数。
+            1以下の場合は、move_angle() を呼び出して、ダイレクトに動かす
         """
         self.__log.debug(
             "target_angles=%s, estimated_sec=%s, step_n=%s",
             target_angles,
             estimated_sec,
-            step_n,
+            step_n
         )
 
         if not self._validate_angle_list(target_angles):
             return
 
-        if step_n < 1:
+        # step_n が１以下の場合は、ダイレクトに動かす
+        if step_n <= 1:
             self.move_angle(target_angles)
             return
 
-        step_sec = estimated_sec / step_n
-        self.__log.debug("step_sec=%.3f", step_sec)
+        _step_sec = estimated_sec / step_n
+        self.__log.debug("_step_sec=%.3f", _step_sec)
 
-        start_angles = self.get_angle()
-        self.__log.debug(f"start_angles={start_angles}")
+        _start_angles = self.get_angle()
+        self.__log.debug("_start_angles=%s", _start_angles)
 
-        # 数値に変換
+        # target_anglesを数値(角度)に変換
         _num_target_angles = []
         for i, _angle in enumerate(target_angles):
             _servo = self.servo[i]
@@ -212,41 +213,37 @@ class MultiServo:
                     _num_target_angles.append(
                         _servo.ANGLE_MAX
                     )
-                else:
-                    # 不明な文字列の場合は現在の角度を維持
-                    # （エラーログはmove_angleで出力）
+                else:  # 不明な文字: 動かさない
                     self.__log.warning(
-                        f'不明な角度文字列 "{_angle}" を無視します。'
+                        "invalid word %a: ignored", _angle
                     )
-                    _num_target_angles.append(start_angles[i])
+                    _num_target_angles.append(_start_angles[i])
 
-            elif _angle is None:
-                _num_target_angles.append(_servo.get_angle())
+            elif _angle is None:  # None は、「動かさない」の意味
+                _num_target_angles.append(_start_angles[i])
 
-            else: # num
+            else:  # num
+                # clip: ANGLE_MIN <= _angle <= ANGLE_MAX
                 _angle = max(min(_angle, _servo.ANGLE_MAX), _servo.ANGLE_MIN)
                 _num_target_angles.append(_angle)
 
-        self.__log.debug("_num_target_angles=%s",
-                         _num_target_angles)
+        self.__log.debug("_num_target_angles=%s", _num_target_angles)
 
         _diff_angles = [
-            _num_target_angles[i] - start_angles[i]
+            _num_target_angles[i] - _start_angles[i]
             for i in range(self.servo_n)
         ]
         self.__log.debug("_diff_angles=%s", _diff_angles)
 
-        for step_i in range(1, step_n + 1):
+        for _step_i in range(1, step_n + 1):
             next_angles = [
-                start_angles[i] + _diff_angles[i] * step_i / step_n
+                _start_angles[i] + _diff_angles[i] * _step_i / step_n
                 for i in range(self.servo_n)
             ]
 
             self.move_angle(next_angles)
-            """
-            self.__log.debug(
-                "step %s/%s: next_angles=%s, step_sec=%s",
-                step_i, step_n, next_angles, step_sec
-            )
-            """
-            time.sleep(step_sec)
+            # self.__log.debug(
+            #     "step %s/%s: next_angles=%s, _step_sec=%s",
+            #     _step_i, step_n, next_angles, _step_sec
+            # )
+            time.sleep(_step_sec)

@@ -94,7 +94,12 @@ class CalibrableServo(PiServo):
     @pulse_center.setter
     def pulse_center(self, pulse=None):
         """中央位置のパルス幅を設定し、設定ファイルに保存する。"""
-        self._pulse_center = self._normalize_pulse(pulse)
+        pulse = self._normalize_pulse(pulse)
+
+        # pulse_min <= pulse_center <= pulse_max
+        pulse = max(min(pulse, self.pulse_max), self.pulse_min)
+
+        self._pulse_center = pulse
         self.save_conf()
 
     @property
@@ -105,7 +110,12 @@ class CalibrableServo(PiServo):
     @pulse_min.setter
     def pulse_min(self, pulse=None):
         """最小位置のパルス幅を設定し、設定ファイルに保存する。"""
-        self._pulse_min = self._normalize_pulse(pulse)
+        pulse = self._normalize_pulse(pulse)
+
+        # pulse_min <= pulse_center <= pulse_max
+        pulse = min(pulse, self.pulse_center)
+
+        self._pulse_min = pulse
         self.save_conf()
 
     @property
@@ -116,7 +126,12 @@ class CalibrableServo(PiServo):
     @pulse_max.setter
     def pulse_max(self, pulse=None):
         """最大位置のパルス幅を設定し、設定ファイルに保存する。"""
-        self._pulse_max = self._normalize_pulse(pulse)
+        pulse = self._normalize_pulse(pulse)
+
+        # pulse_min <= pulse_center <= pulse_max
+        pulse = max(pulse, self.pulse_center)
+
+        self._pulse_max = pulse
         self.save_conf()
 
     def move_pulse(self, pulse, forced=False):
@@ -192,28 +207,32 @@ class CalibrableServo(PiServo):
 
         return angle
 
-    def move_angle(self, deg: float):
-        """指定された角度にサーボモーターを移動させる。"""
+    def move_angle(self, deg: float | str | None = None):
+        """指定された角度にサーボモーターを移動させる。
+
+        文字列: 'center' | 'min' | 'max'
+        None | '': 動かさない (現在角度を維持)
+        """
         self.__log.debug(f"deg={deg}")
 
-        if isinstance(deg, str):
+        if deg is None:  # None の場合は、動かさない
+            deg = self.get_angle()
+
+        elif isinstance(deg, str):
             if deg == self.POS_CENTER:
                 deg = self.ANGLE_CENTER
             elif deg == self.POS_MIN:
                 deg = self.ANGLE_MIN
             elif deg == self.POS_MAX:
                 deg = self.ANGLE_MAX
+            elif deg == '':
+                deg = self.get_angle()
             else:
                 self.__log.error('deg="%s": invalid string. do nothing', deg)
                 return
 
-        if deg < self.ANGLE_MIN:
-            self.__log.error(f"deg={deg} < ANGLE_MIN({self.ANGLE_MIN})")
-            deg = self.ANGLE_MIN
-
-        if deg > self.ANGLE_MAX:
-            self.__log.error(f"deg={deg} > ANGLE_MAX({self.ANGLE_MAX})")
-            deg = self.ANGLE_MAX
+        deg = max(min(float(deg), self.ANGLE_MAX), self.ANGLE_MIN)
+        self.__log.debug("deg=%s", deg)
 
         pulse = self.deg2pulse(deg)
 

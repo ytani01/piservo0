@@ -63,12 +63,14 @@ class StrControl:
         self.move_sec = move_sec
         self.step_n = step_n
 
+        self.servo_n = len(self.mservo)
+
         if angle_factor is None:
-            self.angle_factor = [1] * self.mservo.servo_n
+            self.angle_factor = [1] * self.servo_n
         else:
-            if len(angle_factor) != self.mservo.servo_n:
+            if len(angle_factor) != self.servo_n:
                 raise ValueError(
-                    f"len(angle_factor) must be {self.mservo.servo_n}"
+                    f"len(angle_factor) must be {self.servo_n}"
                 )
             self.angle_factor = angle_factor
 
@@ -80,23 +82,23 @@ class StrControl:
         else:
             self.cmd_chars = cmd_chars
 
-        self.__log.debug(f"servo_n={self.mservo.servo_n}")
-        self.__log.debug(f"angle_unit={self.angle_unit}")
-        self.__log.debug(f"move_sec={self.move_sec}")
-        self.__log.debug(f"angle_factor={self.angle_factor}")
-        self.__log.debug(f"cmd_chars={self.cmd_chars}")
+        self.__log.debug("servo_n=%s", self.servo_n)
+        self.__log.debug("angle_unit=%s", self.angle_unit)
+        self.__log.debug("move_sec=%s", self.move_sec)
+        self.__log.debug("angle_factor=%s", self.angle_factor)
+        self.__log.debug("cmd_chars=%s", self.cmd_chars)
 
     def set_angle_unit(self, angle: float):
         """基本角度を設定する。"""
         if angle > 0:
             self.angle_unit = angle
-        self.__log.debug(f"angle_unit={self.angle_unit}")
+        self.__log.debug("angle_unit=%s", self.angle_unit)
 
     def set_move_sec(self, sec: float):
         """1ポーズの移動時間を設定する。"""
         if sec >= 0:
             self.move_sec = sec
-        self.__log.debug(f"move_sec={self.move_sec}")
+        self.__log.debug("move_sec=%s", self.move_sec)
 
     def _is_float_str(self, s: str) -> bool:
         """文字列がfloatに変換可能か判定する。"""
@@ -108,7 +110,7 @@ class StrControl:
 
     def _is_str_cmd(self, cmd: str) -> tuple[bool, str]:
         """文字列がポーズコマンドか判定する。"""
-        if len(cmd) != self.mservo.servo_n:
+        if len(cmd) != self.servo_n:
             return False, "invalid length"
 
         valid_chars = list(self.cmd_chars.values())
@@ -153,29 +155,29 @@ class StrControl:
                 _ch = _ch.lower()
 
             angle = None
-            cc = self.cmd_chars
-            s = self.mservo.servo[i]  # CalibrableServo instance
-                
-            if _ch == cc["center"]:
-                angle = s.ANGLE_CENTER
-            elif _ch == cc["min"]:
-                angle = s.ANGLE_MIN
-            elif _ch == cc["max"]:
-                angle = s.ANGLE_MAX
-            elif _ch == cc["forward"]:
+            _c_ch = self.cmd_chars
+            _s = self.mservo.servo[i]  # CalibrableServo instance
+
+            if _ch == _c_ch["center"]:
+                angle = _s.ANGLE_CENTER
+            elif _ch == _c_ch["min"]:
+                angle = _s.ANGLE_MIN
+            elif _ch == _c_ch["max"]:
+                angle = _s.ANGLE_MAX
+            elif _ch == _c_ch["forward"]:
                 angle = self.angle_unit
-            elif _ch == cc["backward"]:
+            elif _ch == _c_ch["backward"]:
                 angle = -self.angle_unit
-            elif _ch == cc["dont_move"]:
-                angle = s.get_angle()
+            elif _ch == _c_ch["dont_move"]:
+                angle = _s.get_angle()
 
             if angle is not None:
                 # `dont_move`以外は係数を適用
-                if _ch != cc["dont_move"]:
+                if _ch != _c_ch["dont_move"]:
                     angle *= factor
 
                 # 可動範囲内にクリップ
-                angle = self._clip(angle, s.ANGLE_MIN, s.ANGLE_MAX)
+                angle = self._clip(angle, _s.ANGLE_MIN, _s.ANGLE_MAX)
                 angles.append(angle)
 
         return {"cmd": "angles", "angles": angles}
@@ -203,7 +205,6 @@ class StrControl:
 
         elif cmd_type == "error":
             self.__log.error(parsed_cmd.get("err"))
-
 
     @staticmethod
     def flip_cmds(cmds: list[str]) -> list[str]:

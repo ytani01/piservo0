@@ -64,7 +64,9 @@ class ServoConfigManager:
 
         # 見つからなかった場合はカレントディレクトリに作成する
         default_path = Path.cwd() / conf_file
-        self.__log.warning(f"Config file not found. Defaulting to: {default_path}")
+        self.__log.warning(
+            "Config file not found. Defaulting to: %s", default_path
+        )
         return str(default_path)
 
     def read_all_configs(self):
