@@ -46,11 +46,32 @@ def run_cmds(cmds: str):
         thr_worker.send(parsed_cmd)
 
 
+def stop_and_repeat_cmd(cmds, n=100):
+    """  stop and repeat cmd """
+    print(f"cmds={cmds}")
+    
+    thr_worker.cmdq_clear()
+
+    cmds = cmds * n
+    for _cmd in cmds.split():
+        print(f"_cmd='{_cmd}'")
+
+        if _cmd[0] == 'S':
+            thr_worker.cmdq_clear()
+            continue
+
+        parsed_cmd = str_ctrl.parse_cmd(_cmd)
+        print(f"parsed_cmd={parsed_cmd}")
+
+        thr_worker.send(parsed_cmd)
+
+
 # 以下のコードを追加するfccc fbbb cbbb ccbb cfbb cfbc bccc cccc cccf bbbf bbbc bbcc bbfc cbfc cccb cccc
 @app.get("/")
 async def read_root():
     """ root """
     return {"Hello": "World"}
+
 
 @app.get("/cmd/{cmdline}")
 async def exec_cmd(cmdline: str):
@@ -63,10 +84,25 @@ async def exec_cmd(cmdline: str):
         if cmd[0] == 'S':
             thr_worker.cmdq_clear()
             continue
- 
+
         run_cmds(cmd)
 
     return {"cmdline": cmdline}
+
+
+@app.get("/forward")
+async def forward_cmd():
+    """ walk forward """
+    cmds = "fccc fbbb cbbb ccbb cfbb cfbc bccc cccc cccf bbbf bbbc bbcc bbfc cbfc cccb cccc"
+    stop_and_repeat_cmd(cmds)
+
+
+@app.get("/left")
+async def left_cmd():
+    """ turn left """
+    cmds = "ffbb fFbb fFbf Ffbf Fcbc Fcfc ccFb bcFb bbfb cBcb cBcf cbcf cccF cbcF cbcf Bbcf cccc"
+    stop_and_repeat_cmd(cmds)
+
 
 @app.get("/stop")
 async def stop_cmd():
