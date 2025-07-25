@@ -66,7 +66,6 @@ def stop_and_repeat_cmd(cmds, n=100):
         thr_worker.send(parsed_cmd)
 
 
-# 以下のコードを追加するfccc fbbb cbbb ccbb cfbb cfbc bccc cccc cccf bbbf bbbc bbcc bbfc cbfc cccb cccc
 @app.get("/")
 async def read_root():
     """ root """
@@ -93,21 +92,24 @@ async def exec_cmd(cmdline: str):
 @app.get("/forward")
 async def forward_cmd():
     """ walk forward """
-    cmds = "cccc fccc fbbb cbbb ccbb cfbb cfbc bccc cccc cccf bbbf bbbc bbcc bbfc cbfc cccb"
+    cmds = "cccc fccc fbbb cbbb ccbb cfbb cfbc bccc"
+    cmds += "cccc cccf bbbf bbbc bbcc bbfc cbfc cccb"
     stop_and_repeat_cmd(cmds)
 
 
 @app.get("/right")
-async def left_cmd():
+async def right_cmd():
     """ turn left """
-    cmds = "cccc bbff bbFf fbFf fbfF cbcF cfcF bFcc bFcb bfbb bcBc fcBc fcbc Fccc Fcbc fcbc fcbB"
+    cmds = "cccc bbff bbFf fbFf fbfF cbcF cfcF bFcc bFcb"
+    cmds += "bfbb bcBc fcBc fcbc Fccc Fcbc fcbc fcbB"
     stop_and_repeat_cmd(cmds)
 
 
 @app.get("/left")
 async def left_cmd():
     """ turn left """
-    cmds = "cccc ffbb fFbb fFbf Ffbf Fcbc Fcfc ccFb bcFb bbfb cBcb cBcf cbcf cccF cbcF cbcf Bbcf"
+    cmds = "cccc ffbb fFbb fFbf Ffbf Fcbc Fcfc ccFb bcFb"
+    cmds += "bbfb cBcb cBcf cbcf cccF cbcF cbcf Bbcf"
     stop_and_repeat_cmd(cmds)
 
 

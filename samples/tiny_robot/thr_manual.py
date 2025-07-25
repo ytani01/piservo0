@@ -1,8 +1,13 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-import time
+"""
 
+** DEPRECATED **
+
+Itegrated to manual.py
+
+"""
 import click
 
 from piservo0 import ThreadWorker, get_logger

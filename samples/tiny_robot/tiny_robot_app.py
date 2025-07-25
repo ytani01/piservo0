@@ -4,7 +4,6 @@
 import sys
 
 import pigpio
-
 from piservo0 import MultiServo, ThreadMultiServo, StrControl, get_logger
 
 
@@ -46,13 +45,15 @@ class TinyRobotApp:
 
         if self.thread_flag:
             self.mservo = ThreadMultiServo(
-                self.pi, self.pins, conf_file=self.conf_file, debug=self._debug
+                self.pi, self.pins, conf_file=self.conf_file,
+                debug=self._debug
             )
         else:
             self.mservo = MultiServo(
-                self.pi, self.pins, conf_file=self.conf_file, debug=self._debug
+                self.pi, self.pins, conf_file=self.conf_file,
+                debug=self._debug
             )
-            
+
         self.str_ctrl = StrControl(
             self.mservo,
             angle_unit=self.angle_unit,

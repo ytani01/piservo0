@@ -1,7 +1,6 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-import json
 from typing import Optional
 
 from .calibrable_servo import CalibrableServo
@@ -52,7 +51,9 @@ class ThreadMultiServo:
         )
 
         # 同期的な処理を担当するMultiServoを内包する
-        self._mservo = MultiServo(pi, pins, first_move, conf_file, debug=False)
+        self._mservo = MultiServo(
+            pi, pins, first_move, conf_file, debug=False
+        )
         self.servo_n = len(pins)
         self.servo = self._mservo.servo  # list of CalibrableServo
 
@@ -95,7 +96,8 @@ class ThreadMultiServo:
         指定された角度に即座に移動するコマンドを非同期で送信します。
 
         Args:
-            target_angles (list[Optional[float]]): 各サーボの目標角度のリスト。
+            target_angles (list[Optional[float]]):
+            各サーボの目標角度のリスト。
         """
         cmd = {"cmd": "move_angle", "target_angles": target_angles}
         self._send_cmd(cmd)
@@ -110,7 +112,8 @@ class ThreadMultiServo:
         目標角度まで滑らかに移動するコマンドを非同期で送信します。
 
         Args:
-            target_angles (list[Optional[float]]): 各サーボの目標角度のリスト。
+            target_angles (list[Optional[float]]):
+                各サーボの目標角度のリスト。
             move_sec (Optional[float], optional):
                 移動時間(秒)。Noneの場合は現在の設定値が使われます。
             step_n (Optional[int], optional):
