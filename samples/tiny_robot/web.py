@@ -93,14 +93,21 @@ async def exec_cmd(cmdline: str):
 @app.get("/forward")
 async def forward_cmd():
     """ walk forward """
-    cmds = "fccc fbbb cbbb ccbb cfbb cfbc bccc cccc cccf bbbf bbbc bbcc bbfc cbfc cccb cccc"
+    cmds = "cccc fccc fbbb cbbb ccbb cfbb cfbc bccc cccc cccf bbbf bbbc bbcc bbfc cbfc cccb"
+    stop_and_repeat_cmd(cmds)
+
+
+@app.get("/right")
+async def left_cmd():
+    """ turn left """
+    cmds = "cccc bbff bbFf fbFf fbfF cbcF cfcF bFcc bFcb bfbb bcBc fcBc fcbc Fccc Fcbc fcbc fcbB"
     stop_and_repeat_cmd(cmds)
 
 
 @app.get("/left")
 async def left_cmd():
     """ turn left """
-    cmds = "ffbb fFbb fFbf Ffbf Fcbc Fcfc ccFb bcFb bbfb cBcb cBcf cbcf cccF cbcF cbcf Bbcf cccc"
+    cmds = "cccc ffbb fFbb fFbf Ffbf Fcbc Fcfc ccFb bcFb bbfb cBcb cBcf cbcf cccF cbcF cbcf Bbcf"
     stop_and_repeat_cmd(cmds)
 
 
