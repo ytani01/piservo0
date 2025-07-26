@@ -10,7 +10,7 @@ from .cmd_calib import CmdCalib
 from .cmd_multi import CmdMulti
 from .cmd_servo import CmdServo
 
-CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 
 @click.group(
@@ -18,7 +18,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     context_settings=CONTEXT_SETTINGS,
     help="""
 pyservo0 command
-""",
+"""
 )
 @click.option("-d", "--debug", is_flag=True, help="debug flag")
 @click.pass_context
