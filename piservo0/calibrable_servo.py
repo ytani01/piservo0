@@ -231,7 +231,7 @@ class CalibrableServo(PiServo):
                 self.__log.error('deg="%s": invalid string. do nothing', deg)
                 return
 
-        deg = max(min(float(deg), self.ANGLE_MAX), self.ANGLE_MIN)
+        deg = max(min(deg, self.ANGLE_MAX), self.ANGLE_MIN)
         self.__log.debug("deg=%s", deg)
 
         pulse = self.deg2pulse(deg)
