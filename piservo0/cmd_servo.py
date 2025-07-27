@@ -26,9 +26,10 @@ class CmdServo:
 
         self.servo = PiServo(self.pi, self.pin, debug=self._debug)
 
-    def main(self):
+    def main(self, ctx):
         """main"""
-        self.__log.debug("")
+        cmd_name = ctx.command.name
+        self.__log.debug("cmd_name=%a", cmd_name)
 
         try:
             pulse_int = int(self.pulse_str)
@@ -49,6 +50,7 @@ class CmdServo:
 
         if PiServo.MIN <= pulse_int <= PiServo.MAX:
             self.servo.move_pulse(pulse_int)
+            print(f"pin={self.pin}, pulse={pulse_int}")
             time.sleep(self.sec)
         else:
             self.__log.error(
@@ -59,4 +61,4 @@ class CmdServo:
         """end"""
         self.__log.debug("")
         self.servo.off()
-        print("bye!")
+        print("done")

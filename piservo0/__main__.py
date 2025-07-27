@@ -62,7 +62,7 @@ def servo(ctx, pin, pulse, sec, debug):
         return
 
     try:
-        app.main()
+        app.main(ctx)
 
     except Exception as _e:
         log.warning("%s: %s", type(_e).__name__, _e)

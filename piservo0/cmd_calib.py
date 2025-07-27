@@ -68,7 +68,7 @@ class CmdCalib:
             cmd_exit,
         ]
 
-        print(f'[[ "{cmd_name}": Servo Calibration Tool ]]')
+        print(f'\n[[ "{cmd_name}": Servo Calibration Tool ]]\n')
         print(f" GPIO: {self.servo.pin}")
         print(f" conf_file: {self.servo.conf_file}")
 

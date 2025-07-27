@@ -59,7 +59,7 @@ class ServoConfigManager:
         for path in search_paths:
             self.__log.debug(f"  - {path}")
             if path.is_file():
-                self.__log.info(f"Found config file at: {path}")
+                self.__log.debug(f"Found config file at: {path}")
                 return str(path)
 
         # 見つからなかった場合はカレントディレクトリに作成する

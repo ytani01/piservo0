@@ -7,7 +7,7 @@ import blessed
 import click
 import pigpio
 
-from piservo0 import MultiServo, get_logger
+from piservo0 import MultiServo, PiServo, get_logger
 
 # clickで、'-h'もヘルプオプションするために
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
@@ -44,10 +44,12 @@ class CalibApp:
             self.pi, pins, conf_file=conf_file, debug=debug
         )
 
+        self.pins = self.mservo.pins
         self.selected_servo = self.SELECTED_SERVO_ALL
         self.running = True
 
         self.key_bindings = self._setup_key_bindings()
+        self.__log.debug("key_bindings=%s", self.key_bindings)
 
     def _setup_key_bindings(self):
         """キーバインドを設定する"""
@@ -56,10 +58,10 @@ class CalibApp:
             # Move
             "w": lambda: self.move_diff(+20),
             "k": lambda: self.move_diff(+20),
-            term.KEY_UP: lambda: self.move_diff(+20),
+            "KEY_UP": lambda: self.move_diff(+20),
             "s": lambda: self.move_diff(-20),
             "j": lambda: self.move_diff(-20),
-            term.KEY_DOWN: lambda: self.move_diff(-20),
+            "KEY_DOWN": lambda: self.move_diff(-20),
             # Fine Tune
             "W": lambda: self.move_diff(+1),
             "K": lambda: self.move_diff(+1),
@@ -84,6 +86,8 @@ class CalibApp:
 
     def main(self):
         """メインループ"""
+        print("\nCalibration Tool: 'h' for help, 'q' for quit\n")
+
         self.__log.debug("starting main loop")
         with self.term.cbreak():
             while self.running:
@@ -96,16 +100,20 @@ class CalibApp:
                     self.select_servo(int(inkey))
                     continue
 
-                action = self.key_bindings.get(inkey)
+                if inkey.is_sequence:
+                    _inkey = inkey.name
+                else:
+                    _inkey = str(inkey)
+                self.__log.debug("_inkey=%s", _inkey)
+
+                action = self.key_bindings.get(_inkey)
                 if action:
                     action()
                 else:
-                    print()  # 未知のキー入力の場合は改行
+                    print(f"'{_inkey}': unknown key")
 
     def draw_prompt(self):
         """プロンプトを表示する"""
-        cur_pulse = self.mservo.get_pulse()
-
         prompt_str = ""
         for i in range(self.mservo.servo_n):
             if i == self.selected_servo:
@@ -113,14 +121,15 @@ class CalibApp:
             else:
                 prompt_str += " "
 
-            prompt_str += f"[{i + 1}]:{cur_pulse[i]:4} "
+            # prompt_str += f"[{i + 1}]:{cur_pulse[i]:4} "
+            prompt_str += f"{i + 1}:pin{self.pins[i]} "
 
         if self.selected_servo < 0:
-            prompt_str += "*:ALL"
+            prompt_str += "| _:ALL"
         else:
-            prompt_str += f"{self.selected_servo + 1}:"
-            self.selected_pin = self.mservo.pins[self.selected_servo]
-            prompt_str += f"GPIO{self.selected_pin}"
+            prompt_str += f"| {self.selected_servo + 1}:"
+            _selected_pin = self.mservo.pins[self.selected_servo]
+            prompt_str += f"pin{_selected_pin}"
 
         print(f"{prompt_str}> ", end="", flush=True)
 
@@ -131,7 +140,7 @@ class CalibApp:
             self.selected_servo = index
             print(
                 f"select {self.selected_servo + 1}:"
-                f"GPIO{self.mservo.pins[self.selected_servo]:02d}"
+                f"pin{self.mservo.pins[self.selected_servo]:02d}"
             )
         else:
             self.selected_servo = self.SELECTED_SERVO_ALL
@@ -141,23 +150,39 @@ class CalibApp:
     def move_diff(self, diff_pulse):
         """パルス幅を相対的に変更する"""
         cur_pulse = self.mservo.get_pulse()
+
         if self.selected_servo >= 0:
             dst_pulse = cur_pulse[self.selected_servo] + diff_pulse
+
+            # clip PiServo.MIN <= dst_pulse <= PiServo.MAX
+            dst_pulse = max(min(dst_pulse, PiServo.MAX), PiServo.MIN)
+            self.__log.debug("dst_pulse=%s", dst_pulse)
+
             self.mservo.servo[self.selected_servo].move_pulse(
                 dst_pulse, forced=True
             )
-        else:
-            dst_pulse = [p + diff_pulse for p in cur_pulse]
+        else:  # ALL
+            dst_pulse = [
+                max(min(p + diff_pulse, PiServo.MAX), PiServo.MIN)
+                for p in cur_pulse
+            ]
+            self.__log.debug("dst_pulse=%s", dst_pulse)
+
             self.mservo.move_pulse(dst_pulse, forced=True)
-        print(f"pulse: {dst_pulse}")
+
+        print(f"pulse:{dst_pulse}")
 
     def move_angle(self, angle):
         """指定角度に移動する"""
+        self.__log.debug("angle=%s", angle)
+
         if self.selected_servo >= 0:
             self.mservo.servo[self.selected_servo].move_angle(angle)
+            _pulse = self.mservo.get_pulse()
+            print(f"angle: {angle}, pulse: {_pulse[self.selected_servo]}")
         else:
             self.mservo.move_angle_sync([angle] * self.mservo.servo_n, 0.5)
-        print(f"angle: {angle}")
+            print(f"angle: {angle}, pulse: {self.mservo.get_pulse()}")
 
     def set_calibration(self, calib_type):
         """キャリブレーション値を設定・保存する"""

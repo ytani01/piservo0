@@ -29,7 +29,7 @@ mservo = MultiServo(pi, PINS, conf_file=CONF_FILE, debug=False)
 str_ctrl = StrControl(mservo, angle_factor=ANGLE_FACTOR, debug=False)
 thr_worker = ThreadWorker(mservo, debug=True)
 thr_worker.start()
-    
+
 app = FastAPI()
 
 
@@ -46,10 +46,10 @@ def run_cmds(cmds: str):
         thr_worker.send(parsed_cmd)
 
 
-def stop_and_repeat_cmd(cmds, n=100):
+def stop_and_repeat_cmd(cmds, n=50):
     """  stop and repeat cmd """
     print(f"cmds={cmds}")
-    
+
     thr_worker.cmdq_clear()
 
     cmds = cmds * n
