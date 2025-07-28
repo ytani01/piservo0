@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from piservo0.servo_config_manager import ServoConfigManager
+from piservo0.utils.servo_config_manager import ServoConfigManager
 
 TEST_PIN1 = 17
 TEST_PIN2 = 27

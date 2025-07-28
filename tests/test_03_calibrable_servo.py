@@ -8,7 +8,7 @@ import json
 import os
 from pathlib import Path
 import pytest
-from piservo0 import CalibrableServo
+from piservo0.core.calibrable_servo import CalibrableServo
 
 TEST_PIN = 17
 TEST_CONF_FILENAME = "test_servo_conf.json"

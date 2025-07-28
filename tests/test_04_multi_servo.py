@@ -7,7 +7,8 @@ Test for MultiServo
 import json
 import pytest
 from unittest.mock import call
-from piservo0 import MultiServo, CalibrableServo
+from piservo0.core.multi_servo import MultiServo
+from piservo0.core.calibrable_servo import CalibrableServo
 
 TEST_PINS = [17, 27, 22, 23]
 TEST_CONF_FILENAME = "test_multi_servo_conf.json"

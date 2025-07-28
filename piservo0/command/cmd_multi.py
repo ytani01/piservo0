@@ -3,8 +3,8 @@
 #
 import time
 
-from .multi_servo import MultiServo
-from .my_logger import get_logger
+from ..core.multi_servo import MultiServo
+from ..utils.my_logger import get_logger
 
 
 class CmdMulti:

@@ -4,7 +4,7 @@
 import time
 
 from .calibrable_servo import CalibrableServo
-from .my_logger import get_logger
+from ..utils.my_logger import get_logger
 
 
 class MultiServo:

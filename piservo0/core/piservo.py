@@ -1,7 +1,7 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-from .my_logger import get_logger
+from ..utils.my_logger import get_logger
 
 
 class PiServo:

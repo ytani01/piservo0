@@ -6,7 +6,7 @@ Test for PiServo
 """
 import pytest
 
-from piservo0 import PiServo
+from piservo0.core.piservo import PiServo
 
 TEST_PIN = 17
 

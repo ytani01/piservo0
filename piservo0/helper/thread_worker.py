@@ -6,7 +6,7 @@ import queue
 import threading
 import time
 
-from .my_logger import get_logger
+from ..utils.my_logger import get_logger
 
 
 class ThreadWorker(threading.Thread):

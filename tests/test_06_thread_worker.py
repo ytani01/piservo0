@@ -8,7 +8,8 @@ import json
 import time
 import pytest
 from unittest.mock import MagicMock, ANY, call
-from piservo0 import ThreadWorker, MultiServo
+from piservo0.helper.thread_worker import ThreadWorker
+from piservo0.core.multi_servo import MultiServo
 
 
 # --- フィクスチャ ---
@@ -151,7 +152,7 @@ def test_sleep_command(worker, mocker):
     """'sleep'コマンドが正しくtime.sleepを呼び出すかテストする。"""
     worker_instance, _ = worker
     # time.sleepをモック化
-    mock_sleep = mocker.patch("piservo0.thread_worker.time.sleep")
+    mock_sleep = mocker.patch("piservo0.helper.thread_worker.time.sleep")
 
     worker_instance.send(json.dumps({"cmd": "sleep", "sec": 1.23}))
 
@@ -171,7 +172,7 @@ def test_sleep_command(worker, mocker):
 def test_interval_sleep(worker, mocker):
     """コマンド実行後のinterval sleepが正しく機能するかテストする。"""
     worker_instance, mock_mservo = worker
-    mock_sleep = mocker.patch("piservo0.thread_worker.time.sleep")
+    mock_sleep = mocker.patch("piservo0.helper.thread_worker.time.sleep")
 
     # インターバルを設定
     worker_instance.send(json.dumps({"cmd": "interval", "sec": 0.5}))
@@ -197,7 +198,7 @@ def test_invalid_json(worker, mocker):
     """無効なJSON文字列を処理しようとした際のエラーをテストする。"""
     worker_instance, mock_mservo = worker
     mock_log_instance = MagicMock()
-    mocker.patch("piservo0.thread_worker.get_logger", return_value=mock_log_instance)
+    mocker.patch("piservo0.helper.thread_worker.get_logger", return_value=mock_log_instance)
     worker_instance.end()
     worker_instance = ThreadWorker(mservo=mock_mservo, debug=True)
     worker_instance.start()
@@ -213,7 +214,7 @@ def test_no_cmd_key(worker, mocker):
     """'cmd'キーがないコマンドを処理しようとした際のエラーをテストする。"""
     worker_instance, mock_mservo = worker
     mock_log_instance = MagicMock()
-    mocker.patch("piservo0.thread_worker.get_logger", return_value=mock_log_instance)
+    mocker.patch("piservo0.helper.thread_worker.get_logger", return_value=mock_log_instance)
     worker_instance.end()
     worker_instance = ThreadWorker(mservo=mock_mservo, debug=True)
     worker_instance.start()
@@ -229,7 +230,7 @@ def test_unknown_command(worker, mocker):
     """未知のコマンドを処理しようとした際のエラーをテストする。"""
     worker_instance, mock_mservo = worker
     mock_log_instance = MagicMock()
-    mocker.patch("piservo0.thread_worker.get_logger", return_value=mock_log_instance)
+    mocker.patch("piservo0.helper.thread_worker.get_logger", return_value=mock_log_instance)
     worker_instance.end()
     worker_instance = ThreadWorker(mservo=mock_mservo, debug=True)
     worker_instance.start()

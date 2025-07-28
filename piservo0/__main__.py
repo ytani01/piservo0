@@ -4,11 +4,10 @@
 import click
 import pigpio
 
-from piservo0 import get_logger
-
-from .cmd_calib import CalibApp
-from .cmd_multi import CmdMulti
-from .cmd_servo import CmdServo
+from .utils.my_logger import get_logger
+from .command.cmd_servo import CmdServo
+from .command.cmd_multi import CmdMulti
+from .command.cmd_calib import CalibApp
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
@@ -50,26 +49,22 @@ def servo(ctx, pin, pulse, sec, debug):
     log = get_logger(__name__, debug)
     log.debug('pin=%s, pulse="%s", sec=%s', pin, pulse, sec)
 
+    pi = None
     try:
         pi = pigpio.pi()
         if not pi.connected:
             log.error("pigpio daemon not connected.")
             return
         app = CmdServo(pi, pin, pulse, sec, debug=debug)
-
-    except Exception as _e:
-        log.error("%s: %s", type(_e).__name__, _e)
-        return
-
-    try:
         app.main(ctx)
 
-    except Exception as _e:
-        log.warning("%s: %s", type(_e).__name__, _e)
+    except Exception as e:
+        log.error("%s: %s", type(e).__name__, e)
 
     finally:
-        app.end()
-        pi.stop()
+        if pi:
+            app.end()
+            pi.stop()
 
 
 @cli.command(
@@ -98,24 +93,19 @@ def calib(ctx, pins, conf_file, debug):
         )
         return
 
+    app = None
     try:
         app = CalibApp(pins, conf_file, debug=debug)
-
-    except Exception as _e:
-        log.error("%s: %s", type(_e).__name__, _e)
-        return
-
-    try:
         app.main()
 
-    except (EOFError, KeyboardInterrupt) as _e:
-        log.debug("%s: %s", type(_e).__name__, _e)
-
-    except Exception as _e:
-        log.error("%s: %s", type(_e).__name__, _e)
+    except (EOFError, KeyboardInterrupt):
+        pass
+    except Exception as e:
+        log.error("%s: %s", type(e).__name__, e)
 
     finally:
-        app.end()
+        if app:
+            app.end()
 
 
 @cli.command(
@@ -140,26 +130,21 @@ def multi(ctx, pin, conf_file, sec, debug):
     log = get_logger(__name__, debug)
     log.debug("pin=%s,conf_file=%s,sec=%s", pin, conf_file, sec)
 
+    pi = None
     try:
         pi = pigpio.pi()
         if not pi.connected:
             log.error("pigpio daemon not connected.")
             return
         app = CmdMulti(pi, pin, conf_file, sec, debug=debug)
-
-    except Exception as _e:
-        log.error("%s: %s", type(_e).__name__, _e)
-        return
-
-    try:
         app.main(ctx)
 
-    except (EOFError, KeyboardInterrupt) as _e:
-        log.debug("%s: %s", type(_e).__name__, _e)
-
-    except Exception as _e:
-        log.error("%s: %s", type(_e).__name__, _e)
+    except (EOFError, KeyboardInterrupt):
+        pass
+    except Exception as e:
+        log.error("%s: %s", type(e).__name__, e)
 
     finally:
-        app.end()
-        pi.stop()
+        if pi:
+            app.end()
+            pi.stop()

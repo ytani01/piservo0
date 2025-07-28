@@ -1,9 +1,9 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-from .my_logger import get_logger
+from ..utils.my_logger import get_logger
 from .piservo import PiServo
-from .servo_config_manager import ServoConfigManager
+from ..utils.servo_config_manager import ServoConfigManager
 
 
 class CalibrableServo(PiServo):
