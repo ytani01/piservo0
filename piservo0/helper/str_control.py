@@ -180,7 +180,13 @@ class StrControl:
                 angle = self._clip(angle, _s.ANGLE_MIN, _s.ANGLE_MAX)
                 angles.append(angle)
 
-        return {"cmd": "angles", "angles": angles}
+        # XXX return {"cmd": "angles", "angles": angles}
+        return {
+            "cmd": "move_angle_sync",
+            "target_angles": angles,
+            "move_sec": None,
+            "step_n": None,
+        }
 
     def exec_cmd(self, cmd: str):
         """
@@ -190,7 +196,7 @@ class StrControl:
             cmd (str): ポーズ文字列またはスリープ時間。
         """
         parsed_cmd = self.parse_cmd(cmd)
-        self.__log.debug(f"parsed_cmd={parsed_cmd}")
+        self.__log.debug("parsed_cmd=%s", parsed_cmd)
 
         cmd_type = parsed_cmd.get("cmd")
 

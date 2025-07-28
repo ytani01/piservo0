@@ -6,10 +6,24 @@ import pigpio
 
 from .utils.my_logger import get_logger
 from .command.cmd_servo import CmdServo
-from .command.cmd_multi import CmdMulti
 from .command.cmd_calib import CalibApp
+from .core.calibrable_servo import CalibrableServo
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
+
+
+def get_pi(debug=False):
+    """
+    Initialize and return a pigpio.pi instance.
+    If connection fails, log an error and return None.
+    """
+    log = get_logger(__name__, debug)
+
+    pi = pigpio.pi()
+    if not pi.connected:
+        log.error("pigpio daemon not connected.")
+        return None
+    return pi
 
 
 @click.group(
@@ -49,12 +63,11 @@ def servo(ctx, pin, pulse, sec, debug):
     log = get_logger(__name__, debug)
     log.debug('pin=%s, pulse="%s", sec=%s', pin, pulse, sec)
 
-    pi = None
+    pi = get_pi(debug)
+    if not pi:
+        return
+
     try:
-        pi = pigpio.pi()
-        if not pi.connected:
-            log.error("pigpio daemon not connected.")
-            return
         app = CmdServo(pi, pin, pulse, sec, debug=debug)
         app.main(ctx)
 
@@ -74,7 +87,7 @@ calibration tool"""
 @click.argument("pins", type=int, nargs=-1)
 @click.option(
     "--conf_file", "-c", "-f",
-    default="./servo.json", show_default=True,
+    default=CalibrableServo.DEF_CONF_FILE, show_default=True,
     help="Config file path"
 )
 @click.option(
@@ -87,62 +100,28 @@ def calib(ctx, pins, conf_file, debug):
     log.debug("pins=%s,conf_file=%s", pins, conf_file)
 
     if not pins:
-        log.error("No GPIO pins specified.")
-        print(
-            "Error: Please specify GPIO pins. e.g. `piservo0 calib 17 27`"
-        )
+        print()
+        print("Error: Please specify GPIO pins.")
+        print()
+        print("  e.g. piservo0 calib 17 27")
+        print()
+        print(f"{ctx.get_help()}")
+        return
+
+    pi = get_pi(debug)
+    if not pi:
         return
 
     app = None
     try:
-        app = CalibApp(pins, conf_file, debug=debug)
+        app = CalibApp(pi, pins, conf_file, debug=debug)
         app.main()
 
     except (EOFError, KeyboardInterrupt):
         pass
-    except Exception as e:
-        log.error("%s: %s", type(e).__name__, e)
 
-    finally:
-        if app:
-            app.end()
-
-
-@cli.command(
-    help="""
-multi servo controller"""
-)
-@click.argument("pin", type=int, nargs=-1)
-@click.option(
-    "--conf_file", "--file", "-c", "-f", type=str,
-    default="./servo.json", show_default=True,
-    help="config file"
-)
-@click.option(
-    "--sec", "-t", "-s", type=float,
-    default=1, show_default=True,
-    help="move sec"
-)
-@click.option("--debug", "-d", is_flag=True, help="debug flag")
-@click.pass_context
-def multi(ctx, pin, conf_file, sec, debug):
-    """servo command"""
-    log = get_logger(__name__, debug)
-    log.debug("pin=%s,conf_file=%s,sec=%s", pin, conf_file, sec)
-
-    pi = None
-    try:
-        pi = pigpio.pi()
-        if not pi.connected:
-            log.error("pigpio daemon not connected.")
-            return
-        app = CmdMulti(pi, pin, conf_file, sec, debug=debug)
-        app.main(ctx)
-
-    except (EOFError, KeyboardInterrupt):
-        pass
-    except Exception as e:
-        log.error("%s: %s", type(e).__name__, e)
+    except Exception as _e:
+        log.error("%s: %s", type(_e).__name__, _e)
 
     finally:
         if pi:

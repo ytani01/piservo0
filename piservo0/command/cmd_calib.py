@@ -1,8 +1,8 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
+import pprint
 import blessed
-import pigpio
 
 from ..core.multi_servo import MultiServo
 from ..core.piservo import PiServo
@@ -16,29 +16,36 @@ class CalibApp:
 
     SELECTED_SERVO_ALL = -1
 
-    def __init__(self, pins, conf_file, debug=False):
+    def __init__(self, pi, pins, conf_file, debug=False):
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
         self.__log.debug("pins=%s, conf_file=%s", pins, conf_file)
 
-        self.pi = pigpio.pi()
-        if not self.pi.connected:
+        if not pi.connected:
             raise ConnectionError("pigpio daemon not connected.")
 
         self.term = blessed.Terminal()
-        self.mservo = MultiServo(
-            self.pi, pins, conf_file=conf_file, debug=debug
-        )
+        self.mservo = MultiServo(pi, pins, conf_file=conf_file, debug=debug)
 
-        self.pins = self.mservo.pins
         self.selected_servo = self.SELECTED_SERVO_ALL
         self.running = True
 
         self.key_bindings = self._setup_key_bindings()
-        self.__log.debug("key_bindings=%s", self.key_bindings)
+        self.__log.debug(
+            "key_bindings=%s",
+            pprint.pformat(
+                self.key_bindings, indent=2
+            ).replace("{", "{\n ").replace("}", "\n}")
+        )
 
     def _setup_key_bindings(self):
-        """キーバインドを設定する"""
+        """キーバインドを設定する
+
+        **補足**: メソッドとして独立させる理由
+        - __init__()内で直接代入するよりは、分けたほうが「美しい」。
+        - selfメソッドを割り当てるため、クラス変数にはできない。
+        - 引数が必要なメソッドを割り当てる場合 `lambda:`にする必要がある。
+        """
         return {
             # Move
             "w": lambda: self.move_diff(+20),
@@ -107,7 +114,7 @@ class CalibApp:
             else:
                 prompt_str += " "
 
-            prompt_str += f"{i + 1}:pin{self.pins[i]} "
+            prompt_str += f"{i + 1}:pin{self.mservo.pins[i]} "
 
         if self.selected_servo < 0:
             prompt_str += "| _:ALL"
@@ -215,23 +222,32 @@ class CalibApp:
   1..9: Select one servo
 
 * Move
-  'w', 'k', UpArrow:   Up
-  's', 'j', DownArrow: Down
+    'w',  UpArrow, 'k'
+             ^
+             |
+             v
+    's', DownArrow, 'j'
+
+  'w', 'k', UpArrow   : Up
+  's', 'j', DownArrow : Down
   (Upper case is for fine tuning)
 
 * Move to angle
-  'c': move to center (0 deg)
-  'n': move to min (-90 deg)
-  'x': move to max (90 deg)
+       MIN    CENTER    MAX
+    'n','v' <-- 'c' --> 'x'
+
+  'c'      : move to center (0 deg)
+  'n', 'v' : move to min (-90 deg)
+  'x'      : move to max (90 deg)
 
 * Calibration
-  'C': save current pulse as Center
-  'N': save current pulse as Min
-  'X': save current pulse as Max
+  'C'      : save current pulse as Center
+  'N', 'V' : save current pulse as Min
+  'X'      : save current pulse as Max
 
 * Misc
-  'q': Quit
-  'h', '?': Show this help
+  'q', 'Q' : Quit
+  'h', '?' : Show this help
 """)
 
     def quit(self):
@@ -242,5 +258,4 @@ class CalibApp:
     def end(self):
         """終了処理"""
         self.mservo.off()
-        self.pi.stop()
         print("\n Bye\n")

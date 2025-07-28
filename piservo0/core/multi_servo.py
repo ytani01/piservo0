@@ -43,16 +43,18 @@ class MultiServo:
 
         self._pi = pi
         self.pins = pins
-        self.conf_file = conf_file
         self.first_move = first_move
 
         self.servo_n = len(pins)
 
         self.servo = [
             CalibrableServo(
-                self._pi, _pin, conf_file=self.conf_file, debug=False
+                self._pi, _pin, conf_file=conf_file, debug=False
             ) for _pin in self.pins
         ]
+
+        self.conf_file = self.servo[0].conf_file
+        self.__log.debug("conf_file=%s", self.conf_file)
 
         if self.first_move:
             self.move_angle([0] * self.servo_n)
@@ -119,7 +121,7 @@ class MultiServo:
             Trueの場合、可動範囲外のパルス幅も強制的に設定する。
         """
         for i, s in enumerate(self.servo):
-            self.__log.debug(f"pin=s.pin, pulse={pulses[i]}")
+            self.__log.debug("pin=%s, pulse=%s", s.pin, pulse[i])
             s.move_pulse(pulses[i], forced)
 
     def get_angle(self):

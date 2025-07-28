@@ -114,12 +114,22 @@ class ThreadWorker(threading.Thread):
                 #      }
                 if _cmd_type == "move_angle_sync":
                     _target_angles = _cmd["target_angles"]
-                    _move_sec = _cmd["move_sec"]
-                    _step_n = _cmd["step_n"]
 
+                    try:
+                        _move_sec = _cmd["move_sec"]
+                    except KeyError as _e:
+                        self.__log.debug("%s, %s", type(_e).__name__, _e)
+                        _move_sec = self.move_sec
+                        self.__log.debug("_move_sec=%s", _move_sec)
                     if _move_sec is None:
                         _move_sec = self.move_sec
 
+                    try:
+                        _step_n = _cmd["step_n"]
+                    except KeyError as _e:
+                        self.__log.debug("%s, %s", type(_e).__name__, _e)
+                        _step_n = self.step_n
+                        self.__log.debug("_step_n=%s", _step_n)
                     if _step_n is None:
                         _step_n = self.step_n
 
@@ -144,23 +154,6 @@ class ThreadWorker(threading.Thread):
 
                     self.mservo.move_angle(_target_angles)
 
-                    if self.interval_sec > 0:
-                        self.__log.debug(
-                            "sleep interval_sec: %s sec",
-                            self.interval_sec
-                        )
-                        time.sleep(self.interval_sec)
-                    continue
-
-                # e.g. {"cmd": "angles", "angles": [30, 0, -30, 0]}
-                # 注: Pythonの None --> JSONでは null
-                if _cmd_type == "angles":
-                    _angles = _cmd["angles"]
-                    self.__log.debug("move: %s", _angles)
-
-                    self.mservo.move_angle_sync(
-                        _angles, self.move_sec, self.step_n
-                    )
                     if self.interval_sec > 0:
                         self.__log.debug(
                             "sleep interval_sec: %s sec",

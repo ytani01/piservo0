@@ -45,8 +45,8 @@ class ServoConfigManager:
             str: 有効な設定ファイルのパス。
         """
         # 絶対パスが指定された場合は、それをそのまま使う
-        if os.path.isabs(conf_file):
-            return conf_file
+        if os.path.dirname(conf_file):
+            return os.path.abspath(conf_file)
 
         # 検索パスのリスト
         search_paths = [
@@ -59,7 +59,7 @@ class ServoConfigManager:
         for path in search_paths:
             self.__log.debug(f"  - {path}")
             if path.is_file():
-                self.__log.debug(f"Found config file at: {path}")
+                self.__log.debug("Found config file at: %s", path)
                 return str(path)
 
         # 見つからなかった場合はカレントディレクトリに作成する
@@ -76,7 +76,7 @@ class ServoConfigManager:
             list: 読み込んだ設定データのリスト。
                   ファイルが存在しない、または不正な形式の場合は空のリストを返す。
         """
-        self.__log.debug(f"Reading from {self.conf_file}")
+        self.__log.debug("Reading from %s", self.conf_file)
         try:
             with open(self.conf_file, "r", encoding="utf-8") as f:
                 return json.load(f)

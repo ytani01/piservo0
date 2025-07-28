@@ -19,7 +19,7 @@ class CalibrableServo(PiServo):
         pulse_max (int): キャリブレーション後の最大位置のパルス幅。
     """
 
-    DEF_CONF_FILE = "./servo.json"
+    DEF_CONF_FILE = "servo.json"
 
     ANGLE_MIN = -90.0
     ANGLE_MAX = 90.0
@@ -45,10 +45,11 @@ class CalibrableServo(PiServo):
 
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
-        self.__log.debug(f"pin={pin}, conf_file={conf_file}")
+        self.__log.debug("pin=%s, conf_file=%s", pin, conf_file)
 
         self._config_manager = ServoConfigManager(conf_file, self._debug)
         self.conf_file = self._config_manager.conf_file
+        self.__log.debug("self.conf_file=%s", self.conf_file)
 
         # デフォルト値を設定
         self._pulse_min = super().MIN
