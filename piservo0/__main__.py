@@ -82,7 +82,12 @@ def servo(ctx, pin, pulse, sec, debug):
 
 @cli.command(
     help="""
-calibration tool"""
+calibration tool
+
+* configuration search path:
+
+    Current dir --> Home dir --> /etc
+"""
 )
 @click.argument("pins", type=int, nargs=-1)
 @click.option(
