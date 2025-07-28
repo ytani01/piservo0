@@ -4,10 +4,10 @@
 import click
 import pigpio
 
-from .utils.my_logger import get_logger
-from .command.cmd_servo import CmdServo
 from .command.cmd_calib import CalibApp
+from .command.cmd_servo import CmdServo
 from .core.calibrable_servo import CalibrableServo
+from .utils.my_logger import get_logger
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 

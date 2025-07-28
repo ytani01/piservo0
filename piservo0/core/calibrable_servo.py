@@ -2,8 +2,8 @@
 # (c) 2025 Yoichi Tanibayashi
 #
 from ..utils.my_logger import get_logger
-from .piservo import PiServo
 from ..utils.servo_config_manager import ServoConfigManager
+from .piservo import PiServo
 
 
 class CalibrableServo(PiServo):
@@ -235,7 +235,8 @@ class CalibrableServo(PiServo):
         deg = max(min(deg, self.ANGLE_MAX), self.ANGLE_MIN)
         self.__log.debug("deg=%s", deg)
 
-        pulse = self.deg2pulse(deg)
+        f_deg = float(deg)
+        pulse = self.deg2pulse(f_deg)
 
         self.move_pulse(pulse)
 

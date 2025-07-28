@@ -3,8 +3,8 @@
 #
 import time
 
-from .calibrable_servo import CalibrableServo
 from ..utils.my_logger import get_logger
+from .calibrable_servo import CalibrableServo
 
 
 class MultiServo:
@@ -121,7 +121,7 @@ class MultiServo:
             Trueの場合、可動範囲外のパルス幅も強制的に設定する。
         """
         for i, s in enumerate(self.servo):
-            self.__log.debug("pin=%s, pulse=%s", s.pin, pulse[i])
+            self.__log.debug("pin=%s, pulse=%s", s.pin, pulses[i])
             s.move_pulse(pulses[i], forced)
 
     def get_angle(self):

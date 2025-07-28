@@ -90,6 +90,8 @@ class ThrManualApp(TinyRobotApp):
 
         self.interval_sec = interval_sec
 
+        self.worker = None
+
     def init(self):
         """init"""
         super().init()

@@ -2,6 +2,7 @@
 # (c) 2025 Yoichi Tanibayashi
 #
 import pprint
+
 import blessed
 
 from ..core.multi_servo import MultiServo

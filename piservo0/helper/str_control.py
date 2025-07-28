@@ -4,6 +4,7 @@
 import time
 
 from ..core.multi_servo import MultiServo
+from ..helper.thread_multi_servo import ThreadMultiServo
 from ..utils.my_logger import get_logger
 
 
@@ -28,11 +29,12 @@ class StrControl:
         "forward": "f",
         "backward": "b",
         "dont_move": ".",
+        "cancel_cmds": "!",  # MultiThread の場合、コマンドをキャンセル
     }
 
     def __init__(
         self,
-        mservo,
+        mservo: MultiServo | ThreadMultiServo,
         angle_unit: float = DEF_ANGLE_UNIT,
         move_sec: float = DEF_MODE_SEC,
         step_n: int = MultiServo.DEF_STEP_N,
@@ -143,6 +145,9 @@ class StrControl:
         if self._is_float_str(cmd):
             return {"cmd": "sleep", "sec": float(cmd)}
 
+        if self.cmd_chars['cancel_cmds'] in cmd:
+            return {"cmd": "cancel"}
+
         _res, _res_str = self._is_str_cmd(cmd)
         if _res is False:
             return {"cmd": "error", "err": _res_str}
@@ -180,7 +185,6 @@ class StrControl:
                 angle = self._clip(angle, _s.ANGLE_MIN, _s.ANGLE_MAX)
                 angles.append(angle)
 
-        # XXX return {"cmd": "angles", "angles": angles}
         return {
             "cmd": "move_angle_sync",
             "target_angles": angles,
@@ -200,17 +204,53 @@ class StrControl:
 
         cmd_type = parsed_cmd.get("cmd")
 
-        if cmd_type == "angles":
-            angles = parsed_cmd.get("angles", [])
-            self.mservo.move_angle_sync(angles, self.move_sec, self.step_n)
+        #
+        # mservoが、ThreadMultiServoの場合は、コマンドをダイレクトに送る
+        #
+        if isinstance(self.mservo, ThreadMultiServo):
+            if cmd_type == "error":
+                self.__log.warning("parsed_cmd=%s .. ignored", parsed_cmd)
+                return
 
-        elif cmd_type == "sleep":
+            if cmd_type == "cancel":
+                self.mservo.cancel_cmds()
+                return
+
+            self.mservo.send_cmd(parsed_cmd)
+            return
+
+
+        #
+        # mservoが、MultiServoの場合は、コマンドによってメソッドを呼び出す
+        #
+
+        if cmd_type == "move_angle_sync":
+            angles = parsed_cmd.get("target_angles", [])
+            self.mservo.move_angle_sync(angles, self.move_sec, self.step_n)
+            return
+
+        if cmd_type == "sleep":
             sec = parsed_cmd.get("sec", 0)
             if sec > 0:
                 time.sleep(sec)
+            return
 
-        elif cmd_type == "error":
-            self.__log.error(parsed_cmd.get("err"))
+        self.__log.warning("parsed_cmd=%s .. ignored", parsed_cmd)
+
+    def exec_multi_cmds(self, cmds: str | list):
+        """
+        複数のコマンドを実行する。
+
+        Args:
+            cmds (str | list[str]): スペース区切りの文字列、または、リスト
+        """
+        self.__log.debug("cmds=%s", cmds)
+
+        if isinstance(cmds, str):
+            cmds = cmds.split()
+
+        for _cmd in cmds:
+            self.exec_cmd(_cmd)
 
     @staticmethod
     def flip_cmds(cmds: list[str]) -> list[str]:

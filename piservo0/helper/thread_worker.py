@@ -186,7 +186,8 @@ class ThreadWorker(threading.Thread):
                 if _cmd_type == "sleep":
                     _sec = float(_cmd["sec"])
                     self.__log.debug("sleep: %s sec", _sec)
-                    time.sleep(_sec)
+                    if _sec > 0.0:
+                        time.sleep(_sec)
                     continue
 
                 self.__log.error("ERROR: %s", _cmd)
