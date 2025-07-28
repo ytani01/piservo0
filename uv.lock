@@ -247,6 +247,7 @@ wheels = [
 name = "piservo0"
 source = { editable = "." }
 dependencies = [
+    { name = "blessed" },
     { name = "click" },
     { name = "pigpio" },
 ]
@@ -256,7 +257,6 @@ dev = [
     { name = "blessed" },
 ]
 samples = [
-    { name = "blessed" },
     { name = "fastapi" },
     { name = "unicorn" },
     { name = "uvicorn" },
@@ -275,8 +275,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "blessed" },
     { name = "blessed", marker = "extra == 'dev'" },
-    { name = "blessed", marker = "extra == 'samples'" },
     { name = "click" },
     { name = "fastapi", marker = "extra == 'samples'" },
     { name = "pigpio" },

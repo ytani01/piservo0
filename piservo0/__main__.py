@@ -6,7 +6,7 @@ import pigpio
 
 from piservo0 import get_logger
 
-from .cmd_calib import CmdCalib
+from .cmd_calib import CalibApp
 from .cmd_multi import CmdMulti
 from .cmd_servo import CmdServo
 
@@ -69,53 +69,53 @@ def servo(ctx, pin, pulse, sec, debug):
 
     finally:
         app.end()
-        pi.stop()  # ここでpiインスタンスを停止
+        pi.stop()
 
 
 @cli.command(
     help="""
 calibration tool"""
 )
-@click.argument("pin", type=int, nargs=1)
+@click.argument("pins", type=int, nargs=-1)
 @click.option(
-    "--conf_file", "--file", "-c", "-f", type=str,
+    "--conf_file", "-c", "-f",
     default="./servo.json", show_default=True,
-    help="config file"
-)
-@click.option(
-    "--sec", "-t", "-s", type=float,
-    default=1.0, show_default=True,
-    help="sec"
+    help="Config file path"
 )
 @click.option(
     "--debug", "-d", is_flag=True, default=False, help="debug flag"
 )
 @click.pass_context
-def calib(ctx, pin, conf_file, sec, debug):
-    """clib command"""
+def calib(ctx, pins, conf_file, debug):
+    """calib command"""
     log = get_logger(__name__, debug)
-    log.debug("pin=%s,conf_file=%s,sec=%s", pin, conf_file, sec)
+    log.debug("pins=%s,conf_file=%s", pins, conf_file)
+
+    if not pins:
+        log.error("No GPIO pins specified.")
+        print(
+            "Error: Please specify GPIO pins. e.g. `piservo0 calib 17 27`"
+        )
+        return
 
     try:
-        pi = pigpio.pi()
-        if not pi.connected:
-            log.error("pigpio daemon not connected.")
-            return
-        app = CmdCalib(pi, pin, conf_file, sec, debug=debug)
+        app = CalibApp(pins, conf_file, debug=debug)
 
     except Exception as _e:
         log.error("%s: %s", type(_e).__name__, _e)
         return
 
     try:
-        app.main(ctx)
+        app.main()
+
+    except (EOFError, KeyboardInterrupt) as _e:
+        log.debug("%s: %s", type(_e).__name__, _e)
 
     except Exception as _e:
-        log.warning("%s: %s", type(_e).__name__, _e)
+        log.error("%s: %s", type(_e).__name__, _e)
 
     finally:
         app.end()
-        pi.stop()  # ここでpiインスタンスを停止
 
 
 @cli.command(
@@ -162,4 +162,4 @@ def multi(ctx, pin, conf_file, sec, debug):
 
     finally:
         app.end()
-        pi.stop()  # ここでpiインスタンスを停止
+        pi.stop()

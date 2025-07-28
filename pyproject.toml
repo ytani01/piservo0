@@ -10,6 +10,7 @@ requires-python = ">=3.11"
 dependencies = [
     "click",
     "pigpio",
+    "blessed",
 ]
 
 [build-system]
@@ -25,7 +26,6 @@ dev = [
 ]
 
 samples = [
-    "blessed",
     "fastapi",
     "unicorn>=2.1.3",
     "uvicorn",

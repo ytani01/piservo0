@@ -1,196 +1,244 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-import time
+import blessed
+import pigpio
 
-from .calibrable_servo import CalibrableServo
-from .my_logger import get_logger
-from .piservo import PiServo
+from piservo0 import MultiServo, PiServo, get_logger
 
 
-class CmdCalib:
-    """calibration tool"""
+class CalibApp:
+    """
+    サーボキャリブレーション用TUIアプリケーション
+    """
 
-    def __init__(self, pi, pin, conf_file, sec=1.0, debug=False):
+    SELECTED_SERVO_ALL = -1
+
+    def __init__(self, pins, conf_file, debug=False):
         self._debug = debug
-        self.__log = get_logger(__class__.__name__, self._debug)
-        self.__log.debug("pin=%s,conf_file=%s,sec=%s", pin, conf_file, sec)
+        self.__log = get_logger(self.__class__.__name__, self._debug)
+        self.__log.debug("pins=%s, conf_file=%s", pins, conf_file)
 
-        self.pin = pin
-        self.conf_file = conf_file
-        self.sec = sec
-
-        self.pi = pi
+        self.pi = pigpio.pi()
         if not self.pi.connected:
-            self.__log.error("pigpio daemon not connected.")
             raise ConnectionError("pigpio daemon not connected.")
 
-        try:
-            self.servo = CalibrableServo(
-                self.pi, self.pin, conf_file=self.conf_file, debug=self._debug
+        self.term = blessed.Terminal()
+        self.mservo = MultiServo(
+            self.pi, pins, conf_file=conf_file, debug=debug
+        )
+
+        self.pins = self.mservo.pins
+        self.selected_servo = self.SELECTED_SERVO_ALL
+        self.running = True
+
+        self.key_bindings = self._setup_key_bindings()
+        self.__log.debug("key_bindings=%s", self.key_bindings)
+
+    def _setup_key_bindings(self):
+        """キーバインドを設定する"""
+        return {
+            # Move
+            "w": lambda: self.move_diff(+20),
+            "k": lambda: self.move_diff(+20),
+            "KEY_UP": lambda: self.move_diff(+20),
+            "s": lambda: self.move_diff(-20),
+            "j": lambda: self.move_diff(-20),
+            "KEY_DOWN": lambda: self.move_diff(-20),
+            # Fine Tune
+            "W": lambda: self.move_diff(+1),
+            "K": lambda: self.move_diff(+1),
+            "S": lambda: self.move_diff(-1),
+            "J": lambda: self.move_diff(-1),
+            # Move to angle
+            "c": lambda: self.move_angle(0),
+            "n": lambda: self.move_angle(-90),
+            "v": lambda: self.move_angle(-90),
+            "x": lambda: self.move_angle(90),
+            # Calibration
+            "C": lambda: self.set_calibration("center"),
+            "N": lambda: self.set_calibration("min"),
+            "V": lambda: self.set_calibration("min"),
+            "X": lambda: self.set_calibration("max"),
+            # Misc
+            "h": self.display_help,
+            "?": self.display_help,
+            "q": self.quit,
+            "Q": self.quit,
+        }
+
+    def main(self):
+        """メインループ"""
+        print("\nCalibration Tool: 'h' for help, 'q' for quit\n")
+        print(f"  conf_file = {self.mservo.conf_file}\n")
+
+        self.__log.debug("starting main loop")
+        with self.term.cbreak():
+            while self.running:
+                self.draw_prompt()
+                inkey = self.term.inkey()
+                if not inkey:
+                    continue
+
+                if inkey.isnumeric():
+                    self.select_servo(int(inkey))
+                    continue
+
+                if inkey.is_sequence:
+                    _inkey = inkey.name
+                else:
+                    _inkey = str(inkey)
+                self.__log.debug("_inkey=%s", _inkey)
+
+                action = self.key_bindings.get(_inkey)
+                if action:
+                    action()
+                else:
+                    print(f"'{_inkey}': unknown key")
+
+    def draw_prompt(self):
+        """プロンプトを表示する"""
+        prompt_str = ""
+        for i in range(self.mservo.servo_n):
+            if i == self.selected_servo:
+                prompt_str += "*"
+            else:
+                prompt_str += " "
+
+            prompt_str += f"{i + 1}:pin{self.pins[i]} "
+
+        if self.selected_servo < 0:
+            prompt_str += "| _:ALL"
+        else:
+            prompt_str += f"| {self.selected_servo + 1}:"
+            _selected_pin = self.mservo.pins[self.selected_servo]
+            prompt_str += f"pin{_selected_pin}"
+
+        print(f"{prompt_str}> ", end="", flush=True)
+
+    def select_servo(self, num):
+        """サーボを選択する"""
+        index = num - 1
+        if 0 <= index < self.mservo.servo_n:
+            self.selected_servo = index
+            print(
+                f"select {self.selected_servo + 1}:"
+                f"pin{self.mservo.pins[self.selected_servo]:02d}"
             )
-        except Exception as _e:
-            self.__log.error("%s: %s", type(_e).__name__, _e)
-            self.pi.stop()
-            raise _e
+        else:
+            self.selected_servo = self.SELECTED_SERVO_ALL
+            print("select ALL")
+        self.__log.debug("selected_servo: %s", self.selected_servo)
 
-    def main(self, ctx):
-        """main"""
-        cmd_name = ctx.command.name
+    def move_diff(self, diff_pulse):
+        """パルス幅を相対的に変更する"""
+        cur_pulse = self.mservo.get_pulse()
 
-        prompt_str = f"\n{cmd_name}: [h] for help, [q] for exit > "
+        if self.selected_servo >= 0:
+            dst_pulse = cur_pulse[self.selected_servo] + diff_pulse
+            dst_pulse = max(min(dst_pulse, PiServo.MAX), PiServo.MIN)
+            self.__log.debug("dst_pulse=%s", dst_pulse)
+            self.mservo.servo[self.selected_servo].move_pulse(
+                dst_pulse, forced=True
+            )
+        else:  # ALL
+            dst_pulse = [
+                max(min(p + diff_pulse, PiServo.MAX), PiServo.MIN)
+                for p in cur_pulse
+            ]
+            self.__log.debug("dst_pulse=%s", dst_pulse)
+            self.mservo.move_pulse(dst_pulse, forced=True)
 
-        cmd_center = {"help": "move center", "str": ("center", "c")}
-        cmd_angle = {"help": "move angle", "str": "-90.0 .. 0.0 .. 90.0"}
-        cmd_pulse = {"help": "move pulse", "str": "500 .. 2500"}
-        cmd_min = {"help": "move min", "str": ("min", "n")}
-        cmd_max = {"help": "move max", "str": ("max", "x")}
-        cmd_get = {"help": "get pulse", "str": ("get pulse", "get", "g")}
-        cmd_set_center = {"help": "set center", "str": ("set center", "sc")}
-        cmd_set_min = {"help": "set min", "str": ("set min", "sn")}
-        cmd_set_max = {"help": "set max", "str": ("set max", "sx")}
-        cmd_save = {"help": "save config", "str": ("save", "s")}  # 追加
-        cmd_exit = {"help": "exit", "str": ("exit", "quit", "q", "bye")}
-        cmd_help = {"help": "help", "str": ("help", "h", "?")}
+        print(f"pulse:{dst_pulse}")
 
-        cmds = [
-            cmd_angle,
-            cmd_pulse,
-            cmd_center,
-            cmd_min,
-            cmd_max,
-            cmd_get,
-            cmd_set_center,
-            cmd_set_min,
-            cmd_set_max,
-            cmd_save,  # 追加
-            cmd_help,
-            cmd_exit,
-        ]
+    def move_angle(self, angle):
+        """指定角度に移動する"""
+        self.__log.debug("angle=%s", angle)
 
-        print(f'\n[[ "{cmd_name}": Servo Calibration Tool ]]\n')
-        print(f" GPIO: {self.servo.pin}")
-        print(f" conf_file: {self.servo.conf_file}")
+        if self.selected_servo >= 0:
+            self.mservo.servo[self.selected_servo].move_angle(angle)
+            _pulse = self.mservo.get_pulse()
+            print(f"angle: {angle}, pulse: {_pulse[self.selected_servo]}")
+        else:
+            self.mservo.move_angle_sync([angle] * self.mservo.servo_n, 0.5)
+            print(f"angle: {angle}, pulse: {self.mservo.get_pulse()}")
 
-        angle_min = CalibrableServo.ANGLE_MIN
-        angle_max = CalibrableServo.ANGLE_MAX
-        pulse_min = PiServo.MIN
-        pulse_max = PiServo.MAX
+    def set_calibration(self, calib_type):
+        """キャリブレーション値を設定・保存する"""
+        if self.selected_servo < 0:
+            print(" Select a servo first.")
+            return
 
-        try:
-            while True:
-                in_str = input(prompt_str)
-                self.__log.debug("in_str=%s", in_str)
+        servo = self.mservo.servo[self.selected_servo]
+        cur_pulse = servo.get_pulse()
 
-                # 数値が入力されたか？
-                try:
-                    val = float(in_str)
+        if calib_type == "center":
+            if servo.pulse_min < cur_pulse < servo.pulse_max:
+                servo.pulse_center = cur_pulse
+            else:
+                print(
+                    f"\n {cur_pulse}: "
+                    + f"out of range:{servo.pulse_min}..{servo.pulse_max}"
+                )
+                return
+        elif calib_type == "min":
+            if cur_pulse < servo.pulse_center:
+                servo.pulse_min = cur_pulse
+            else:
+                print(f"\n {cur_pulse}: out of range:..{servo.pulse_center}")
+                return
+        elif calib_type == "max":
+            if cur_pulse > servo.pulse_center:
+                servo.pulse_max = cur_pulse
+            else:
+                print(f"\n {cur_pulse}: out of range: {servo.pulse_center}..")
+                return
+        else:
+            return
 
-                    # 角度として入力されたか？
-                    if angle_min <= val <= angle_max:
-                        self.servo.move_angle(val)
-                        pulse = self.servo.get_pulse()
-                        print(f" angle = {val}, pulse={pulse}")
-                        time.sleep(self.sec)
-                        continue
+        servo.save_conf()
+        msg = (
+            f"\n GPIO{servo.pin:02d}: {calib_type.capitalize()}"
+            f" pulse set to {cur_pulse} and saved."
+        )
+        print(msg)
 
-                    # パルス幅として入力されたか？
-                    if pulse_min <= val <= pulse_max:
-                        self.servo.move_pulse(int(round(val)), forced=True)
-                        pulse = self.servo.get_pulse()
-                        print(f" pulse = {pulse}")
-                        time.sleep(self.sec)
-                        continue
+    def display_help(self):
+        """ヘルプメッセージを表示する"""
+        print("""
 
-                    self.__log.error("%s: out of range", val)
-                    continue
+=== Usage ===
+* Select servo
+  0: Select All servos
+  1..9: Select one servo
 
-                except ValueError:
-                    # 文字列が入力された
-                    pass
+* Move
+  'w', 'k', UpArrow:   Up
+  's', 'j', DownArrow: Down
+  (Upper case is for fine tuning)
 
-                if in_str in cmd_help["str"]:
-                    print("\nUSAGE\n")
+* Move to angle
+  'c': move to center (0 deg)
+  'n': move to min (-90 deg)
+  'x': move to max (90 deg)
 
-                    for cmd in cmds:
-                        s_cmds = ""
-                        if isinstance(cmd["str"], str):
-                            s_cmds = cmd["str"]
-                        else:
-                            for s in cmd["str"]:
-                                s_cmds += f'"{s}", '
-                            s_cmds = s_cmds[:-2]
-                        print(f" {s_cmds:28} {cmd['help']:12}")
+* Calibration
+  'C': save current pulse as Center
+  'N': save current pulse as Min
+  'X': save current pulse as Max
 
-                    continue
+* Misc
+  'q': Quit
+  'h', '?': Show this help
+""")
 
-                if in_str in cmd_center["str"]:
-                    self.servo.move_center()
-                    pulse = self.servo.get_pulse()
-                    print(f" center: pulse={pulse}")
-                    time.sleep(self.sec)
-                    continue
-
-                if in_str in cmd_min["str"]:
-                    self.servo.move_min()
-                    pulse = self.servo.get_pulse()
-                    print(f" min: pulse={pulse}")
-                    time.sleep(self.sec)
-                    continue
-
-                if in_str in cmd_max["str"]:
-                    self.servo.move_max()
-                    pulse = self.servo.get_pulse()
-                    print(f" max: pulse={pulse}")
-                    time.sleep(self.sec)
-                    continue
-
-                if in_str in cmd_get["str"]:
-                    pulse = self.servo.get_pulse()
-                    print(f" pulse = {pulse}")
-                    print(
-                        f" min={self.servo.pulse_min}, "
-                        f"center={self.servo.pulse_center}, "
-                        f"max={self.servo.pulse_max}"
-                    )
-                    continue
-
-                if in_str in cmd_set_center["str"]:
-                    pulse = self.servo.get_pulse()
-                    self.servo.pulse_center = pulse
-                    print(f" set center: pulse = {pulse}")
-                    print(f" file: {self.servo.conf_file}")
-                    continue
-
-                if in_str in cmd_set_min["str"]:
-                    pulse = self.servo.get_pulse()
-                    self.servo.pulse_min = pulse
-                    print(f" set min: pulse = {pulse}")
-                    print(f" file: {self.servo.conf_file}")
-                    continue
-
-                if in_str in cmd_set_max["str"]:
-                    pulse = self.servo.get_pulse()
-                    self.servo.pulse_max = pulse
-                    print(f" set max: pulse = {pulse}")
-                    print(f" file: {self.servo.conf_file}")
-                    continue
-
-                if in_str in cmd_save["str"]:
-                    self.servo.save_conf()
-                    print(f" Configuration saved to {self.servo.conf_file}")
-                    continue
-
-                if in_str in cmd_exit["str"]:
-                    break
-
-                self.__log.error("%s: invalid command", in_str)
-
-        except (EOFError, KeyboardInterrupt) as _e:
-            self.__log.debug("%s: %s", type(_e).__name__, _e)
+    def quit(self):
+        """アプリケーションを終了する"""
+        print(" Quit")
+        self.running = False
 
     def end(self):
-        """end"""
-        self.__log.debug("")
-        print("\n Bye!\n")
-        self.servo.off()
+        """終了処理"""
+        self.mservo.off()
+        self.pi.stop()
+        print("\n Bye\n")
