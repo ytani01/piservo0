@@ -20,6 +20,7 @@ class StrControl:
 
     DEF_ANGLE_UNIT = 30.0
     DEF_MODE_SEC = 0.2
+    DEF_ANGLE_FACTOR = [-1, -1, 1, 1]
 
     # コマンド文字のデフォルト定義
     DEF_CMD_CHARS = {
@@ -68,7 +69,8 @@ class StrControl:
         self.servo_n = self.mservo.servo_n
 
         if angle_factor is None:
-            self.angle_factor = [1] * self.servo_n
+            # self.angle_factor = [1] * self.servo_n
+            self.angle_factor = self.DEF_ANGLE_FACTOR
         else:
             if len(angle_factor) != self.servo_n:
                 raise ValueError(
@@ -159,31 +161,35 @@ class StrControl:
                 factor *= 2  # 大文字の場合は角度を2倍
                 _ch = _ch.lower()
 
-            angle = None
+            _angle = None
             _c_ch = self.cmd_chars
             _s = self.mservo.servo[i]  # CalibrableServo instance
 
             if _ch == _c_ch["center"]:
-                angle = _s.ANGLE_CENTER
+                _angle = _s.ANGLE_CENTER
             elif _ch == _c_ch["min"]:
-                angle = _s.ANGLE_MIN
+                _angle = _s.ANGLE_MIN
             elif _ch == _c_ch["max"]:
-                angle = _s.ANGLE_MAX
+                _angle = _s.ANGLE_MAX
             elif _ch == _c_ch["forward"]:
-                angle = self.angle_unit
+                _angle = self.angle_unit
             elif _ch == _c_ch["backward"]:
-                angle = -self.angle_unit
+                _angle = -self.angle_unit
             elif _ch == _c_ch["dont_move"]:
-                angle = _s.get_angle()
+                # XXXX _angle = _s.get_angle()
+                _angle = None
 
-            if angle is not None:
+            self.__log.debug("%s[%s],%s: _angle=%s", i, _s.pin, _ch, _angle)
+
+            if _angle is not None:
                 # `dont_move`以外は係数を適用
                 if _ch != _c_ch["dont_move"]:
-                    angle *= factor
+                    _angle *= factor
 
                 # 可動範囲内にクリップ
-                angle = self._clip(angle, _s.ANGLE_MIN, _s.ANGLE_MAX)
-                angles.append(angle)
+                _angle = self._clip(_angle, _s.ANGLE_MIN, _s.ANGLE_MAX)
+
+            angles.append(_angle)
 
         return {
             "cmd": "move_angle_sync",

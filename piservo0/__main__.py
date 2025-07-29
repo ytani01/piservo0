@@ -6,6 +6,7 @@ import pigpio
 
 from .command.cmd_calib import CalibApp
 from .command.cmd_servo import CmdServo
+from .command.cmd_strctrl import StrCtrlApp
 from .core.calibrable_servo import CalibrableServo
 from .utils.my_logger import get_logger
 
@@ -132,3 +133,53 @@ def calib(ctx, pins, conf_file, debug):
         if pi:
             app.end()
             pi.stop()
+
+
+@cli.command(
+    help="""
+Multi Servo, String control
+"""
+)
+@click.argument("pins", type=int, nargs=-1)
+@click.option(
+    "--conf_file", "-c", "-f",
+    default=CalibrableServo.DEF_CONF_FILE, show_default=True,
+    help="Config file path"
+)
+@click.option(
+    "--debug", "-d", is_flag=True, default=False, help="debug flag"
+)
+@click.pass_context
+def strctrl(ctx, pins, conf_file, debug):
+    """strctrl"""
+    log = get_logger(__name__, debug)
+    log.debug("pins=%s,conf_file=%s", pins, conf_file)
+
+    if not pins:
+        print()
+        print("Error: Please specify GPIO pins.")
+        print()
+        print("  e.g. piservo0 calib 17 27")
+        print()
+        print(f"{ctx.get_help()}")
+        return
+
+    _pi = get_pi(debug)
+    if not _pi:
+        return
+
+    _app = None
+    try:
+        _app = StrCtrlApp(_pi, pins, conf_file=conf_file, debug=debug)
+        _app.main()
+
+    except (EOFError, KeyboardInterrupt):
+        pass
+
+    except Exception as _e:
+        log.error("%s: %s", type(_e).__name__, _e)
+
+    finally:
+        if _pi:
+            _app.end()
+            _pi.stop()
