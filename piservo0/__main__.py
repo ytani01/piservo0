@@ -7,6 +7,7 @@ import pigpio
 from .command.cmd_calib import CalibApp
 from .command.cmd_servo import CmdServo
 from .command.cmd_strctrl import StrCtrlApp
+from .command.cmd_webclient import WebClientApp
 from .core.calibrable_servo import CalibrableServo
 from .core.multi_servo import MultiServo
 from .helper.str_control import StrControl
@@ -20,11 +21,11 @@ def get_pi(debug=False):
     Initialize and return a pigpio.pi instance.
     If connection fails, log an error and return None.
     """
-    log = get_logger(__name__, debug)
+    _log = get_logger(__name__, debug)
 
     pi = pigpio.pi()
     if not pi.connected:
-        log.error("pigpio daemon not connected.")
+        _log.error("pigpio daemon not connected.")
         return None
     return pi
 
@@ -41,8 +42,8 @@ pyservo0 command
 def cli(ctx, debug):
     """CLI top"""
     subcmd = ctx.invoked_subcommand
-    log = get_logger(__name__, debug)
-    log.debug("subcmd=%s", subcmd)
+    _log = get_logger(__name__, debug)
+    _log.debug("subcmd=%s", subcmd)
 
     if subcmd is None:
         print(f"{ctx.get_help()}")
@@ -63,8 +64,8 @@ servo command"""
 @click.pass_context
 def servo(ctx, pin, pulse, sec, debug):
     """servo command"""
-    log = get_logger(__name__, debug)
-    log.debug('pin=%s, pulse="%s", sec=%s', pin, pulse, sec)
+    _log = get_logger(__name__, debug)
+    _log.debug('pin=%s, pulse="%s", sec=%s', pin, pulse, sec)
 
     pi = get_pi(debug)
     if not pi:
@@ -75,7 +76,7 @@ def servo(ctx, pin, pulse, sec, debug):
         app.main(ctx)
 
     except Exception as e:
-        log.error("%s: %s", type(e).__name__, e)
+        _log.error("%s: %s", type(e).__name__, e)
 
     finally:
         if pi:
@@ -104,8 +105,12 @@ calibration tool
 @click.pass_context
 def calib(ctx, pins, conf_file, debug):
     """calib command"""
-    log = get_logger(__name__, debug)
-    log.debug("pins=%s,conf_file=%s", pins, conf_file)
+
+    _log = get_logger(__name__, debug)
+    _log.debug("pins=%s,conf_file=%s", pins, conf_file)
+
+    cmd_name = ctx.command.name
+    _log.debug("cmd_name=%s", cmd_name)
 
     if not pins:
         print()
@@ -129,7 +134,7 @@ def calib(ctx, pins, conf_file, debug):
         pass
 
     except Exception as _e:
-        log.error("%s: %s", type(_e).__name__, _e)
+        _log.error("%s: %s", type(_e).__name__, _e)
 
     finally:
         if pi:
@@ -145,7 +150,7 @@ Multi Servo, String control
 @click.argument("pins", type=int, nargs=-1)
 # ThreadMultiServo options
 @click.option(
-    "--conf_file", "-c", default=CalibrableServo.DEF_CONF_FILE,
+    "--conf_file", "-c", type=str, default=CalibrableServo.DEF_CONF_FILE,
     show_default=True, help="Config file path"
 )
 # StrControl options
@@ -174,12 +179,15 @@ def strctrl(
     ctx, pins, conf_file, move_sec, step_n, angle_unit, angle_factor, debug
 ):
     """strctrl"""
-    log = get_logger(__name__, debug)
-    log.debug("pins=%s,conf_file=%s", pins, conf_file)
-    log.debug("move_sec=%s, step_n=%s", move_sec, step_n)
+    _log = get_logger(__name__, debug)
+    _log.debug("pins=%s,conf_file=%s", pins, conf_file)
+    _log.debug("move_sec=%s, step_n=%s", move_sec, step_n)
 
     angle_factor = [float(a) for a in angle_factor.split()]
-    log.debug("angle_unit=%s, angle_factor=%s", angle_unit, angle_factor)
+    _log.debug("angle_unit=%s, angle_factor=%s", angle_unit, angle_factor)
+
+    cmd_name = ctx.command.name
+    _log.debug("cmd_name=%s", cmd_name)
 
     if not pins:
         print()
@@ -208,9 +216,45 @@ def strctrl(
         pass
 
     except Exception as _e:
-        log.error("%s: %s", type(_e).__name__, _e)
+        _log.error("%s: %s", type(_e).__name__, _e)
 
     finally:
         if _pi:
             _app.end()
             _pi.stop()
+
+
+@cli.command(
+    help="""
+Web API Client
+"""
+)
+@click.argument("host", type=str, nargs=1)
+@click.option(
+    "--port", "-p", type=int, default=8000, show_default=True,
+    help="port number"
+)
+# for debug
+@click.option(
+    "--debug", "-d", is_flag=True, default=False, help="debug flag"
+)
+@click.pass_context
+def web_client(ctx, host, port, debug):
+    """ Web API Client """
+
+    _log = get_logger(__name__, debug)
+    _log.debug("host=%s, port=%s", host, port)
+
+    cmd_name = ctx.command.name
+    _log.debug("cmd_name=%s", cmd_name)
+
+    _app = WebClientApp(host, port, debug)
+    try:
+        _app.main()
+
+    except (KeyboardInterrupt, EOFError):
+        pass
+
+    finally:
+        _app.end()
+        pass
