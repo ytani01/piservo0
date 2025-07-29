@@ -229,7 +229,11 @@ def strctrl(
 Web API Client
 """
 )
-@click.argument("host", type=str, nargs=1)
+@click.argument("cmdline", type=str, nargs=-1)
+@click.option(
+    "--host", "-s", type=str, default="localhost", show_default=True,
+    help="server hostname or IP address"
+)
 @click.option(
     "--port", "-p", type=int, default=8000, show_default=True,
     help="port number"
@@ -239,16 +243,19 @@ Web API Client
     "--debug", "-d", is_flag=True, default=False, help="debug flag"
 )
 @click.pass_context
-def web_client(ctx, host, port, debug):
+def web_client(ctx, cmdline, host, port, debug):
     """ Web API Client """
 
     _log = get_logger(__name__, debug)
     _log.debug("host=%s, port=%s", host, port)
 
+    cmdline = " ".join(cmdline)
+    _log.debug("cmdline=%a", cmdline)
+
     cmd_name = ctx.command.name
     _log.debug("cmd_name=%s", cmd_name)
 
-    _app = WebClientApp(host, port, debug)
+    _app = WebClientApp(host, port, cmdline, debug)
     try:
         _app.main()
 

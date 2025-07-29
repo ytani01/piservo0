@@ -30,7 +30,7 @@ class StrControl:
         "forward": "f",
         "backward": "b",
         "dont_move": ".",
-        "cancel_cmds": "!",  # MultiThread の場合、コマンドをキャンセル
+        "cancel_cmds": "z",  # MultiThread の場合、コマンドをキャンセル
     }
 
     def __init__(

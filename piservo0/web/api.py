@@ -29,7 +29,7 @@ class WepApp:
         """ constractor """
         print("Initializing WepApp...")
         self.pi = pigpio.pi()
-        self.mservo = ThreadMultiServo(self.pi, PINS, debug=True)
+        self.mservo = ThreadMultiServo(self.pi, PINS, debug=False)
         self.str_ctrl = StrControl(self.mservo, debug=False)
 
     def end(self):
