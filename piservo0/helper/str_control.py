@@ -18,7 +18,7 @@ class StrControl:
     ロボットの歩行などの複雑な動作を簡単に実現できる。
     """
 
-    DEF_ANGLE_UNIT = 30.0
+    DEF_ANGLE_UNIT = 35.0
     DEF_MODE_SEC = 0.2
     DEF_ANGLE_FACTOR = [-1, -1, 1, 1]
 
@@ -36,9 +36,9 @@ class StrControl:
     def __init__(
         self,
         mservo: MultiServo | ThreadMultiServo,
-        angle_unit: float = DEF_ANGLE_UNIT,
         move_sec: float = DEF_MODE_SEC,
         step_n: int = MultiServo.DEF_STEP_N,
+        angle_unit: float = DEF_ANGLE_UNIT,
         angle_factor: list[int] | None = None,
         cmd_chars: dict[str, str] | None = None,
         debug: bool = False,

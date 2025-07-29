@@ -17,8 +17,12 @@ class StrCtrlApp:
     ]
 
     PROMPT_STR = "> "
-    
-    def __init__(self, pi, pins, conf_file, debug):
+
+    def __init__(
+        self, pi, pins, conf_file,
+        move_sec, step_n, angle_unit, angle_factor,
+        debug
+    ):
         """ constractor """
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
@@ -28,7 +32,9 @@ class StrCtrlApp:
             pi, pins, conf_file=conf_file, debug=self._debug
         )
         self._str_ctrl = StrControl(
-            self._mservo, debug=self._debug
+            self._mservo,
+            move_sec, step_n, angle_unit, angle_factor,
+            debug=self._debug
         )
 
         readline.clear_history()  # dummy for linter

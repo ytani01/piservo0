@@ -8,6 +8,8 @@ from .command.cmd_calib import CalibApp
 from .command.cmd_servo import CmdServo
 from .command.cmd_strctrl import StrCtrlApp
 from .core.calibrable_servo import CalibrableServo
+from .core.multi_servo import MultiServo
+from .helper.str_control import StrControl
 from .utils.my_logger import get_logger
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
@@ -141,19 +143,43 @@ Multi Servo, String control
 """
 )
 @click.argument("pins", type=int, nargs=-1)
+# ThreadMultiServo options
 @click.option(
-    "--conf_file", "-c", "-f",
-    default=CalibrableServo.DEF_CONF_FILE, show_default=True,
-    help="Config file path"
+    "--conf_file", "-c", default=CalibrableServo.DEF_CONF_FILE,
+    show_default=True, help="Config file path"
 )
+# StrControl options
+@click.option(
+    "--move_sec", "-m", type=float, default=StrControl.DEF_MODE_SEC,
+    show_default=True, help="estimated move time(sec)"
+)
+@click.option(
+    "--step_n", "-s", type=int, default=MultiServo.DEF_STEP_N,
+    show_default=True, help="Step Number"
+)
+@click.option(
+    "--angle_unit", "-u", type=float, default=StrControl.DEF_ANGLE_UNIT,
+    show_default=True, help="Angle Unit"
+)
+@click.option(
+    "--angle_factor", "-f", type=str, default="-1 -1 1 1",
+    show_default=True, help="Angle Factor"
+)
+# for debug
 @click.option(
     "--debug", "-d", is_flag=True, default=False, help="debug flag"
 )
 @click.pass_context
-def strctrl(ctx, pins, conf_file, debug):
+def strctrl(
+    ctx, pins, conf_file, move_sec, step_n, angle_unit, angle_factor, debug
+):
     """strctrl"""
     log = get_logger(__name__, debug)
     log.debug("pins=%s,conf_file=%s", pins, conf_file)
+    log.debug("move_sec=%s, step_n=%s", move_sec, step_n)
+
+    angle_factor = [float(a) for a in angle_factor.split()]
+    log.debug("angle_unit=%s, angle_factor=%s", angle_unit, angle_factor)
 
     if not pins:
         print()
@@ -170,7 +196,12 @@ def strctrl(ctx, pins, conf_file, debug):
 
     _app = None
     try:
-        _app = StrCtrlApp(_pi, pins, conf_file=conf_file, debug=debug)
+        _app = StrCtrlApp(
+            _pi, pins, conf_file=conf_file,
+            move_sec=move_sec, step_n=step_n,
+            angle_unit=angle_unit, angle_factor=angle_factor,
+            debug=debug
+        )
         _app.main()
 
     except (EOFError, KeyboardInterrupt):
