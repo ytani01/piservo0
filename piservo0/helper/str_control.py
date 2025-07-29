@@ -115,12 +115,12 @@ class StrControl:
     def _is_str_cmd(self, cmd: str) -> tuple[bool, str]:
         """文字列がポーズコマンドか判定する。"""
         if len(cmd) != self.servo_n:
-            return False, "invalid length"
+            return False, f"'{cmd}': invalid length"
 
         valid_chars = list(self.cmd_chars.values())
         for char in cmd.lower():
             if char not in valid_chars:
-                return False, "invalid char"
+                return False, f"'{char}': invalid char"
 
         return True, "True"
 
@@ -215,7 +215,7 @@ class StrControl:
         #
         if isinstance(self.mservo, ThreadMultiServo):
             if cmd_type == "error":
-                self.__log.warning("parsed_cmd=%s .. ignored", parsed_cmd)
+                self.__log.error("%s .. ignored", parsed_cmd["err"])
                 return
 
             if cmd_type == "cancel":

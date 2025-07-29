@@ -1,7 +1,8 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-import readline  # importするだけで、input()でヒストリー機能が使える
+import os
+import readline  # input()でヒストリー機能が使える
 
 from ..helper.str_control import StrControl
 from ..helper.thread_multi_servo import ThreadMultiServo
@@ -11,11 +12,7 @@ from ..utils.my_logger import get_logger
 class StrCtrlApp:
     """ StrCtrlApp """
 
-    BS_KEYS = [
-        "KEY_BACKSPACE",
-        "KEY_DELETE",
-    ]
-
+    HISTORY_FILE = "~/.piservo0_strctrl_history"
     PROMPT_STR = "> "
 
     def __init__(
@@ -37,16 +34,26 @@ class StrCtrlApp:
             debug=self._debug
         )
 
-        readline.clear_history()  # dummy for linter
+        self._history_file = os.path.expanduser(self.HISTORY_FILE)
 
     def main(self):
         """ main loop """
-        print("Start -- Ctrl-C (Interrput) or Ctrl-D (EOF) for quit")
+        try:
+            readline.read_history_file(self._history_file)
+            print(f"* history file: {self._history_file}")
+            self.__log.debug(
+                "history_length=%s", readline.get_current_history_length()
+            )
+        except FileNotFoundError:
+            self.__log.debug("no history file: %s", self._history_file)
+
+        print("* Ctrl-C (Interrput) or Ctrl-D (EOF) for quit")
 
         while True:
             try:
                 _line = input(self.PROMPT_STR)
                 self._str_ctrl.exec_multi_cmds(_line)
+                readline.write_history_file(self._history_file)
 
             except (KeyboardInterrupt, EOFError):
                 break
