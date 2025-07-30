@@ -1,4 +1,0 @@
-[submodule "docs/build/html"]
-	path = docs/build/html
-	url = git@github.com:ytani01/piservo0.git
-	branch = gh-pages
