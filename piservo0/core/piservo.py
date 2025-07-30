@@ -1,6 +1,7 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
+""" piservo.py """
 from ..utils.my_logger import get_logger
 
 
@@ -36,7 +37,7 @@ class PiServo:
         """
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
-        self.__log.debug(f"pin={pin}")
+        self.__log.debug("pin=%s", pin)
 
         self.pi = pi
         self.pin = pin
@@ -48,7 +49,7 @@ class PiServo:
             int: 現在のパルス幅 (マイクロ秒)。
         """
         pulse = self.pi.get_servo_pulsewidth(self.pin)
-        self.__log.debug(f"pulse={pulse}")
+        self.__log.debug("pulse=%s", pulse)
 
         return pulse
 
@@ -63,7 +64,7 @@ class PiServo:
                 サーボモーターに設定するパルス幅（マイクロ秒）。
                 この値に基づいてサーボの位置が決定される。
         """
-        self.__log.debug(f"pin={self.pin}, pulse={pulse}")
+        self.__log.debug("pin=%s, pulse=%s", self.pin, pulse)
 
         if pulse < self.MIN:
             self.__log.warning(f"{pulse} < MIN({self.MIN})")
