@@ -192,9 +192,9 @@ Raspberry PiのGPIOピンを介してサーボモーターを制御する基本�
 
 | 定数名          | 値                                                                                             | 説明                                           |
 | :-------------- | :--------------------------------------------------------------------------------------------- | :--------------------------------------------- |
-| `DEF_ANGLE_UNIT`| `30.0`                                                                                         | 'forward'/'backward'のデフォルト基本角度 (度)  |
+| `DEF_ANGLE_UNIT`| `35.0`                                                                                         | 'forward'/'backward'のデフォルト基本角度 (度)  |
 | `DEF_MODE_SEC`  | `0.2`                                                                                          | 1ポーズのデフォルト移動時間 (秒)               |
-| `DEF_CMD_CHARS` | `{'center': 'c', 'min': 'n', 'max': 'x', 'forward': 'f', 'backward': 'b', 'dont_move': '.'}` | コマンド文字のデフォルト定義                   |
+| `DEF_CMD_CHARS` | `{'center': 'c', 'min': 'n', 'max': 'x', 'forward': 'f', 'backward': 'b', 'dont_move': '.', 'cancel_cmds': 'z'}` | コマンド文字のデフォルト定義                   |
 
 #### `__init__(self, mservo, angle_unit=DEF_ANGLE_UNIT, move_sec=DEF_MODE_SEC, step_n=MultiServo.DEF_STEP_N, angle_factor=None, cmd_chars=None, debug=False)`
 
@@ -217,6 +217,7 @@ Raspberry PiのGPIOピンを介してサーボモーターを制御する基本�
     -   **引数**: `cmd` (`str`) - 'fbcb'のようなポーズ文字列、または'0.5'のような数値文字列（スリープ時間）。ポーズ文字列で大文字を使用すると、そのサーボの角度が2倍になります。
     -   **戻り値**: `dict` - 解析結果。例: `{'cmd': 'move_angle_sync', 'target_angles': [-30.0, 30.0, -30.0, 30.0], ...}`、`{'cmd': 'sleep', 'sec': 0.5}`。
 -   **`exec_cmd(self, cmd)`**: 単一のコマンドを実行します。
+-   **`exec_multi_cmds(self, cmds)`**: 複数のコマンド（スペース区切りの文字列またはリスト）を一度に実行します。
 -   **`flip_cmds(cmds)` (staticmethod)**: コマンド文字列を左右反転させたシーケンスを返します。
     -   **引数**: `cmds` (`list[str]`) - コマンドシーケンス。
     -   **戻り値**: `list[str]` - 反転されたコマンドシーケンス。例: `['fcfb']` -> `['bfcf']`。
@@ -325,6 +326,8 @@ Raspberry PiのGPIOピンを介してサーボモーターを制御する基本�
 
 -   **`end(self)`**: 終了処理。ワーカースレッドを安全に停止させ、すべてのサーボをオフにします。このメソッドは同期的です。
 -   **`off(self)`**: `end()`のエイリアスです。
+-   **`send_cmd(self, cmd)`**: コマンド（辞書形式）をワーカースレッドのキューに直接送信します。
+-   **`cancel_cmds(self)`**: キューにあるコマンドをすべてキャンセルします。
 -   **`move_angle(self, target_angles)`**: 指定された角度に即座に移動するコマンドを非同期で送信します。
 -   **`move_angle_sync(self, target_angles, move_sec=None, step_n=None)`**: 目標角度まで滑らかに移動するコマンドを非同期で送信します。
 -   **`set_move_sec(self, sec)`**: 移動時間を設定するコマンドを非同期で送信します。
