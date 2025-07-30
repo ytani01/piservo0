@@ -91,7 +91,7 @@ class ThreadMultiServo:
     def cancel_cmds(self):
         """ 今まで送ったコマンドをキャンセルする """
         self.__log.debug("")
-        self._worker.cmdq_clear()
+        self._worker.clear_cmdq()
 
     # --- 非同期制御メソッド ---
 

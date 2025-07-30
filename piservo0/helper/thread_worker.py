@@ -54,11 +54,11 @@ class ThreadWorker(threading.Thread):
         """ end worker """
         self.__log.debug("")
         self._active = False
-        self.cmdq_clear()
+        self.clear_cmdq()
         self.join()
         self.__log.debug("done")
 
-    def cmdq_clear(self):
+    def clear_cmdq(self):
         """ clear command queue """
         _count = 0
         while not self._cmdq.empty():

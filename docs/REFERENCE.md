@@ -249,7 +249,7 @@ Raspberry PiのGPIOピンを介してサーボモーターを制御する基本�
 #### メソッド
 
 -   **`end(self)`**: ワーカーを終了し、スレッドを停止します。
--   **`cmdq_clear(self)`**: コマンドキューをクリアします。
+-   **`clear_cmdq(self)`**: コマンドキューをクリアします。
 -   **`send(self, cmd)`**: コマンドをキューに送信します。
     -   **引数**: `cmd` (`dict` or `str`) - 実行するコマンド。辞書形式またはJSON文字列。
 -   **`recv(self, timeout=DEF_RECV_TIMEOUT)`**: コマンドキューからコマンドを受信します。

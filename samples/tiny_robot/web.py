@@ -62,7 +62,7 @@ class TinyRobotWebApp:
         for cmd in cmds.split():
             print(f"cmd='{cmd}'")
             if cmd.upper() == "S":
-                self.thr_worker.cmdq_clear()
+                self.thr_worker.clear_cmdq()
                 continue
 
             parsed_cmd = self.str_ctrl.parse_cmd(cmd)
@@ -72,13 +72,13 @@ class TinyRobotWebApp:
     def stop_and_repeat_cmd(self, cmds: str, n: int = 50):
         """Clear the command queue and repeat a command string."""
         print(f"Repeating cmds='{cmds}' for {n} times")
-        self.thr_worker.cmdq_clear()
+        self.thr_worker.clear_cmdq()
         repeated_cmds = cmds * n
         self.send_cmd_str(repeated_cmds)
 
     def stop(self):
         """Stop motion and run stop commands."""
-        self.thr_worker.cmdq_clear()
+        self.thr_worker.clear_cmdq()
         self.send_cmd_str(STOP_CMDS)
 
 
