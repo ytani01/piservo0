@@ -5,9 +5,7 @@ import pprint
 
 import blessed
 
-from ..core.multi_servo import MultiServo
-from ..core.piservo import PiServo
-from ..utils.my_logger import get_logger
+from piservo0 import MultiServo, PiServo, get_logger
 
 
 class CalibApp:

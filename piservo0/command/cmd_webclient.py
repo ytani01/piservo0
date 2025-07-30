@@ -1,13 +1,11 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-import json
+""" """
 import os
 import readline  # input()でヒストリー機能が使える
 
-import requests
-
-from ..utils.my_logger import get_logger
+from piservo0 import StrApiClient, get_logger
 
 
 class WebClientApp:
@@ -32,32 +30,21 @@ class WebClientApp:
         self.port = port
         self.cmdline = cmdline
 
+        self.api_client = StrApiClient(self.host, self.port)
+
         self._history_file = os.path.expanduser(self.HISTORY_FILE)
 
-    def make_url_and_send_cmd(self, cmdline):
-        """ make URL and send """
-        self.__log.debug("cmdline=%a", cmdline)
-
-        _url = f"http://{self.host}:{self.port}/cmd/{cmdline}"
-        self.__log.debug("url=%s", _url)
-
-        try:
-            _res = requests.get(_url, timeout=self.TIMEOUT_PARAM)
-            print(f"{self.host}:{self.port}> {_res.json()}")
-
-        except Exception as _e:
-            self.__log.error("%s: %s", type(_e).__name__, _e)
-            return False
-
-        return True
+    def print_response(self, _res):
+        """ print response in json format"""
+        print(f"{self.host}:{self.port}> {_res.json()}")
 
     def main(self):
         """ main loop """
 
         # check server
         try:
-            _url = f"http://{self.host}:{self.port}/"
-            _res = requests.get(_url, timeout=self.TIMEOUT_PARAM)
+            _url = self.api_client.make_top_url()
+            _res = self.api_client.get_url(_url)
             print(f"{self.host}:{self.port}> {_res.json()}")
 
         except Exception as _e:
@@ -66,7 +53,8 @@ class WebClientApp:
 
         # send cmdline
         if self.cmdline:
-            self.make_url_and_send_cmd(self.cmdline)
+            _res = self.api_client.send_cmd(self.cmdline)
+            self.print_response(_res)
             return
 
         # interactive mode
@@ -93,7 +81,8 @@ class WebClientApp:
             except (KeyboardInterrupt, EOFError):
                 break
 
-            self.make_url_and_send_cmd(_line)
+            _res = self.api_client.send_cmd(_line)
+            self.print_response(_res)
 
     def end(self):
         """ end """

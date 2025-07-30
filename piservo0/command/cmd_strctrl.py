@@ -4,9 +4,7 @@
 import os
 import readline  # input()でヒストリー機能が使える
 
-from ..helper.str_control import StrControl
-from ..helper.thread_multi_servo import ThreadMultiServo
-from ..utils.my_logger import get_logger
+from piservo0 import StrControl, ThreadMultiServo, get_logger
 
 
 class StrCtrlApp:

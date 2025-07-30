@@ -7,7 +7,7 @@
     cd ~/work/piservo0
     uv pip install -e .
 
-    uv run uvicorn piservo.web.api:app --reload --host 0.0.0.0
+    uv run uvicorn piservo0.web.str_api:app --reload --host 0.0.0.0
 
 """
 from contextlib import asynccontextmanager
@@ -15,7 +15,7 @@ from contextlib import asynccontextmanager
 import pigpio
 from fastapi import FastAPI, Request
 
-from piservo0 import StrControl, ThreadMultiServo
+from piservo0 import StrControl, ThreadMultiServo, get_logger
 
 # --- Constants ---
 PINS = [17, 27, 22, 25]
@@ -25,9 +25,12 @@ ANGLE_FACTOR = [-1, -1, 1, 1]
 class StrApi:
     """Main class for Web Application"""
 
-    def __init__(self):
+    def __init__(self, debug=False):
         """ constractor """
-        print("Initializing StrApi...")
+        self._debug = debug
+        self.__log = get_logger(self.__class__.__name__, self._debug)
+        
+        print("Initializing ...")
         self.pi = pigpio.pi()
         self.mservo = ThreadMultiServo(self.pi, PINS, debug=False)
         self.str_ctrl = StrControl(self.mservo, debug=False)
@@ -36,9 +39,14 @@ class StrApi:
         """ end """
         self.mservo.end()
 
-    def exec_cmd(self, cmdline):
+    def exec_cmdline(self, cmdline):
         """ execute command line """
-        self.str_ctrl.exec_multi_cmds(cmdline)
+        self.__log.info("cmdline=%s", cmdline)
+
+        _res = self.str_ctrl.exec_multi_cmds(cmdline)
+        self.__log.info("_res=%s", _res)
+
+        return _res
 
 # --- FastAPI Lifespan Management ---
 @asynccontextmanager
@@ -66,6 +74,7 @@ async def read_root():
 async def exec_cmd(request: Request, cmdline: str):
     """execute commands"""
 
-    _ret = request.app.state.webapp.str_ctrl.exec_multi_cmds(cmdline)
+    _res = request.app.state.webapp.exec_cmdline(cmdline)
+    print(f"_res={_res}")
 
-    return _ret
+    return _res

@@ -12,6 +12,7 @@ from .helper.str_control import StrControl
 from .helper.thread_multi_servo import ThreadMultiServo
 from .helper.thread_worker import ThreadWorker
 from .utils.my_logger import get_logger
+from .web.str_api_client import StrApiClient
 
 __all__ = [
     "__version__",
@@ -19,6 +20,7 @@ __all__ = [
     "PiServo",
     "CalibrableServo",
     "MultiServo",
+    "StrApiClient",
     "StrControl",
     "ThreadWorker",
     "ThreadMultiServo",

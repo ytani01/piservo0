@@ -3,8 +3,7 @@
 #
 import time
 
-from ..core.piservo import PiServo
-from ..utils.my_logger import get_logger
+from piservo0 import PiServo, get_logger
 
 
 class CmdServo:
