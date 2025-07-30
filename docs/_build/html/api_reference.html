@@ -1,0 +1,1562 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference &mdash; piservo0 vcs ドキュメント</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=ef19e0a2"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/translations.js?v=4755f45a"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="prev" title="CalibApp: キーバインド設定の設計" href="MEMO-keybindings.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            piservo0
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="MEMO-keybindings.html">CalibApp: キーバインド設定の設計</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#piservo0.CalibrableServo"><code class="docutils literal notranslate"><span class="pre">CalibrableServo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.CalibrableServo.DEF_CONF_FILE"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.DEF_CONF_FILE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.CalibrableServo.conf_file"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.conf_file</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.CalibrableServo.pulse_center"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.pulse_center</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.CalibrableServo.pulse_min"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.pulse_min</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.CalibrableServo.pulse_max"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.pulse_max</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.CalibrableServo.deg2pulse"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.deg2pulse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.CalibrableServo.get_angle"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.get_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.CalibrableServo.load_conf"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.load_conf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.CalibrableServo.move_angle"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.move_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.CalibrableServo.move_center"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.move_center()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.CalibrableServo.move_max"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.move_max()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.CalibrableServo.move_min"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.move_min()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.CalibrableServo.move_pulse"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.move_pulse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.CalibrableServo.pulse2deg"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.pulse2deg()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.pulse_center</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.pulse_max</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.pulse_min</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.CalibrableServo.save_conf"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.save_conf()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#piservo0.MultiServo"><code class="docutils literal notranslate"><span class="pre">MultiServo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.MultiServo.get_angle"><code class="docutils literal notranslate"><span class="pre">MultiServo.get_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.MultiServo.get_pulse"><code class="docutils literal notranslate"><span class="pre">MultiServo.get_pulse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.MultiServo.move_angle"><code class="docutils literal notranslate"><span class="pre">MultiServo.move_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.MultiServo.move_angle_sync"><code class="docutils literal notranslate"><span class="pre">MultiServo.move_angle_sync()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.MultiServo.move_pulse"><code class="docutils literal notranslate"><span class="pre">MultiServo.move_pulse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.MultiServo.off"><code class="docutils literal notranslate"><span class="pre">MultiServo.off()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#piservo0.PiServo"><code class="docutils literal notranslate"><span class="pre">PiServo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.PiServo.OFF"><code class="docutils literal notranslate"><span class="pre">PiServo.OFF</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.PiServo.MIN"><code class="docutils literal notranslate"><span class="pre">PiServo.MIN</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.PiServo.MAX"><code class="docutils literal notranslate"><span class="pre">PiServo.MAX</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.PiServo.CENTER"><code class="docutils literal notranslate"><span class="pre">PiServo.CENTER</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.PiServo.get_pulse"><code class="docutils literal notranslate"><span class="pre">PiServo.get_pulse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.PiServo.move_center"><code class="docutils literal notranslate"><span class="pre">PiServo.move_center()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.PiServo.move_max"><code class="docutils literal notranslate"><span class="pre">PiServo.move_max()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.PiServo.move_min"><code class="docutils literal notranslate"><span class="pre">PiServo.move_min()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.PiServo.move_pulse"><code class="docutils literal notranslate"><span class="pre">PiServo.move_pulse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.PiServo.off"><code class="docutils literal notranslate"><span class="pre">PiServo.off()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#piservo0.StrControl"><code class="docutils literal notranslate"><span class="pre">StrControl</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.StrControl.exec_cmd"><code class="docutils literal notranslate"><span class="pre">StrControl.exec_cmd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.StrControl.exec_multi_cmds"><code class="docutils literal notranslate"><span class="pre">StrControl.exec_multi_cmds()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.StrControl.flip_cmds"><code class="docutils literal notranslate"><span class="pre">StrControl.flip_cmds()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.StrControl.parse_cmd"><code class="docutils literal notranslate"><span class="pre">StrControl.parse_cmd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.StrControl.set_angle_unit"><code class="docutils literal notranslate"><span class="pre">StrControl.set_angle_unit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.StrControl.set_move_sec"><code class="docutils literal notranslate"><span class="pre">StrControl.set_move_sec()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#piservo0.ThreadMultiServo"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadMultiServo.cancel_cmds"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.cancel_cmds()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadMultiServo.conf_file"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.conf_file</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadMultiServo.end"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.end()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadMultiServo.get_angle"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.get_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadMultiServo.get_pulse"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.get_pulse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadMultiServo.move_angle"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.move_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadMultiServo.move_angle_sync"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.move_angle_sync()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadMultiServo.off"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.off()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadMultiServo.pins"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.pins</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadMultiServo.send_cmd"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.send_cmd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadMultiServo.set_interval"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.set_interval()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadMultiServo.set_move_sec"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.set_move_sec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadMultiServo.set_step_n"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.set_step_n()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadMultiServo.sleep"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.sleep()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#piservo0.ThreadWorker"><code class="docutils literal notranslate"><span class="pre">ThreadWorker</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadWorker.clear_cmdq"><code class="docutils literal notranslate"><span class="pre">ThreadWorker.clear_cmdq()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadWorker.end"><code class="docutils literal notranslate"><span class="pre">ThreadWorker.end()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadWorker.recv"><code class="docutils literal notranslate"><span class="pre">ThreadWorker.recv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadWorker.run"><code class="docutils literal notranslate"><span class="pre">ThreadWorker.run()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.ThreadWorker.send"><code class="docutils literal notranslate"><span class="pre">ThreadWorker.send()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#piservo0.get_logger"><code class="docutils literal notranslate"><span class="pre">get_logger()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#piservo0.core.piservo.PiServo"><code class="docutils literal notranslate"><span class="pre">PiServo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.piservo.PiServo.OFF"><code class="docutils literal notranslate"><span class="pre">PiServo.OFF</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.piservo.PiServo.MIN"><code class="docutils literal notranslate"><span class="pre">PiServo.MIN</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.piservo.PiServo.MAX"><code class="docutils literal notranslate"><span class="pre">PiServo.MAX</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.piservo.PiServo.CENTER"><code class="docutils literal notranslate"><span class="pre">PiServo.CENTER</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.piservo.PiServo.get_pulse"><code class="docutils literal notranslate"><span class="pre">PiServo.get_pulse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.piservo.PiServo.move_center"><code class="docutils literal notranslate"><span class="pre">PiServo.move_center()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.piservo.PiServo.move_max"><code class="docutils literal notranslate"><span class="pre">PiServo.move_max()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.piservo.PiServo.move_min"><code class="docutils literal notranslate"><span class="pre">PiServo.move_min()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.piservo.PiServo.move_pulse"><code class="docutils literal notranslate"><span class="pre">PiServo.move_pulse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.piservo.PiServo.off"><code class="docutils literal notranslate"><span class="pre">PiServo.off()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#piservo0.core.calibrable_servo.CalibrableServo"><code class="docutils literal notranslate"><span class="pre">CalibrableServo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.calibrable_servo.CalibrableServo.DEF_CONF_FILE"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.DEF_CONF_FILE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.calibrable_servo.CalibrableServo.conf_file"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.conf_file</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.calibrable_servo.CalibrableServo.pulse_center"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.pulse_center</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.calibrable_servo.CalibrableServo.pulse_min"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.pulse_min</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.calibrable_servo.CalibrableServo.pulse_max"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.pulse_max</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.calibrable_servo.CalibrableServo.deg2pulse"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.deg2pulse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.calibrable_servo.CalibrableServo.get_angle"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.get_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.calibrable_servo.CalibrableServo.load_conf"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.load_conf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.calibrable_servo.CalibrableServo.move_angle"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.move_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.calibrable_servo.CalibrableServo.move_center"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.move_center()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.calibrable_servo.CalibrableServo.move_max"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.move_max()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.calibrable_servo.CalibrableServo.move_min"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.move_min()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.calibrable_servo.CalibrableServo.move_pulse"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.move_pulse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.calibrable_servo.CalibrableServo.pulse2deg"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.pulse2deg()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.pulse_center</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.pulse_max</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.pulse_min</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.calibrable_servo.CalibrableServo.save_conf"><code class="docutils literal notranslate"><span class="pre">CalibrableServo.save_conf()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#piservo0.core.multi_servo.MultiServo"><code class="docutils literal notranslate"><span class="pre">MultiServo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.multi_servo.MultiServo.get_angle"><code class="docutils literal notranslate"><span class="pre">MultiServo.get_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.multi_servo.MultiServo.get_pulse"><code class="docutils literal notranslate"><span class="pre">MultiServo.get_pulse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.multi_servo.MultiServo.move_angle"><code class="docutils literal notranslate"><span class="pre">MultiServo.move_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.multi_servo.MultiServo.move_angle_sync"><code class="docutils literal notranslate"><span class="pre">MultiServo.move_angle_sync()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.multi_servo.MultiServo.move_pulse"><code class="docutils literal notranslate"><span class="pre">MultiServo.move_pulse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.core.multi_servo.MultiServo.off"><code class="docutils literal notranslate"><span class="pre">MultiServo.off()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#piservo0.helper.str_control.StrControl"><code class="docutils literal notranslate"><span class="pre">StrControl</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.str_control.StrControl.exec_cmd"><code class="docutils literal notranslate"><span class="pre">StrControl.exec_cmd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.str_control.StrControl.exec_multi_cmds"><code class="docutils literal notranslate"><span class="pre">StrControl.exec_multi_cmds()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.str_control.StrControl.flip_cmds"><code class="docutils literal notranslate"><span class="pre">StrControl.flip_cmds()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.str_control.StrControl.parse_cmd"><code class="docutils literal notranslate"><span class="pre">StrControl.parse_cmd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.str_control.StrControl.set_angle_unit"><code class="docutils literal notranslate"><span class="pre">StrControl.set_angle_unit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.str_control.StrControl.set_move_sec"><code class="docutils literal notranslate"><span class="pre">StrControl.set_move_sec()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#piservo0.helper.thread_worker.ThreadWorker"><code class="docutils literal notranslate"><span class="pre">ThreadWorker</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_worker.ThreadWorker.clear_cmdq"><code class="docutils literal notranslate"><span class="pre">ThreadWorker.clear_cmdq()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_worker.ThreadWorker.end"><code class="docutils literal notranslate"><span class="pre">ThreadWorker.end()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_worker.ThreadWorker.recv"><code class="docutils literal notranslate"><span class="pre">ThreadWorker.recv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_worker.ThreadWorker.run"><code class="docutils literal notranslate"><span class="pre">ThreadWorker.run()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_worker.ThreadWorker.send"><code class="docutils literal notranslate"><span class="pre">ThreadWorker.send()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.cancel_cmds"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.cancel_cmds()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.conf_file"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.conf_file</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.end"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.end()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.get_angle"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.get_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.get_pulse"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.get_pulse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.move_angle"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.move_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.move_angle_sync"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.move_angle_sync()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.off"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.off()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.pins"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.pins</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.send_cmd"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.send_cmd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.set_interval"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.set_interval()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.set_move_sec"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.set_move_sec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.set_step_n"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.set_step_n()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.sleep"><code class="docutils literal notranslate"><span class="pre">ThreadMultiServo.sleep()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#piservo0.utils.my_logger.get_logger"><code class="docutils literal notranslate"><span class="pre">get_logger()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#piservo0.utils.servo_config_manager.ServoConfigManager"><code class="docutils literal notranslate"><span class="pre">ServoConfigManager</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.utils.servo_config_manager.ServoConfigManager.get_config"><code class="docutils literal notranslate"><span class="pre">ServoConfigManager.get_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.utils.servo_config_manager.ServoConfigManager.read_all_configs"><code class="docutils literal notranslate"><span class="pre">ServoConfigManager.read_all_configs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.utils.servo_config_manager.ServoConfigManager.save_all_configs"><code class="docutils literal notranslate"><span class="pre">ServoConfigManager.save_all_configs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#piservo0.utils.servo_config_manager.ServoConfigManager.save_config"><code class="docutils literal notranslate"><span class="pre">ServoConfigManager.save_config()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">piservo0</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api_reference.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-piservo0">
+<span id="api-reference"></span><h1>API Reference<a class="headerlink" href="#module-piservo0" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="piservo0.CalibrableServo">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">piservo0.</span></span><span class="sig-name descname"><span class="pre">CalibrableServo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'servo.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.CalibrableServo" title="Link to this definition"></a></dt>
+<dd><p>PiServoを拡張し、キャリブレーション機能を追加したクラス。</p>
+<p>サーボモーターの制御に特化し、設定の永続化はServoConfigManagerに委任する。</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.CalibrableServo.DEF_CONF_FILE">
+<span class="sig-name descname"><span class="pre">DEF_CONF_FILE</span></span><a class="headerlink" href="#piservo0.CalibrableServo.DEF_CONF_FILE" title="Link to this definition"></a></dt>
+<dd><p>デフォルトの設定ファイル名。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.CalibrableServo.conf_file">
+<span class="sig-name descname"><span class="pre">conf_file</span></span><a class="headerlink" href="#piservo0.CalibrableServo.conf_file" title="Link to this definition"></a></dt>
+<dd><p>使用する設定ファイルへのパス。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.CalibrableServo.pulse_center">
+<span class="sig-name descname"><span class="pre">pulse_center</span></span><a class="headerlink" href="#piservo0.CalibrableServo.pulse_center" title="Link to this definition"></a></dt>
+<dd><p>キャリブレーション後の中央位置のパルス幅。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.CalibrableServo.pulse_min">
+<span class="sig-name descname"><span class="pre">pulse_min</span></span><a class="headerlink" href="#piservo0.CalibrableServo.pulse_min" title="Link to this definition"></a></dt>
+<dd><p>キャリブレーション後の最小位置のパルス幅。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.CalibrableServo.pulse_max">
+<span class="sig-name descname"><span class="pre">pulse_max</span></span><a class="headerlink" href="#piservo0.CalibrableServo.pulse_max" title="Link to this definition"></a></dt>
+<dd><p>キャリブレーション後の最大位置のパルス幅。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.CalibrableServo.deg2pulse">
+<span class="sig-name descname"><span class="pre">deg2pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#piservo0.CalibrableServo.deg2pulse" title="Link to this definition"></a></dt>
+<dd><p>角度をパルス幅に変換する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.CalibrableServo.get_angle">
+<span class="sig-name descname"><span class="pre">get_angle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.CalibrableServo.get_angle" title="Link to this definition"></a></dt>
+<dd><p>現在のサーボの角度を取得する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.CalibrableServo.load_conf">
+<span class="sig-name descname"><span class="pre">load_conf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.CalibrableServo.load_conf" title="Link to this definition"></a></dt>
+<dd><p>設定ファイルからこのサーボのキャリブレーション値を読み込む。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.CalibrableServo.move_angle">
+<span class="sig-name descname"><span class="pre">move_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.CalibrableServo.move_angle" title="Link to this definition"></a></dt>
+<dd><p>指定された角度にサーボモーターを移動させる。</p>
+<p>文字列: 'center' | 'min' | 'max'
+None | '': 動かさない (現在角度を維持)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.CalibrableServo.move_center">
+<span class="sig-name descname"><span class="pre">move_center</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.CalibrableServo.move_center" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターをキャリブレーションされた中央位置に移動させる。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.CalibrableServo.move_max">
+<span class="sig-name descname"><span class="pre">move_max</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.CalibrableServo.move_max" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターをキャリブレーションされた最大位置に移動させる。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.CalibrableServo.move_min">
+<span class="sig-name descname"><span class="pre">move_min</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.CalibrableServo.move_min" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターをキャリブレーションされた最小位置に移動させる。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.CalibrableServo.move_pulse">
+<span class="sig-name descname"><span class="pre">move_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.CalibrableServo.move_pulse" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターを、キャリブレーション値を考慮して移動させる。</p>
+<p>指定されたパルス幅がキャリブレーション範囲外の場合、範囲内に調整される。</p>
+<p><a href="#id1"><span class="problematic" id="id2">`</span></a>forced`が`True`の場合は、範囲外でも動かす。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.CalibrableServo.pulse2deg">
+<span class="sig-name descname"><span class="pre">pulse2deg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#piservo0.CalibrableServo.pulse2deg" title="Link to this definition"></a></dt>
+<dd><p>パルス幅を角度に変換する。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pulse_center</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd><p>中央位置のパルス幅を取得する。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id3">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pulse_max</span></span><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<dd><p>最大位置のパルス幅を取得する。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id4">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pulse_min</span></span><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
+<dd><p>最小位置のパルス幅を取得する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.CalibrableServo.save_conf">
+<span class="sig-name descname"><span class="pre">save_conf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.CalibrableServo.save_conf" title="Link to this definition"></a></dt>
+<dd><p>現在のキャリブレーション値を設定ファイルに保存する。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="piservo0.MultiServo">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">piservo0.</span></span><span class="sig-name descname"><span class="pre">MultiServo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_move</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'servo.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.MultiServo" title="Link to this definition"></a></dt>
+<dd><p>複数のサーボモーターを制御する。</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.MultiServo.get_angle">
+<span class="sig-name descname"><span class="pre">get_angle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.MultiServo.get_angle" title="Link to this definition"></a></dt>
+<dd><p>すべてのサーボの現在の角度を取得する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値<span class="colon">:</span></dt>
+<dd class="field-odd"><p>各サーボの角度のリスト。</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.MultiServo.get_pulse">
+<span class="sig-name descname"><span class="pre">get_pulse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.MultiServo.get_pulse" title="Link to this definition"></a></dt>
+<dd><p>すべてのサーボの現在のパルス幅を取得する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値<span class="colon">:</span></dt>
+<dd class="field-odd"><p>各サーボのパルス幅のリスト。</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.MultiServo.move_angle">
+<span class="sig-name descname"><span class="pre">move_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_angles</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.MultiServo.move_angle" title="Link to this definition"></a></dt>
+<dd><p>各サーボを指定された角度に動かす。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>target_angles</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) -- 各サーボに設定する角度のリスト。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.MultiServo.move_angle_sync">
+<span class="sig-name descname"><span class="pre">move_angle_sync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.MultiServo.move_angle_sync" title="Link to this definition"></a></dt>
+<dd><p>すべてのサーボを目標角度まで同期的かつ滑らかに動かす。
+角度は、数値だけでなく、文字列、Noneでも指定できる。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_angles</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) -- 各サーボの目標角度のリスト。
+None: 現在の角度(つまり、動かさない)
+文字列: &quot;center&quot;, &quot;min&quot;, &quot;max&quot;</p></li>
+<li><p><strong>move_sec</strong> (<em>float</em>) -- 動作にかかるおおよその時間（秒）。</p></li>
+<li><p><strong>step_n</strong> (<em>int</em>) -- 動作を分割するステップ数。
+1以下の場合は、move_angle() を呼び出して、ダイレクトに動かす</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.MultiServo.move_pulse">
+<span class="sig-name descname"><span class="pre">move_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.MultiServo.move_pulse" title="Link to this definition"></a></dt>
+<dd><p>各サーボを指定されたパルス幅に動かす。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pulses</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) -- 各サーボに設定するパルス幅のリスト。</p></li>
+<li><p><strong>forced</strong> (<em>bool</em>) -- Trueの場合、可動範囲外のパルス幅も強制的に設定する。</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.MultiServo.off">
+<span class="sig-name descname"><span class="pre">off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.MultiServo.off" title="Link to this definition"></a></dt>
+<dd><p>すべてのサーボをオフにする。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="piservo0.PiServo">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">piservo0.</span></span><span class="sig-name descname"><span class="pre">PiServo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.PiServo" title="Link to this definition"></a></dt>
+<dd><p>Raspberry PiのGPIOピンを介してサーボモーターを制御するクラス。</p>
+<p>pigpioライブラリを使用して、サーボモーターのパルス幅を設定し、
+位置を制御する。</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.PiServo.OFF">
+<span class="sig-name descname"><span class="pre">OFF</span></span><a class="headerlink" href="#piservo0.PiServo.OFF" title="Link to this definition"></a></dt>
+<dd><p>サーボをオフにするパルス幅（0）。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.PiServo.MIN">
+<span class="sig-name descname"><span class="pre">MIN</span></span><a class="headerlink" href="#piservo0.PiServo.MIN" title="Link to this definition"></a></dt>
+<dd><p>最小パルス幅（500マイクロ秒）。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.PiServo.MAX">
+<span class="sig-name descname"><span class="pre">MAX</span></span><a class="headerlink" href="#piservo0.PiServo.MAX" title="Link to this definition"></a></dt>
+<dd><p>最大パルス幅（2500マイクロ秒）。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.PiServo.CENTER">
+<span class="sig-name descname"><span class="pre">CENTER</span></span><a class="headerlink" href="#piservo0.PiServo.CENTER" title="Link to this definition"></a></dt>
+<dd><p>中央位置のパルス幅（1500マイクロ秒）。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.PiServo.get_pulse">
+<span class="sig-name descname"><span class="pre">get_pulse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.PiServo.get_pulse" title="Link to this definition"></a></dt>
+<dd><p>現在のサーボモーターのパルス幅を取得する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値<span class="colon">:</span></dt>
+<dd class="field-odd"><p>現在のパルス幅 (マイクロ秒)。</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.PiServo.move_center">
+<span class="sig-name descname"><span class="pre">move_center</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.PiServo.move_center" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターを中央位置に移動させる。</p>
+<p>パルス幅をCENTERに設定する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.PiServo.move_max">
+<span class="sig-name descname"><span class="pre">move_max</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.PiServo.move_max" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターを最大位置に移動させる。</p>
+<p>パルス幅をMAXに設定する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.PiServo.move_min">
+<span class="sig-name descname"><span class="pre">move_min</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.PiServo.move_min" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターを最小位置に移動させる。</p>
+<p>パルス幅をMINに設定する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.PiServo.move_pulse">
+<span class="sig-name descname"><span class="pre">move_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.PiServo.move_pulse" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターを指定されたパルス幅に移動させる。</p>
+<p>パルス幅はMINからMAXの範囲に制限される。
+指定されたパルス幅が範囲外の場合、自動的に最小値または最大値に調整される。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pulse</strong> (<em>int</em>) -- サーボモーターに設定するパルス幅（マイクロ秒）。
+この値に基づいてサーボの位置が決定される。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.PiServo.off">
+<span class="sig-name descname"><span class="pre">off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.PiServo.off" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターの電源をオフにする。</p>
+<p>サーボモーターのパルス幅をOFF (0) に設定し、動作を停止させる。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="piservo0.StrControl">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">piservo0.</span></span><span class="sig-name descname"><span class="pre">StrControl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mservo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#piservo0.core.multi_servo.MultiServo" title="piservo0.core.multi_servo.MultiServo"><span class="pre">MultiServo</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo" title="piservo0.helper.thread_multi_servo.ThreadMultiServo"><span class="pre">ThreadMultiServo</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">35.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmd_chars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.StrControl" title="Link to this definition"></a></dt>
+<dd><p>文字列ベースのコマンドを解釈し、
+複数のサーボモーター（MultiServo）を制御するクラス。</p>
+<p>'fbcb' のような文字列は、各サーボのポーズ（姿勢）を示す。
+コマンド（例: 'fbcb' や '0.5'）を実行することで、
+ロボットの歩行などの複雑な動作を簡単に実現できる。</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.StrControl.exec_cmd">
+<span class="sig-name descname"><span class="pre">exec_cmd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.StrControl.exec_cmd" title="Link to this definition"></a></dt>
+<dd><p>単一のコマンドを実行する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cmd</strong> (<em>str</em>) -- ポーズ文字列またはスリープ時間。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.StrControl.exec_multi_cmds">
+<span class="sig-name descname"><span class="pre">exec_multi_cmds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.StrControl.exec_multi_cmds" title="Link to this definition"></a></dt>
+<dd><p>複数のコマンドを実行する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cmds</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>]</em>) -- スペース区切りの文字列、または、リスト</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.StrControl.flip_cmds">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flip_cmds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#piservo0.StrControl.flip_cmds" title="Link to this definition"></a></dt>
+<dd><p>コマンド文字列を左右反転させたシーケンスを返す。
+数値（float: スリープ秒数）はそのまま。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cmds</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) -- コマンドシーケンス。</p>
+</dd>
+<dt class="field-even">戻り値<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>反転されたコマンドシーケンス。</dt><dd><p>例: ['fcfb'] -&gt; ['bfcf']</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.StrControl.parse_cmd">
+<span class="sig-name descname"><span class="pre">parse_cmd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#piservo0.StrControl.parse_cmd" title="Link to this definition"></a></dt>
+<dd><p>単一のコマンド文字列を解析し、実行可能な辞書形式に変換する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cmd</strong> (<em>str</em>) -- 'fbcb'のようなポーズ文字列、</p></li>
+<li><p><strong>または'0.5'のような数値文字列。</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>解析結果。</dt><dd><p>例: {'cmd': 'angles', 'angles': [-40, 0, -40, 0]}
+例: {'cmd': 'sleep', 'sec': 0.5}
+例: {'cmd': 'error', 'err': 'invalid command'}</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.StrControl.set_angle_unit">
+<span class="sig-name descname"><span class="pre">set_angle_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.StrControl.set_angle_unit" title="Link to this definition"></a></dt>
+<dd><p>基本角度を設定する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.StrControl.set_move_sec">
+<span class="sig-name descname"><span class="pre">set_move_sec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.StrControl.set_move_sec" title="Link to this definition"></a></dt>
+<dd><p>移動時間を設定する。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="piservo0.ThreadMultiServo">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">piservo0.</span></span><span class="sig-name descname"><span class="pre">ThreadMultiServo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_move</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'servo.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadMultiServo" title="Link to this definition"></a></dt>
+<dd><p>サーボモーター群を非同期で制御するためのインターフェースクラス。</p>
+<p>内部にMultiServo（同期的な制御を担当）とThreadWorker（非同期処理を担当）
+のインスタンスを保持し、両者を協調させて動作します。</p>
+<p>このクラスのメソッドはすべて非同期であり、呼び出し元をブロックしません。
+すべてのコマンドはキューを通じてワーカースレッドで順次実行されます。</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadMultiServo.cancel_cmds">
+<span class="sig-name descname"><span class="pre">cancel_cmds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadMultiServo.cancel_cmds" title="Link to this definition"></a></dt>
+<dd><p>今まで送ったコマンドをキャンセルする</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="piservo0.ThreadMultiServo.conf_file">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">conf_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#piservo0.ThreadMultiServo.conf_file" title="Link to this definition"></a></dt>
+<dd><p>使用している設定ファイルのパス。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadMultiServo.end">
+<span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadMultiServo.end" title="Link to this definition"></a></dt>
+<dd><p>終了処理。ワーカースレッドを安全に停止させ、すべてのサーボをオフにします。
+このメソッドは同期的であり、スレッドの終了を待ってからリターンします。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadMultiServo.get_angle">
+<span class="sig-name descname"><span class="pre">get_angle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#piservo0.ThreadMultiServo.get_angle" title="Link to this definition"></a></dt>
+<dd><p>すべてのサーボの現在の角度を取得します。
+この値はワーカースレッドの処理状態を反映した最新の値です。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadMultiServo.get_pulse">
+<span class="sig-name descname"><span class="pre">get_pulse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#piservo0.ThreadMultiServo.get_pulse" title="Link to this definition"></a></dt>
+<dd><p>すべてのサーボの現在のパルス幅を取得します。
+この値はワーカースレッドの処理状態を反映した最新の値です。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadMultiServo.move_angle">
+<span class="sig-name descname"><span class="pre">move_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_angles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadMultiServo.move_angle" title="Link to this definition"></a></dt>
+<dd><p>指定された角度に即座に移動するコマンドを非同期で送信します。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_angles</strong> (<em>list</em><em>[</em><em>Optional</em><em>[</em><em>float</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>各サーボの目標角度のリスト。</strong></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadMultiServo.move_angle_sync">
+<span class="sig-name descname"><span class="pre">move_angle_sync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_angles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadMultiServo.move_angle_sync" title="Link to this definition"></a></dt>
+<dd><p>目標角度まで滑らかに移動するコマンドを非同期で送信します。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_angles</strong> (<em>list</em><em>[</em><em>Optional</em><em>[</em><em>float</em><em>]</em><em>]</em>) -- 各サーボの目標角度のリスト。</p></li>
+<li><p><strong>move_sec</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) -- 移動時間(秒)。Noneの場合は現在の設定値が使われます。</p></li>
+<li><p><strong>step_n</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) -- 分割ステップ数。Noneの場合は現在の設定値が使われます。</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadMultiServo.off">
+<span class="sig-name descname"><span class="pre">off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadMultiServo.off" title="Link to this definition"></a></dt>
+<dd><p>ワーカースレッドを終了し、すべてのサーボをオフにします。
+この処理は同期的です。<cite>end()</cite> と同じです。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="piservo0.ThreadMultiServo.pins">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pins</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#piservo0.ThreadMultiServo.pins" title="Link to this definition"></a></dt>
+<dd><p>サーボが接続されているGPIOピンのリスト。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadMultiServo.send_cmd">
+<span class="sig-name descname"><span class="pre">send_cmd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadMultiServo.send_cmd" title="Link to this definition"></a></dt>
+<dd><p>コマンドをキューに送る</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadMultiServo.set_interval">
+<span class="sig-name descname"><span class="pre">set_interval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadMultiServo.set_interval" title="Link to this definition"></a></dt>
+<dd><p>コマンド実行後のインターバルを設定するコマンドを非同期で送信します。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sec</strong> (<em>float</em>) -- インターバル時間(秒)。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadMultiServo.set_move_sec">
+<span class="sig-name descname"><span class="pre">set_move_sec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadMultiServo.set_move_sec" title="Link to this definition"></a></dt>
+<dd><p>移動時間を設定するコマンドを非同期で送信します。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sec</strong> (<em>float</em>) -- 移動時間(秒)。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadMultiServo.set_step_n">
+<span class="sig-name descname"><span class="pre">set_step_n</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadMultiServo.set_step_n" title="Link to this definition"></a></dt>
+<dd><p>ステップ数を設定するコマンドを非同期で送信します。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) -- ステップ数。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadMultiServo.sleep">
+<span class="sig-name descname"><span class="pre">sleep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadMultiServo.sleep" title="Link to this definition"></a></dt>
+<dd><p>指定時間スリープするコマンドを非同期で送信します。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sec</strong> (<em>float</em>) -- スリープ時間(秒)。</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="piservo0.ThreadWorker">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">piservo0.</span></span><span class="sig-name descname"><span class="pre">ThreadWorker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mservo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_sec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval_sec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadWorker" title="Link to this definition"></a></dt>
+<dd><p>Thred worker</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadWorker.clear_cmdq">
+<span class="sig-name descname"><span class="pre">clear_cmdq</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadWorker.clear_cmdq" title="Link to this definition"></a></dt>
+<dd><p>clear command queue</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadWorker.end">
+<span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadWorker.end" title="Link to this definition"></a></dt>
+<dd><p>end worker</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadWorker.recv">
+<span class="sig-name descname"><span class="pre">recv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadWorker.recv" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadWorker.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadWorker.run" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.ThreadWorker.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.ThreadWorker.send" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="piservo0.get_logger">
+<span class="sig-prename descclassname"><span class="pre">piservo0.</span></span><span class="sig-name descname"><span class="pre">get_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.get_logger" title="Link to this definition"></a></dt>
+<dd><p>get logger</p>
+</dd></dl>
+
+<dl class="py class" id="module-piservo0.core.piservo">
+<dt class="sig sig-object py" id="piservo0.core.piservo.PiServo">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">piservo0.core.piservo.</span></span><span class="sig-name descname"><span class="pre">PiServo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.piservo.PiServo" title="Link to this definition"></a></dt>
+<dd><p>Raspberry PiのGPIOピンを介してサーボモーターを制御するクラス。</p>
+<p>pigpioライブラリを使用して、サーボモーターのパルス幅を設定し、
+位置を制御する。</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.core.piservo.PiServo.OFF">
+<span class="sig-name descname"><span class="pre">OFF</span></span><a class="headerlink" href="#piservo0.core.piservo.PiServo.OFF" title="Link to this definition"></a></dt>
+<dd><p>サーボをオフにするパルス幅（0）。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.core.piservo.PiServo.MIN">
+<span class="sig-name descname"><span class="pre">MIN</span></span><a class="headerlink" href="#piservo0.core.piservo.PiServo.MIN" title="Link to this definition"></a></dt>
+<dd><p>最小パルス幅（500マイクロ秒）。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.core.piservo.PiServo.MAX">
+<span class="sig-name descname"><span class="pre">MAX</span></span><a class="headerlink" href="#piservo0.core.piservo.PiServo.MAX" title="Link to this definition"></a></dt>
+<dd><p>最大パルス幅（2500マイクロ秒）。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.core.piservo.PiServo.CENTER">
+<span class="sig-name descname"><span class="pre">CENTER</span></span><a class="headerlink" href="#piservo0.core.piservo.PiServo.CENTER" title="Link to this definition"></a></dt>
+<dd><p>中央位置のパルス幅（1500マイクロ秒）。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.piservo.PiServo.get_pulse">
+<span class="sig-name descname"><span class="pre">get_pulse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.piservo.PiServo.get_pulse" title="Link to this definition"></a></dt>
+<dd><p>現在のサーボモーターのパルス幅を取得する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値<span class="colon">:</span></dt>
+<dd class="field-odd"><p>現在のパルス幅 (マイクロ秒)。</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.piservo.PiServo.move_center">
+<span class="sig-name descname"><span class="pre">move_center</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.piservo.PiServo.move_center" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターを中央位置に移動させる。</p>
+<p>パルス幅をCENTERに設定する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.piservo.PiServo.move_max">
+<span class="sig-name descname"><span class="pre">move_max</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.piservo.PiServo.move_max" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターを最大位置に移動させる。</p>
+<p>パルス幅をMAXに設定する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.piservo.PiServo.move_min">
+<span class="sig-name descname"><span class="pre">move_min</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.piservo.PiServo.move_min" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターを最小位置に移動させる。</p>
+<p>パルス幅をMINに設定する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.piservo.PiServo.move_pulse">
+<span class="sig-name descname"><span class="pre">move_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.piservo.PiServo.move_pulse" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターを指定されたパルス幅に移動させる。</p>
+<p>パルス幅はMINからMAXの範囲に制限される。
+指定されたパルス幅が範囲外の場合、自動的に最小値または最大値に調整される。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pulse</strong> (<em>int</em>) -- サーボモーターに設定するパルス幅（マイクロ秒）。
+この値に基づいてサーボの位置が決定される。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.piservo.PiServo.off">
+<span class="sig-name descname"><span class="pre">off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.piservo.PiServo.off" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターの電源をオフにする。</p>
+<p>サーボモーターのパルス幅をOFF (0) に設定し、動作を停止させる。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-piservo0.core.calibrable_servo">
+<dt class="sig sig-object py" id="piservo0.core.calibrable_servo.CalibrableServo">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">piservo0.core.calibrable_servo.</span></span><span class="sig-name descname"><span class="pre">CalibrableServo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'servo.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.calibrable_servo.CalibrableServo" title="Link to this definition"></a></dt>
+<dd><p>PiServoを拡張し、キャリブレーション機能を追加したクラス。</p>
+<p>サーボモーターの制御に特化し、設定の永続化はServoConfigManagerに委任する。</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.core.calibrable_servo.CalibrableServo.DEF_CONF_FILE">
+<span class="sig-name descname"><span class="pre">DEF_CONF_FILE</span></span><a class="headerlink" href="#piservo0.core.calibrable_servo.CalibrableServo.DEF_CONF_FILE" title="Link to this definition"></a></dt>
+<dd><p>デフォルトの設定ファイル名。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.core.calibrable_servo.CalibrableServo.conf_file">
+<span class="sig-name descname"><span class="pre">conf_file</span></span><a class="headerlink" href="#piservo0.core.calibrable_servo.CalibrableServo.conf_file" title="Link to this definition"></a></dt>
+<dd><p>使用する設定ファイルへのパス。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.core.calibrable_servo.CalibrableServo.pulse_center">
+<span class="sig-name descname"><span class="pre">pulse_center</span></span><a class="headerlink" href="#piservo0.core.calibrable_servo.CalibrableServo.pulse_center" title="Link to this definition"></a></dt>
+<dd><p>キャリブレーション後の中央位置のパルス幅。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.core.calibrable_servo.CalibrableServo.pulse_min">
+<span class="sig-name descname"><span class="pre">pulse_min</span></span><a class="headerlink" href="#piservo0.core.calibrable_servo.CalibrableServo.pulse_min" title="Link to this definition"></a></dt>
+<dd><p>キャリブレーション後の最小位置のパルス幅。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="piservo0.core.calibrable_servo.CalibrableServo.pulse_max">
+<span class="sig-name descname"><span class="pre">pulse_max</span></span><a class="headerlink" href="#piservo0.core.calibrable_servo.CalibrableServo.pulse_max" title="Link to this definition"></a></dt>
+<dd><p>キャリブレーション後の最大位置のパルス幅。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.calibrable_servo.CalibrableServo.deg2pulse">
+<span class="sig-name descname"><span class="pre">deg2pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#piservo0.core.calibrable_servo.CalibrableServo.deg2pulse" title="Link to this definition"></a></dt>
+<dd><p>角度をパルス幅に変換する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.calibrable_servo.CalibrableServo.get_angle">
+<span class="sig-name descname"><span class="pre">get_angle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.calibrable_servo.CalibrableServo.get_angle" title="Link to this definition"></a></dt>
+<dd><p>現在のサーボの角度を取得する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.calibrable_servo.CalibrableServo.load_conf">
+<span class="sig-name descname"><span class="pre">load_conf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.calibrable_servo.CalibrableServo.load_conf" title="Link to this definition"></a></dt>
+<dd><p>設定ファイルからこのサーボのキャリブレーション値を読み込む。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.calibrable_servo.CalibrableServo.move_angle">
+<span class="sig-name descname"><span class="pre">move_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.calibrable_servo.CalibrableServo.move_angle" title="Link to this definition"></a></dt>
+<dd><p>指定された角度にサーボモーターを移動させる。</p>
+<p>文字列: 'center' | 'min' | 'max'
+None | '': 動かさない (現在角度を維持)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.calibrable_servo.CalibrableServo.move_center">
+<span class="sig-name descname"><span class="pre">move_center</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.calibrable_servo.CalibrableServo.move_center" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターをキャリブレーションされた中央位置に移動させる。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.calibrable_servo.CalibrableServo.move_max">
+<span class="sig-name descname"><span class="pre">move_max</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.calibrable_servo.CalibrableServo.move_max" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターをキャリブレーションされた最大位置に移動させる。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.calibrable_servo.CalibrableServo.move_min">
+<span class="sig-name descname"><span class="pre">move_min</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.calibrable_servo.CalibrableServo.move_min" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターをキャリブレーションされた最小位置に移動させる。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.calibrable_servo.CalibrableServo.move_pulse">
+<span class="sig-name descname"><span class="pre">move_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.calibrable_servo.CalibrableServo.move_pulse" title="Link to this definition"></a></dt>
+<dd><p>サーボモーターを、キャリブレーション値を考慮して移動させる。</p>
+<p>指定されたパルス幅がキャリブレーション範囲外の場合、範囲内に調整される。</p>
+<p><a href="#id5"><span class="problematic" id="id6">`</span></a>forced`が`True`の場合は、範囲外でも動かす。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.calibrable_servo.CalibrableServo.pulse2deg">
+<span class="sig-name descname"><span class="pre">pulse2deg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#piservo0.core.calibrable_servo.CalibrableServo.pulse2deg" title="Link to this definition"></a></dt>
+<dd><p>パルス幅を角度に変換する。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id7">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pulse_center</span></span><a class="headerlink" href="#id7" title="Link to this definition"></a></dt>
+<dd><p>中央位置のパルス幅を取得する。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id8">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pulse_max</span></span><a class="headerlink" href="#id8" title="Link to this definition"></a></dt>
+<dd><p>最大位置のパルス幅を取得する。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id9">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pulse_min</span></span><a class="headerlink" href="#id9" title="Link to this definition"></a></dt>
+<dd><p>最小位置のパルス幅を取得する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.calibrable_servo.CalibrableServo.save_conf">
+<span class="sig-name descname"><span class="pre">save_conf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.calibrable_servo.CalibrableServo.save_conf" title="Link to this definition"></a></dt>
+<dd><p>現在のキャリブレーション値を設定ファイルに保存する。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-piservo0.core.multi_servo">
+<dt class="sig sig-object py" id="piservo0.core.multi_servo.MultiServo">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">piservo0.core.multi_servo.</span></span><span class="sig-name descname"><span class="pre">MultiServo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_move</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'servo.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.multi_servo.MultiServo" title="Link to this definition"></a></dt>
+<dd><p>複数のサーボモーターを制御する。</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.multi_servo.MultiServo.get_angle">
+<span class="sig-name descname"><span class="pre">get_angle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.multi_servo.MultiServo.get_angle" title="Link to this definition"></a></dt>
+<dd><p>すべてのサーボの現在の角度を取得する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値<span class="colon">:</span></dt>
+<dd class="field-odd"><p>各サーボの角度のリスト。</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.multi_servo.MultiServo.get_pulse">
+<span class="sig-name descname"><span class="pre">get_pulse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.multi_servo.MultiServo.get_pulse" title="Link to this definition"></a></dt>
+<dd><p>すべてのサーボの現在のパルス幅を取得する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値<span class="colon">:</span></dt>
+<dd class="field-odd"><p>各サーボのパルス幅のリスト。</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.multi_servo.MultiServo.move_angle">
+<span class="sig-name descname"><span class="pre">move_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_angles</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.multi_servo.MultiServo.move_angle" title="Link to this definition"></a></dt>
+<dd><p>各サーボを指定された角度に動かす。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>target_angles</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) -- 各サーボに設定する角度のリスト。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.multi_servo.MultiServo.move_angle_sync">
+<span class="sig-name descname"><span class="pre">move_angle_sync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_angles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.multi_servo.MultiServo.move_angle_sync" title="Link to this definition"></a></dt>
+<dd><p>すべてのサーボを目標角度まで同期的かつ滑らかに動かす。
+角度は、数値だけでなく、文字列、Noneでも指定できる。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_angles</strong> (<em>list</em><em>[</em><em>float</em><em>]</em>) -- 各サーボの目標角度のリスト。
+None: 現在の角度(つまり、動かさない)
+文字列: &quot;center&quot;, &quot;min&quot;, &quot;max&quot;</p></li>
+<li><p><strong>move_sec</strong> (<em>float</em>) -- 動作にかかるおおよその時間（秒）。</p></li>
+<li><p><strong>step_n</strong> (<em>int</em>) -- 動作を分割するステップ数。
+1以下の場合は、move_angle() を呼び出して、ダイレクトに動かす</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.multi_servo.MultiServo.move_pulse">
+<span class="sig-name descname"><span class="pre">move_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.multi_servo.MultiServo.move_pulse" title="Link to this definition"></a></dt>
+<dd><p>各サーボを指定されたパルス幅に動かす。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pulses</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) -- 各サーボに設定するパルス幅のリスト。</p></li>
+<li><p><strong>forced</strong> (<em>bool</em>) -- Trueの場合、可動範囲外のパルス幅も強制的に設定する。</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.core.multi_servo.MultiServo.off">
+<span class="sig-name descname"><span class="pre">off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.core.multi_servo.MultiServo.off" title="Link to this definition"></a></dt>
+<dd><p>すべてのサーボをオフにする。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-piservo0.helper.str_control">
+<dt class="sig sig-object py" id="piservo0.helper.str_control.StrControl">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">piservo0.helper.str_control.</span></span><span class="sig-name descname"><span class="pre">StrControl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mservo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#piservo0.core.multi_servo.MultiServo" title="piservo0.core.multi_servo.MultiServo"><span class="pre">MultiServo</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo" title="piservo0.helper.thread_multi_servo.ThreadMultiServo"><span class="pre">ThreadMultiServo</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">35.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmd_chars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.str_control.StrControl" title="Link to this definition"></a></dt>
+<dd><p>文字列ベースのコマンドを解釈し、
+複数のサーボモーター（MultiServo）を制御するクラス。</p>
+<p>'fbcb' のような文字列は、各サーボのポーズ（姿勢）を示す。
+コマンド（例: 'fbcb' や '0.5'）を実行することで、
+ロボットの歩行などの複雑な動作を簡単に実現できる。</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.str_control.StrControl.exec_cmd">
+<span class="sig-name descname"><span class="pre">exec_cmd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.str_control.StrControl.exec_cmd" title="Link to this definition"></a></dt>
+<dd><p>単一のコマンドを実行する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cmd</strong> (<em>str</em>) -- ポーズ文字列またはスリープ時間。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.str_control.StrControl.exec_multi_cmds">
+<span class="sig-name descname"><span class="pre">exec_multi_cmds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.str_control.StrControl.exec_multi_cmds" title="Link to this definition"></a></dt>
+<dd><p>複数のコマンドを実行する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cmds</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>]</em>) -- スペース区切りの文字列、または、リスト</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.str_control.StrControl.flip_cmds">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flip_cmds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#piservo0.helper.str_control.StrControl.flip_cmds" title="Link to this definition"></a></dt>
+<dd><p>コマンド文字列を左右反転させたシーケンスを返す。
+数値（float: スリープ秒数）はそのまま。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cmds</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) -- コマンドシーケンス。</p>
+</dd>
+<dt class="field-even">戻り値<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>反転されたコマンドシーケンス。</dt><dd><p>例: ['fcfb'] -&gt; ['bfcf']</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.str_control.StrControl.parse_cmd">
+<span class="sig-name descname"><span class="pre">parse_cmd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#piservo0.helper.str_control.StrControl.parse_cmd" title="Link to this definition"></a></dt>
+<dd><p>単一のコマンド文字列を解析し、実行可能な辞書形式に変換する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cmd</strong> (<em>str</em>) -- 'fbcb'のようなポーズ文字列、</p></li>
+<li><p><strong>または'0.5'のような数値文字列。</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>解析結果。</dt><dd><p>例: {'cmd': 'angles', 'angles': [-40, 0, -40, 0]}
+例: {'cmd': 'sleep', 'sec': 0.5}
+例: {'cmd': 'error', 'err': 'invalid command'}</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.str_control.StrControl.set_angle_unit">
+<span class="sig-name descname"><span class="pre">set_angle_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.str_control.StrControl.set_angle_unit" title="Link to this definition"></a></dt>
+<dd><p>基本角度を設定する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.str_control.StrControl.set_move_sec">
+<span class="sig-name descname"><span class="pre">set_move_sec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.str_control.StrControl.set_move_sec" title="Link to this definition"></a></dt>
+<dd><p>移動時間を設定する。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-piservo0.helper.thread_worker">
+<dt class="sig sig-object py" id="piservo0.helper.thread_worker.ThreadWorker">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">piservo0.helper.thread_worker.</span></span><span class="sig-name descname"><span class="pre">ThreadWorker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mservo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_sec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval_sec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_worker.ThreadWorker" title="Link to this definition"></a></dt>
+<dd><p>Thred worker</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_worker.ThreadWorker.clear_cmdq">
+<span class="sig-name descname"><span class="pre">clear_cmdq</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_worker.ThreadWorker.clear_cmdq" title="Link to this definition"></a></dt>
+<dd><p>clear command queue</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_worker.ThreadWorker.end">
+<span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_worker.ThreadWorker.end" title="Link to this definition"></a></dt>
+<dd><p>end worker</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_worker.ThreadWorker.recv">
+<span class="sig-name descname"><span class="pre">recv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_worker.ThreadWorker.recv" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_worker.ThreadWorker.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_worker.ThreadWorker.run" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_worker.ThreadWorker.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_worker.ThreadWorker.send" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-piservo0.helper.thread_multi_servo">
+<dt class="sig sig-object py" id="piservo0.helper.thread_multi_servo.ThreadMultiServo">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">piservo0.helper.thread_multi_servo.</span></span><span class="sig-name descname"><span class="pre">ThreadMultiServo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_move</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'servo.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo" title="Link to this definition"></a></dt>
+<dd><p>サーボモーター群を非同期で制御するためのインターフェースクラス。</p>
+<p>内部にMultiServo（同期的な制御を担当）とThreadWorker（非同期処理を担当）
+のインスタンスを保持し、両者を協調させて動作します。</p>
+<p>このクラスのメソッドはすべて非同期であり、呼び出し元をブロックしません。
+すべてのコマンドはキューを通じてワーカースレッドで順次実行されます。</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_multi_servo.ThreadMultiServo.cancel_cmds">
+<span class="sig-name descname"><span class="pre">cancel_cmds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.cancel_cmds" title="Link to this definition"></a></dt>
+<dd><p>今まで送ったコマンドをキャンセルする</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="piservo0.helper.thread_multi_servo.ThreadMultiServo.conf_file">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">conf_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.conf_file" title="Link to this definition"></a></dt>
+<dd><p>使用している設定ファイルのパス。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_multi_servo.ThreadMultiServo.end">
+<span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.end" title="Link to this definition"></a></dt>
+<dd><p>終了処理。ワーカースレッドを安全に停止させ、すべてのサーボをオフにします。
+このメソッドは同期的であり、スレッドの終了を待ってからリターンします。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_multi_servo.ThreadMultiServo.get_angle">
+<span class="sig-name descname"><span class="pre">get_angle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.get_angle" title="Link to this definition"></a></dt>
+<dd><p>すべてのサーボの現在の角度を取得します。
+この値はワーカースレッドの処理状態を反映した最新の値です。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_multi_servo.ThreadMultiServo.get_pulse">
+<span class="sig-name descname"><span class="pre">get_pulse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.get_pulse" title="Link to this definition"></a></dt>
+<dd><p>すべてのサーボの現在のパルス幅を取得します。
+この値はワーカースレッドの処理状態を反映した最新の値です。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_multi_servo.ThreadMultiServo.move_angle">
+<span class="sig-name descname"><span class="pre">move_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_angles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.move_angle" title="Link to this definition"></a></dt>
+<dd><p>指定された角度に即座に移動するコマンドを非同期で送信します。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_angles</strong> (<em>list</em><em>[</em><em>Optional</em><em>[</em><em>float</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>各サーボの目標角度のリスト。</strong></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_multi_servo.ThreadMultiServo.move_angle_sync">
+<span class="sig-name descname"><span class="pre">move_angle_sync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_angles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.move_angle_sync" title="Link to this definition"></a></dt>
+<dd><p>目標角度まで滑らかに移動するコマンドを非同期で送信します。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_angles</strong> (<em>list</em><em>[</em><em>Optional</em><em>[</em><em>float</em><em>]</em><em>]</em>) -- 各サーボの目標角度のリスト。</p></li>
+<li><p><strong>move_sec</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) -- 移動時間(秒)。Noneの場合は現在の設定値が使われます。</p></li>
+<li><p><strong>step_n</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) -- 分割ステップ数。Noneの場合は現在の設定値が使われます。</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_multi_servo.ThreadMultiServo.off">
+<span class="sig-name descname"><span class="pre">off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.off" title="Link to this definition"></a></dt>
+<dd><p>ワーカースレッドを終了し、すべてのサーボをオフにします。
+この処理は同期的です。<cite>end()</cite> と同じです。</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="piservo0.helper.thread_multi_servo.ThreadMultiServo.pins">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pins</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.pins" title="Link to this definition"></a></dt>
+<dd><p>サーボが接続されているGPIOピンのリスト。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_multi_servo.ThreadMultiServo.send_cmd">
+<span class="sig-name descname"><span class="pre">send_cmd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.send_cmd" title="Link to this definition"></a></dt>
+<dd><p>コマンドをキューに送る</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_multi_servo.ThreadMultiServo.set_interval">
+<span class="sig-name descname"><span class="pre">set_interval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.set_interval" title="Link to this definition"></a></dt>
+<dd><p>コマンド実行後のインターバルを設定するコマンドを非同期で送信します。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sec</strong> (<em>float</em>) -- インターバル時間(秒)。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_multi_servo.ThreadMultiServo.set_move_sec">
+<span class="sig-name descname"><span class="pre">set_move_sec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.set_move_sec" title="Link to this definition"></a></dt>
+<dd><p>移動時間を設定するコマンドを非同期で送信します。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sec</strong> (<em>float</em>) -- 移動時間(秒)。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_multi_servo.ThreadMultiServo.set_step_n">
+<span class="sig-name descname"><span class="pre">set_step_n</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.set_step_n" title="Link to this definition"></a></dt>
+<dd><p>ステップ数を設定するコマンドを非同期で送信します。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) -- ステップ数。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.helper.thread_multi_servo.ThreadMultiServo.sleep">
+<span class="sig-name descname"><span class="pre">sleep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.helper.thread_multi_servo.ThreadMultiServo.sleep" title="Link to this definition"></a></dt>
+<dd><p>指定時間スリープするコマンドを非同期で送信します。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sec</strong> (<em>float</em>) -- スリープ時間(秒)。</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p id="module-piservo0.utils.my_logger">Usage:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>class AAA:</dt><dd><dl class="simple">
+<dt>def __init__(self, debug_flag):</dt><dd><p>#
+# <strong>重要</strong>
+#
+#   継承時にoverrideされないように、
+#   '__'をつける
+#
+self.__log = get_logger(__class__.__name__, debug=debug_flag)
+self.__log.debug(&quot;....&quot;)</p>
+</dd>
+</dl>
+</dd>
+<dt>def main(debug_flag):</dt><dd><p>log = get_logger(__name__, debug=debug_flag)
+log.debug(&quot;....&quot;)</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="piservo0.utils.my_logger.get_logger">
+<span class="sig-prename descclassname"><span class="pre">piservo0.utils.my_logger.</span></span><span class="sig-name descname"><span class="pre">get_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.utils.my_logger.get_logger" title="Link to this definition"></a></dt>
+<dd><p>get logger</p>
+</dd></dl>
+
+<dl class="py class" id="module-piservo0.utils.servo_config_manager">
+<dt class="sig sig-object py" id="piservo0.utils.servo_config_manager.ServoConfigManager">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">piservo0.utils.servo_config_manager.</span></span><span class="sig-name descname"><span class="pre">ServoConfigManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.utils.servo_config_manager.ServoConfigManager" title="Link to this definition"></a></dt>
+<dd><p>サーボの設定ファイル(JSON)を管理するクラス。</p>
+<p>ファイルの読み書きという責務を専門に担う。</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.utils.servo_config_manager.ServoConfigManager.get_config">
+<span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.utils.servo_config_manager.ServoConfigManager.get_config" title="Link to this definition"></a></dt>
+<dd><p>指定されたピンの設定を読み込む。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pin</strong> (<em>int</em>) -- GPIOピン番号。</p>
+</dd>
+<dt class="field-even">戻り値<span class="colon">:</span></dt>
+<dd class="field-even"><p>ピンの設定データ。見つからない場合はNoneを返す。</p>
+</dd>
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.utils.servo_config_manager.ServoConfigManager.read_all_configs">
+<span class="sig-name descname"><span class="pre">read_all_configs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.utils.servo_config_manager.ServoConfigManager.read_all_configs" title="Link to this definition"></a></dt>
+<dd><p>設定ファイルからすべてのピンのデータを読み込む。</p>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>読み込んだ設定データのリスト。</dt><dd><p>ファイルが存在しない、または不正な形式の場合は空のリストを返す。</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.utils.servo_config_manager.ServoConfigManager.save_all_configs">
+<span class="sig-name descname"><span class="pre">save_all_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.utils.servo_config_manager.ServoConfigManager.save_all_configs" title="Link to this definition"></a></dt>
+<dd><p>すべてのピンのデータをファイルに書き込む。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>list</em>) -- 書き込む設定データのリスト。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="piservo0.utils.servo_config_manager.ServoConfigManager.save_config">
+<span class="sig-name descname"><span class="pre">save_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_pindata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#piservo0.utils.servo_config_manager.ServoConfigManager.save_config" title="Link to this definition"></a></dt>
+<dd><p>指定されたピンの設定を更新または追加して保存する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>new_pindata</strong> (<em>dict</em>) -- 保存するピンの設定データ。</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="MEMO-keybindings.html" class="btn btn-neutral float-left" title="CalibApp: キーバインド設定の設計" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yoichi Tanibayashi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

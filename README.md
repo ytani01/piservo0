@@ -204,7 +204,15 @@ GPIO26 (37) (38) GPIO20
 
 ## == APIリファレンス
 
-より詳しいクラスやメソッドの仕様については、[`docs/REFERENCE.md`](docs/REFERENCE.md) をご覧ください。
+より詳しいクラスやメソッドの仕様については、[こちらで生成されたドキュメント](https://ytani01.github.io/piservo0/)をご覧ください。
+
+ローカルでドキュメントを生成するには、以下のコマンドを実行してください。
+
+```bash
+uv run sphinx-build -b html docs docs/_build/html
+```
+
+生成されたドキュメントは `docs/_build/html/index.html` にあります。
 
 ### --- 他のプロジェクトから依存ライブラリとして、本プロジェクトを参照する場合の例
 
