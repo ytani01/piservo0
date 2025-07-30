@@ -1,6 +1,7 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
+import json
 import os
 import readline  # input()でヒストリー機能が使える
 

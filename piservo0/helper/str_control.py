@@ -215,15 +215,15 @@ class StrControl:
         #
         if isinstance(self.mservo, ThreadMultiServo):
             if cmd_type == "error":
-                self.__log.error("%s .. ignored", parsed_cmd["err"])
-                return
+                self.__log.debug("%s .. ignored", parsed_cmd["err"])
+                return parsed_cmd
 
             if cmd_type == "cancel":
                 self.mservo.cancel_cmds()
-                return
+                return parsed_cmd
 
             self.mservo.send_cmd(parsed_cmd)
-            return
+            return parsed_cmd
 
 
         #
@@ -233,15 +233,16 @@ class StrControl:
         if cmd_type == "move_angle_sync":
             angles = parsed_cmd.get("target_angles", [])
             self.mservo.move_angle_sync(angles, self.move_sec, self.step_n)
-            return
+            return parsed_cmd
 
         if cmd_type == "sleep":
             sec = parsed_cmd.get("sec", 0)
             if sec > 0:
                 time.sleep(sec)
-            return
+            return parsed_cmd
 
         self.__log.warning("parsed_cmd=%s .. ignored", parsed_cmd)
+        return parsed_cmd
 
     def exec_multi_cmds(self, cmds: str | list):
         """
@@ -255,8 +256,15 @@ class StrControl:
         if isinstance(cmds, str):
             cmds = cmds.split()
 
+        _return = []
         for _cmd in cmds:
-            self.exec_cmd(_cmd)
+            _res = self.exec_cmd(_cmd)
+            self.__log.debug("_res=%s", _res)
+
+            _return.append(_res)
+
+        self.__log.debug("_return=%s", _return)
+        return _return
 
     @staticmethod
     def flip_cmds(cmds: list[str]) -> list[str]:

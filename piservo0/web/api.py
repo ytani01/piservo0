@@ -66,6 +66,6 @@ async def read_root():
 async def exec_cmd(request: Request, cmdline: str):
     """execute commands"""
 
-    request.app.state.webapp.str_ctrl.exec_multi_cmds(cmdline)
+    _ret = request.app.state.webapp.str_ctrl.exec_multi_cmds(cmdline)
 
-    return {"cmdline": cmdline}
+    return _ret
