@@ -147,7 +147,7 @@ class StrControl:
         if self._is_float_str(cmd):
             return {"cmd": "sleep", "sec": float(cmd)}
 
-        if self.cmd_chars['cancel_cmds'] in cmd:
+        if self.cmd_chars['cancel_cmds'] in cmd.lower():
             return {"cmd": "cancel"}
 
         _res, _res_str = self._is_str_cmd(cmd)
