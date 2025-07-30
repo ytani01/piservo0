@@ -1,7 +1,7 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-""" """
+""" cmd_webclient.py """
 import os
 import readline  # input()でヒストリー機能が使える
 
@@ -44,23 +44,27 @@ class WebClientApp:
         # check server
         try:
             _url = self.api_client.make_top_url()
-            _res = self.api_client.get_url(_url)
+            _res = self.api_client.url_get(_url)
             print(f"{self.host}:{self.port}> {_res.json()}")
 
         except Exception as _e:
             self.__log.error("%s: %s", type(_e).__name__, _e)
             return
 
-        # send cmdline
         if self.cmdline:
+            #
+            # send cmdline (1 shot)
+            #
             _res = self.api_client.send_cmd(self.cmdline)
             self.print_response(_res)
             return
 
+        #
         # interactive mode
+        #
 
-        # read history file
         try:
+            # read history file
             readline.read_history_file(self._history_file)
             print(f"* history file: {self._history_file}")
             self.__log.debug(
@@ -86,4 +90,4 @@ class WebClientApp:
 
     def end(self):
         """ end """
-        print("\n* Bye")
+        print("\n* Bye\n")

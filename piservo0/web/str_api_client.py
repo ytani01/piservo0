@@ -45,7 +45,7 @@ class StrApiClient:
 
         return _url
 
-    def get_url(self, url):
+    def url_get(self, url):
         """ get """
         self.__log.debug("url=%s", url)
 
@@ -63,4 +63,4 @@ class StrApiClient:
         """ make URL and send """
         self.__log.debug("cmdline=%a", cmdline)
 
-        return self.get_url(self.make_cmd_url(cmdline))
+        return self.url_get(self.make_cmd_url(cmdline))
