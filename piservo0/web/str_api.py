@@ -22,12 +22,12 @@ PINS = [17, 27, 22, 25]
 ANGLE_FACTOR = [-1, -1, 1, 1]
 
 
-class WepApp:
+class StrApi:
     """Main class for Web Application"""
 
     def __init__(self):
         """ constractor """
-        print("Initializing WepApp...")
+        print("Initializing StrApi...")
         self.pi = pigpio.pi()
         self.mservo = ThreadMultiServo(self.pi, PINS, debug=False)
         self.str_ctrl = StrControl(self.mservo, debug=False)
@@ -45,7 +45,7 @@ class WepApp:
 async def lifespan(app: FastAPI):
     """Lifespan manager for the application"""
 
-    app.state.webapp = WepApp()
+    app.state.webapp = StrApi()
 
     yield
 
