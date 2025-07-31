@@ -1,6 +1,8 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
+import os
+
 import click
 import pigpio
 import uvicorn
@@ -238,16 +240,38 @@ String API Server
     "--port", "-p", type=int, default=8000, show_default=True,
     help="port number"
 )
+@click.option(
+    "--pins", type=str, default='17,27,22,25', show_default=True,
+    help="GPIO pins (e.g. '17,27,22,25')"
+)
+@click.option(
+    "--angle-factor", "-a", type=str, default='-1,-1,1,1', show_default=True,
+    help="Angle factors (e.g. '-1,-1,1,1')"
+)
 # for debug
 @click.option(
     "--debug", "-d", is_flag=True, default=False, help="debug flag"
 )
 @click.pass_context
-def web_str_api(ctx, server_host, port, debug):
+def web_str_api(ctx, server_host, port, pins, angle_factor, debug):
     """ Web API Client """
 
+    cmd_name = ctx.command.name
+
     _log = get_logger(__name__, debug)
+    _log.debug("cmd_name=%s", cmd_name)
     _log.debug("server_host=%s, port=%s", server_host, port)
+    _log.debug("pins=%s, angle_factor=%s", pins, angle_factor)
+    _log.debug("debug=%s", debug)
+
+    if pins:
+        os.environ["PISERVO0_PINS"] = pins
+    if angle_factor:
+        os.environ["PISERVO0_ANGLE_FACTOR"] = angle_factor
+    if debug:
+        os.environ["PISERVO0_DEBUG"] = "1"
+    else:
+        os.environ["PISERVO0_DEBUG"] = "0"
 
     uvicorn.run(
         "piservo0.web.str_api:app", host=server_host, port=port, reload=True
