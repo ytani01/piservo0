@@ -5,10 +5,10 @@
 Test for CalibrableServo
 """
 import json
-import os
-from pathlib import Path
+
 import pytest
-from piservo0 import CalibrableServo
+
+from piservo0.core.calibrable_servo import CalibrableServo
 
 TEST_PIN = 17
 TEST_CONF_FILENAME = "test_servo_conf.json"
@@ -31,7 +31,9 @@ def calib_servo(mocker_pigpio, tmp_path, monkeypatch):
 
     # テスト対象のCalibrableServoオブジェクトを作成
     # ServoConfigManagerのファイル検索ロジックが働くようにファイル名のみ渡す
-    servo = CalibrableServo(pi, TEST_PIN, conf_file=TEST_CONF_FILENAME, debug=True)
+    servo = CalibrableServo(
+        pi, TEST_PIN, conf_file=TEST_CONF_FILENAME, debug=True
+    )
 
     # 期待される設定ファイルのフルパスも返す
     yield pi, servo, str(test_cwd / TEST_CONF_FILENAME)
@@ -108,7 +110,7 @@ def test_deg_pulse_conversion(calib_servo, angle, expected_pulse):
 
 
 @pytest.mark.parametrize(
-    "angle_or_str, expected_angle", 
+    "angle_or_str, expected_angle",
     [
         (45, 45),
         (-90, -90),

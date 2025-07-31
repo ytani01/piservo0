@@ -1,16 +1,36 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
+import os
+
 import click
 import pigpio
+import uvicorn
 
-from piservo0 import get_logger
+from .command.cmd_calib import CalibApp
+from .command.cmd_servo import CmdServo
+from .command.cmd_strctrl import StrCtrlApp
+from .command.cmd_webclient import WebClientApp
+from .core.calibrable_servo import CalibrableServo
+from .core.multi_servo import MultiServo
+from .helper.str_control import StrControl
+from .utils.my_logger import get_logger
 
-from .cmd_calib import CmdCalib
-from .cmd_multi import CmdMulti
-from .cmd_servo import CmdServo
+CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
-CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+
+def get_pi(debug=False):
+    """
+    Initialize and return a pigpio.pi instance.
+    If connection fails, log an error and return None.
+    """
+    _log = get_logger(__name__, debug)
+
+    pi = pigpio.pi()
+    if not pi.connected:
+        _log.error("pigpio daemon not connected.")
+        return None
+    return pi
 
 
 @click.group(
@@ -18,15 +38,15 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     context_settings=CONTEXT_SETTINGS,
     help="""
 pyservo0 command
-""",
+"""
 )
 @click.option("-d", "--debug", is_flag=True, help="debug flag")
 @click.pass_context
 def cli(ctx, debug):
     """CLI top"""
     subcmd = ctx.invoked_subcommand
-    log = get_logger(__name__, debug)
-    log.debug("subcmd=%s", subcmd)
+    _log = get_logger(__name__, debug)
+    _log.debug("subcmd=%s", subcmd)
 
     if subcmd is None:
         print(f"{ctx.get_help()}")
@@ -47,119 +67,254 @@ servo command"""
 @click.pass_context
 def servo(ctx, pin, pulse, sec, debug):
     """servo command"""
-    log = get_logger(__name__, debug)
-    log.debug('pin=%s, pulse="%s", sec=%s', pin, pulse, sec)
+    _log = get_logger(__name__, debug)
+    _log.debug('pin=%s, pulse="%s", sec=%s', pin, pulse, sec)
 
-    try:
-        pi = pigpio.pi()
-        if not pi.connected:
-            log.error("pigpio daemon not connected.")
-            return
-        app = CmdServo(pi, pin, pulse, sec, debug=debug)
-
-    except Exception as _e:
-        log.error("%s: %s", type(_e).__name__, _e)
+    pi = get_pi(debug)
+    if not pi:
         return
 
     try:
-        app.main()
+        app = CmdServo(pi, pin, pulse, sec, debug=debug)
+        app.main(ctx)
 
-    except Exception as _e:
-        log.warning("%s: %s", type(_e).__name__, _e)
+    except Exception as e:
+        _log.error("%s: %s", type(e).__name__, e)
 
     finally:
-        app.end()
-        pi.stop()  # ここでpiインスタンスを停止
+        if pi:
+            app.end()
+            pi.stop()
 
 
 @cli.command(
     help="""
-calibration tool"""
+calibration tool
+
+* configuration search path:
+
+    Current dir --> Home dir --> /etc
+"""
 )
-@click.argument("pin", type=int, nargs=1)
+@click.argument("pins", type=int, nargs=-1)
 @click.option(
-    "--conf_file", "--file", "-c", "-f", type=str,
-    default="./servo.json", show_default=True,
-    help="config file"
-)
-@click.option(
-    "--sec", "-t", "-s", type=float,
-    default=1.0, show_default=True,
-    help="sec"
+    "--conf_file", "-c", "-f",
+    default=CalibrableServo.DEF_CONF_FILE, show_default=True,
+    help="Config file path"
 )
 @click.option(
     "--debug", "-d", is_flag=True, default=False, help="debug flag"
 )
 @click.pass_context
-def calib(ctx, pin, conf_file, sec, debug):
-    """clib command"""
-    log = get_logger(__name__, debug)
-    log.debug("pin=%s,conf_file=%s,sec=%s", pin, conf_file, sec)
+def calib(ctx, pins, conf_file, debug):
+    """calib command"""
 
-    try:
-        pi = pigpio.pi()
-        if not pi.connected:
-            log.error("pigpio daemon not connected.")
-            return
-        app = CmdCalib(pi, pin, conf_file, sec, debug=debug)
+    _log = get_logger(__name__, debug)
+    _log.debug("pins=%s,conf_file=%s", pins, conf_file)
 
-    except Exception as _e:
-        log.error("%s: %s", type(_e).__name__, _e)
+    cmd_name = ctx.command.name
+    _log.debug("cmd_name=%s", cmd_name)
+
+    if not pins:
+        print()
+        print("Error: Please specify GPIO pins.")
+        print()
+        print("  e.g. piservo0 calib 17 27")
+        print()
+        print(f"{ctx.get_help()}")
         return
 
+    pi = get_pi(debug)
+    if not pi:
+        return
+
+    app = None
     try:
-        app.main(ctx)
+        app = CalibApp(pi, pins, conf_file, debug=debug)
+        app.main()
+
+    except (EOFError, KeyboardInterrupt):
+        pass
 
     except Exception as _e:
-        log.warning("%s: %s", type(_e).__name__, _e)
+        _log.error("%s: %s", type(_e).__name__, _e)
 
     finally:
-        app.end()
-        pi.stop()  # ここでpiインスタンスを停止
+        if pi:
+            app.end()
+            pi.stop()
 
 
 @cli.command(
     help="""
-multi servo controller"""
+Multi Servo, String control
+"""
 )
-@click.argument("pin", type=int, nargs=-1)
+@click.argument("pins", type=int, nargs=-1)
+# ThreadMultiServo options
 @click.option(
-    "--conf_file", "--file", "-c", "-f", type=str,
-    default="./servo.json", show_default=True,
-    help="config file"
+    "--conf_file", "-c", type=str, default=CalibrableServo.DEF_CONF_FILE,
+    show_default=True, help="Config file path"
+)
+# StrControl options
+@click.option(
+    "--move_sec", "-m", type=float, default=StrControl.DEF_MODE_SEC,
+    show_default=True, help="estimated move time(sec)"
 )
 @click.option(
-    "--sec", "-t", "-s", type=float,
-    default=1, show_default=True,
-    help="move sec"
+    "--step_n", "-s", type=int, default=MultiServo.DEF_STEP_N,
+    show_default=True, help="Step Number"
 )
-@click.option("--debug", "-d", is_flag=True, help="debug flag")
+@click.option(
+    "--angle_unit", "-u", type=float, default=StrControl.DEF_ANGLE_UNIT,
+    show_default=True, help="Angle Unit"
+)
+@click.option(
+    "--angle_factor", "-f", type=str, default="-1 -1 1 1",
+    show_default=True, help="Angle Factor"
+)
+# for debug
+@click.option(
+    "--debug", "-d", is_flag=True, default=False, help="debug flag"
+)
 @click.pass_context
-def multi(ctx, pin, conf_file, sec, debug):
-    """servo command"""
-    log = get_logger(__name__, debug)
-    log.debug("pin=%s,conf_file=%s,sec=%s", pin, conf_file, sec)
+def strctrl(
+    ctx, pins, conf_file, move_sec, step_n, angle_unit, angle_factor, debug
+):
+    """strctrl"""
+    _log = get_logger(__name__, debug)
+    _log.debug("pins=%s,conf_file=%s", pins, conf_file)
+    _log.debug("move_sec=%s, step_n=%s", move_sec, step_n)
 
-    try:
-        pi = pigpio.pi()
-        if not pi.connected:
-            log.error("pigpio daemon not connected.")
-            return
-        app = CmdMulti(pi, pin, conf_file, sec, debug=debug)
+    angle_factor = [float(a) for a in angle_factor.split()]
+    _log.debug("angle_unit=%s, angle_factor=%s", angle_unit, angle_factor)
 
-    except Exception as _e:
-        log.error("%s: %s", type(_e).__name__, _e)
+    cmd_name = ctx.command.name
+    _log.debug("cmd_name=%s", cmd_name)
+
+    if not pins:
+        print()
+        print("Error: Please specify GPIO pins.")
+        print()
+        print("  e.g. piservo0 calib 17 27")
+        print()
+        print(f"{ctx.get_help()}")
         return
 
-    try:
-        app.main(ctx)
+    _pi = get_pi(debug)
+    if not _pi:
+        return
 
-    except (EOFError, KeyboardInterrupt) as _e:
-        log.debug("%s: %s", type(_e).__name__, _e)
+    _app = None
+    try:
+        _app = StrCtrlApp(
+            _pi, pins, conf_file=conf_file,
+            move_sec=move_sec, step_n=step_n,
+            angle_unit=angle_unit, angle_factor=angle_factor,
+            debug=debug
+        )
+        _app.main()
+
+    except (EOFError, KeyboardInterrupt):
+        pass
 
     except Exception as _e:
-        log.error("%s: %s", type(_e).__name__, _e)
+        _log.error("%s: %s", type(_e).__name__, _e)
 
     finally:
-        app.end()
-        pi.stop()  # ここでpiインスタンスを停止
+        if _pi:
+            _app.end()
+            _pi.stop()
+
+
+@cli.command(
+    help="""
+String API Server
+"""
+)
+@click.option(
+    "--server_host", "-s", type=str, default="0.0.0.0", show_default=True,
+    help="server hostname or IP address"
+)
+@click.option(
+    "--port", "-p", type=int, default=8000, show_default=True,
+    help="port number"
+)
+@click.option(
+    "--pins", type=str, default='17,27,22,25', show_default=True,
+    help="GPIO pins (e.g. '17,27,22,25')"
+)
+@click.option(
+    "--angle-factor", "-a", type=str, default='-1,-1,1,1', show_default=True,
+    help="Angle factors (e.g. '-1,-1,1,1')"
+)
+# for debug
+@click.option(
+    "--debug", "-d", is_flag=True, default=False, help="debug flag"
+)
+@click.pass_context
+def web_str_api(ctx, server_host, port, pins, angle_factor, debug):
+    """ Web API Client """
+
+    cmd_name = ctx.command.name
+
+    _log = get_logger(__name__, debug)
+    _log.debug("cmd_name=%s", cmd_name)
+    _log.debug("server_host=%s, port=%s", server_host, port)
+    _log.debug("pins=%s, angle_factor=%s", pins, angle_factor)
+    _log.debug("debug=%s", debug)
+
+    if pins:
+        os.environ["PISERVO0_PINS"] = pins
+    if angle_factor:
+        os.environ["PISERVO0_ANGLE_FACTOR"] = angle_factor
+    if debug:
+        os.environ["PISERVO0_DEBUG"] = "1"
+    else:
+        os.environ["PISERVO0_DEBUG"] = "0"
+
+    uvicorn.run(
+        "piservo0.web.str_api:app", host=server_host, port=port, reload=True
+    )
+
+
+@cli.command(
+    help="""
+String API Client
+"""
+)
+@click.argument("cmdline", type=str, nargs=-1)
+@click.option(
+    "--server_host", "-s", type=str, default="localhost", show_default=True,
+    help="server hostname or IP address"
+)
+@click.option(
+    "--port", "-p", type=int, default=8000, show_default=True,
+    help="port number"
+)
+# for debug
+@click.option(
+    "--debug", "-d", is_flag=True, default=False, help="debug flag"
+)
+@click.pass_context
+def web_client(ctx, cmdline, server_host, port, debug):
+    """ Web API Client """
+
+    _log = get_logger(__name__, debug)
+    _log.debug("server_host=%s, port=%s", server_host, port)
+
+    cmdline = " ".join(cmdline)
+    _log.debug("cmdline=%a", cmdline)
+
+    cmd_name = ctx.command.name
+    _log.debug("cmd_name=%s", cmd_name)
+
+    _app = WebClientApp(server_host, port, cmdline, debug)
+    try:
+        _app.main()
+
+    except (KeyboardInterrupt, EOFError):
+        pass
+
+    finally:
+        _app.end()

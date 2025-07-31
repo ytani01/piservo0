@@ -5,9 +5,12 @@
 Test for MultiServo
 """
 import json
-import pytest
 from unittest.mock import call
-from piservo0 import MultiServo, CalibrableServo
+
+import pytest
+
+from piservo0.core.calibrable_servo import CalibrableServo
+from piservo0.core.multi_servo import MultiServo
 
 TEST_PINS = [17, 27, 22, 23]
 TEST_CONF_FILENAME = "test_multi_servo_conf.json"
@@ -37,7 +40,11 @@ def multi_servo(mocker_pigpio, tmp_path, monkeypatch):
     pi = mocker_pigpio()
     # ファイル名のみを渡して、検索ロジックをテスト
     multi_servo_instance = MultiServo(
-        pi, TEST_PINS, conf_file=TEST_CONF_FILENAME, first_move=False, debug=True
+        pi,
+        TEST_PINS,
+        conf_file=TEST_CONF_FILENAME,
+        first_move=False,
+        debug=True,
     )
 
     yield pi, multi_servo_instance
@@ -159,3 +166,53 @@ def test_invalid_arg_for_move_methods(multi_servo, invalid_angles, mocker):
     ms.move_angle_sync(invalid_angles)
     mock_logger_error.error.assert_called_once()
     pi.set_servo_pulsewidth.assert_not_called()
+
+
+def test_getattr_delegation(multi_servo):
+    """
+    __getattr__がCalibrableServoのメソッドを正しく委譲するかテストする。
+    """
+    pi, ms = multi_servo
+
+    # move_centerの呼び出しをテスト
+    ms.move_center()
+    expected_calls = [call(s.pin, s.pulse_center) for s in ms.servo]
+    pi.set_servo_pulsewidth.assert_has_calls(expected_calls, any_order=True)
+
+    # move_minの呼び出しをテスト
+    pi.reset_mock()
+    ms.move_min()
+    expected_calls = [call(s.pin, s.pulse_min) for s in ms.servo]
+    pi.set_servo_pulsewidth.assert_has_calls(expected_calls, any_order=True)
+
+    # move_maxの呼び出しをテスト
+    pi.reset_mock()
+    ms.move_max()
+    expected_calls = [call(s.pin, s.pulse_max) for s in ms.servo]
+    pi.set_servo_pulsewidth.assert_has_calls(expected_calls, any_order=True)
+
+
+def test_getattr_with_return_value(multi_servo, mocker):
+    """
+    __getattr__が値を返すメソッドを正しく処理するかテストする。
+    """
+    _, ms = multi_servo
+
+    # 各サーボのdeg2pulseが特定の値を返すようにモック化
+    for i, s in enumerate(ms.servo):
+        mocker.patch.object(s, "deg2pulse", return_value=1000 + i)
+
+    # MultiServo経由でdeg2pulseを呼び出す
+    results = ms.deg2pulse(45)
+
+    # 結果が各モックの返り値のリストであることを確認
+    assert results == [1000, 1001, 1002, 1003]
+
+
+def test_getattr_attribute_error(multi_servo):
+    """
+    存在しないメソッドを呼び出した場合にAttributeErrorが発生するかテストする。
+    """
+    _, ms = multi_servo
+    with pytest.raises(AttributeError):
+        ms.non_existent_method()

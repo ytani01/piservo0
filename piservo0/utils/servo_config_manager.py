@@ -26,7 +26,7 @@ class ServoConfigManager:
         self.__log = get_logger(self.__class__.__name__, self._debug)
 
         self.conf_file = self._find_conf_file(conf_file)
-        self.__log.debug(f"found conf_file: {self.conf_file}")
+        self.__log.debug("found conf_file: %s", self.conf_file)
 
     def _find_conf_file(self, conf_file: str) -> str:
         """設定ファイルを検索し、有効なパスを返す。(プライベートメソッド)
@@ -45,8 +45,8 @@ class ServoConfigManager:
             str: 有効な設定ファイルのパス。
         """
         # 絶対パスが指定された場合は、それをそのまま使う
-        if os.path.isabs(conf_file):
-            return conf_file
+        if os.path.dirname(conf_file):
+            return os.path.abspath(conf_file)
 
         # 検索パスのリスト
         search_paths = [
@@ -55,11 +55,11 @@ class ServoConfigManager:
             Path("/etc") / conf_file,
         ]
 
-        self.__log.debug(f"Searching for {conf_file} in:")
+        self.__log.debug("Searching for %s in:", conf_file)
         for path in search_paths:
-            self.__log.debug(f"  - {path}")
+            self.__log.debug("  - %s", path)
             if path.is_file():
-                self.__log.info(f"Found config file at: {path}")
+                self.__log.debug("Found config file at: %s", path)
                 return str(path)
 
         # 見つからなかった場合はカレントディレクトリに作成する
@@ -76,15 +76,17 @@ class ServoConfigManager:
             list: 読み込んだ設定データのリスト。
                   ファイルが存在しない、または不正な形式の場合は空のリストを返す。
         """
-        self.__log.debug(f"Reading from {self.conf_file}")
+        self.__log.debug("Reading from %s", self.conf_file)
         try:
             with open(self.conf_file, "r", encoding="utf-8") as f:
                 return json.load(f)
         except FileNotFoundError:
-            self.__log.warning(f"Config file not found: {self.conf_file}")
+            self.__log.warning("Config file not found: %s", self.conf_file)
             return []
         except json.JSONDecodeError as e:
-            self.__log.error(f"Invalid JSON format in {self.conf_file}: {e}")
+            self.__log.error(
+                "Invalid JSON format in %s: %s", self.conf_file, e
+            )
             return []
 
     def save_all_configs(self, data):
@@ -93,14 +95,14 @@ class ServoConfigManager:
         Args:
             data (list): 書き込む設定データのリスト。
         """
-        self.__log.debug(f"Writing to {self.conf_file}")
+        self.__log.debug("Writing to %s", self.conf_file)
         try:
             # ピン番号でソートしてから書き込むと、ファイルが綺麗になる
             sorted_data = sorted(data, key=lambda d: d["pin"])
             with open(self.conf_file, "w", encoding="utf-8") as f:
                 json.dump(sorted_data, f, indent=2, ensure_ascii=False)
         except IOError as e:
-            self.__log.error(f"Failed to write to {self.conf_file}: {e}")
+            self.__log.error("Failed to write to %s: %s", self.conf_file, e)
 
     def get_config(self, pin):
         """指定されたピンの設定を読み込む。

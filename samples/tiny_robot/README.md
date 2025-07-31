@@ -30,7 +30,7 @@ export PATH=$PATH:~/.local/bin
 ```
 
 
-### 3. 'piservo0'のダウンロードとインストール
+### 3. 'piservo0'のダウンロード(クローン)とインストール
 
 ```
 git clone https://github.com/ytani01/piservo0.git
@@ -46,7 +46,7 @@ uv pip install -e '.[sample]'
 
 ## == Tiny Robot Demo の実行
 
-### 1. デモの実行
+### 1. 歩くデモの実行
 
 ``` bash
 uv run python -m samples.tiny_robot.py devmo1 17 27 23 25
@@ -63,3 +63,15 @@ uv run python -m samples.tiny_robot.py devmo1 17 27 23 25
 ``` bash
 uv run python -m samples.tiny_robot.py exec 17 27 23 25 samples/tiny_robot/script2-hi.txt
 ```
+
+### 4. Web API デモ
+
+**4.1 WebAPI起動**
+
+``` bash
+uv run uvicorn sample.tiny_robot.web:app --reload --host 0.0.0.0
+```
+
+**4.2 ブラウザなどからアクセス**
+
+URL: http://IPaddr:8000/docs

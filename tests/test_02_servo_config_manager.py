@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from piservo0.servo_config_manager import ServoConfigManager
+from piservo0.utils.servo_config_manager import ServoConfigManager
 
 TEST_PIN1 = 17
 TEST_PIN2 = 27
@@ -33,7 +33,7 @@ def setup_test_env(tmp_path, monkeypatch):
     # Path.home() と os.getcwd() をモンキーパッチで差し替え
     monkeypatch.setattr(Path, "home", lambda: test_home)
     monkeypatch.setattr(os, "getcwd", lambda: str(test_cwd))
-    
+
     # テスト中は作成したカレントディレクトリに移動
     monkeypatch.chdir(test_cwd)
 
@@ -147,7 +147,7 @@ def config_manager(setup_test_env):
     """
     # ServoConfigManagerをファイル名で初期化
     manager = ServoConfigManager(TEST_CONF_FILENAME, debug=True)
-    
+
     # managerと、期待される設定ファイルのフルパスを渡す
     yield manager, str(setup_test_env["cwd"] / TEST_CONF_FILENAME)
 
@@ -212,14 +212,17 @@ def test_save_config_add_and_update(config_manager):
     # 2. PIN2のデータを追加
     pin2_data = {"pin": TEST_PIN2, "center": 1601}
     manager.save_config(pin2_data)
-    assert manager.get_config(TEST_PIN1)["center"] == 1501  # PIN1が消えていない
+    # PIN1が消えていない
+    assert manager.get_config(TEST_PIN1)["center"] == 1501
     assert manager.get_config(TEST_PIN2)["center"] == 1601
 
     # 3. PIN1のデータを更新
     pin1_data_updated = {"pin": TEST_PIN1, "center": 1599}
     manager.save_config(pin1_data_updated)
-    assert manager.get_config(TEST_PIN2)["center"] == 1601  # PIN2が消えていない
-    assert manager.get_config(TEST_PIN1)["center"] == 1599  # PIN1が更新されている
+    # PIN2が消えていない
+    assert manager.get_config(TEST_PIN2)["center"] == 1601
+    # PIN1が更新されている
+    assert manager.get_config(TEST_PIN1)["center"] == 1599
 
 
 def test_read_invalid_json(config_manager):

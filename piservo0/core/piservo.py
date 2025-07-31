@@ -1,7 +1,8 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-from .my_logger import get_logger
+""" piservo.py """
+from ..utils.my_logger import get_logger
 
 
 class PiServo:
@@ -36,7 +37,7 @@ class PiServo:
         """
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
-        self.__log.debug(f"pin={pin}")
+        self.__log.debug("pin=%s", pin)
 
         self.pi = pi
         self.pin = pin
@@ -48,7 +49,7 @@ class PiServo:
             int: 現在のパルス幅 (マイクロ秒)。
         """
         pulse = self.pi.get_servo_pulsewidth(self.pin)
-        self.__log.debug(f"pulse={pulse}")
+        self.__log.debug("pulse=%s", pulse)
 
         return pulse
 
@@ -63,15 +64,11 @@ class PiServo:
                 サーボモーターに設定するパルス幅（マイクロ秒）。
                 この値に基づいてサーボの位置が決定される。
         """
-        self.__log.debug(f"pin={self.pin}, pulse={pulse}")
+        self.__log.debug("pin=%s, pulse=%s", self.pin, pulse)
 
-        if pulse < self.MIN:
-            self.__log.warning(f"{pulse} < MIN({self.MIN})")
-            pulse = self.MIN
-
-        if pulse > self.MAX:
-            self.__log.warning(f"{pulse} > MAX({self.MAX})")
-            pulse = self.MAX
+        if pulse < self.MIN or pulse > self.MAX:
+            pulse = max(min(pulse, self.MAX), self.MIN)
+            self.__log.debug("pulse=%s", pulse)
 
         self.pi.set_servo_pulsewidth(self.pin, pulse)
 
@@ -80,7 +77,7 @@ class PiServo:
 
         パルス幅をMINに設定する。
         """
-        self.__log.debug(f"pin={self.pin}")
+        self.__log.debug("pin=%s", self.pin)
 
         self.move_pulse(self.MIN)
 
@@ -89,7 +86,7 @@ class PiServo:
 
         パルス幅をMAXに設定する。
         """
-        self.__log.debug(f"pin={self.pin}")
+        self.__log.debug("pin=%s", self.pin)
 
         self.move_pulse(self.MAX)
 
@@ -98,7 +95,7 @@ class PiServo:
 
         パルス幅をCENTERに設定する。
         """
-        self.__log.debug(f"pin={self.pin}")
+        self.__log.debug("pin=%s", self.pin)
 
         self.move_pulse(self.CENTER)
 
@@ -107,6 +104,6 @@ class PiServo:
 
         サーボモーターのパルス幅をOFF (0) に設定し、動作を停止させる。
         """
-        self.__log.debug(f"pin={self.pin}")
+        self.__log.debug("pin=%s", self.pin)
 
         self.pi.set_servo_pulsewidth(self.pin, self.OFF)

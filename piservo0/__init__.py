@@ -5,13 +5,14 @@ from importlib.metadata import version
 
 __version__ = version(__package__)
 
-from .calibrable_servo import CalibrableServo
-from .multi_servo import MultiServo
-from .my_logger import get_logger
-from .piservo import PiServo
-from .str_control import StrControl
-from .thread_multi_servo import ThreadMultiServo
-from .thread_worker import ThreadWorker
+from .core.calibrable_servo import CalibrableServo
+from .core.multi_servo import MultiServo
+from .core.piservo import PiServo
+from .helper.str_control import StrControl
+from .helper.thread_multi_servo import ThreadMultiServo
+from .helper.thread_worker import ThreadWorker
+from .utils.my_logger import get_logger
+from .web.str_api_client import StrApiClient
 
 __all__ = [
     "__version__",
@@ -19,6 +20,7 @@ __all__ = [
     "PiServo",
     "CalibrableServo",
     "MultiServo",
+    "StrApiClient",
     "StrControl",
     "ThreadWorker",
     "ThreadMultiServo",

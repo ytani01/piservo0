@@ -4,12 +4,12 @@
 """
 Test for ThreadMultiServo
 """
-import json
+from unittest.mock import MagicMock
+
 import pytest
-from unittest.mock import MagicMock, patch
 
-from piservo0 import ThreadMultiServo, CalibrableServo
-
+from piservo0.core.calibrable_servo import CalibrableServo
+from piservo0.helper.thread_multi_servo import ThreadMultiServo
 
 TEST_PINS = [17, 27, 22, 23]
 
@@ -20,7 +20,8 @@ def mock_mservo(mocker):
     mock_instance = MagicMock()
     # patchの対象は、テスト対象のモジュールがインポートしている場所
     mocker.patch(
-        "piservo0.thread_multi_servo.MultiServo", return_value=mock_instance
+        "piservo0.helper.thread_multi_servo.MultiServo",
+        return_value=mock_instance,
     )
     return mock_instance
 
@@ -30,7 +31,8 @@ def mock_worker(mocker):
     """ThreadWorkerのモックを作成するフィクスチャ"""
     mock_instance = MagicMock()
     mocker.patch(
-        "piservo0.thread_multi_servo.ThreadWorker", return_value=mock_instance
+        "piservo0.helper.thread_multi_servo.ThreadWorker",
+        return_value=mock_instance,
     )
     return mock_instance
 
@@ -52,11 +54,11 @@ def test_constructor(tms_instance, mock_mservo, mock_worker):
     コンストラクタでMultiServoとThreadWorkerが正しく初期化されるかテストする。
     """
     tms, pi = tms_instance
-    from piservo0.thread_multi_servo import MultiServo, ThreadWorker
+    from piservo0.helper.thread_multi_servo import MultiServo, ThreadWorker
 
     # MultiServoが期待通りに呼ばれたか
     MultiServo.assert_called_once_with(
-        pi, TEST_PINS, False, CalibrableServo.DEF_CONF_FILE, True
+        pi, TEST_PINS, False, CalibrableServo.DEF_CONF_FILE, debug=False
     )
 
     # ThreadWorkerが期待通りに呼ばれたか
@@ -86,7 +88,7 @@ def test_move_angle(tms_instance, mock_worker):
     tms.move_angle(target_angles)
 
     expected_cmd = {"cmd": "move_angle", "target_angles": target_angles}
-    mock_worker.send.assert_called_once_with(json.dumps(expected_cmd))
+    mock_worker.send.assert_called_once_with(expected_cmd)
 
 
 def test_move_angle_sync(tms_instance, mock_worker):
@@ -106,7 +108,7 @@ def test_move_angle_sync(tms_instance, mock_worker):
         "move_sec": sec,
         "step_n": step_n,
     }
-    mock_worker.send.assert_called_once_with(json.dumps(expected_cmd))
+    mock_worker.send.assert_called_once_with(expected_cmd)
 
 
 @pytest.mark.parametrize(
@@ -127,7 +129,7 @@ def test_simple_commands(
     tms, _ = tms_instance
     method_to_call = getattr(tms, method_name)
     method_to_call(*method_args)
-    mock_worker.send.assert_called_once_with(json.dumps(expected_cmd))
+    mock_worker.send.assert_called_once_with(expected_cmd)
 
 
 def test_get_methods(tms_instance, mock_mservo):

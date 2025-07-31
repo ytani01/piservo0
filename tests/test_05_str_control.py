@@ -4,9 +4,12 @@
 """
 Test for StrControl
 """
+
 import pytest
-from unittest.mock import MagicMock, call
-from piservo0 import StrControl, MultiServo, CalibrableServo
+
+from piservo0.core.calibrable_servo import CalibrableServo
+from piservo0.core.multi_servo import MultiServo
+from piservo0.helper.str_control import StrControl
 
 # --- 定数 ---
 SERVO_N = 4

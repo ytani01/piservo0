@@ -3,8 +3,9 @@
 #
 import time
 
-from .multi_servo import MultiServo
-from .my_logger import get_logger
+from ..core.multi_servo import MultiServo
+from ..helper.thread_multi_servo import ThreadMultiServo
+from ..utils.my_logger import get_logger
 
 
 class StrControl:
@@ -17,8 +18,9 @@ class StrControl:
     ロボットの歩行などの複雑な動作を簡単に実現できる。
     """
 
-    DEF_ANGLE_UNIT = 30.0
+    DEF_ANGLE_UNIT = 35.0
     DEF_MODE_SEC = 0.2
+    DEF_ANGLE_FACTOR = [-1, -1, 1, 1]
 
     # コマンド文字のデフォルト定義
     DEF_CMD_CHARS = {
@@ -28,14 +30,15 @@ class StrControl:
         "forward": "f",
         "backward": "b",
         "dont_move": ".",
+        "cancel_cmds": "z",  # MultiThread の場合、コマンドをキャンセル
     }
 
     def __init__(
         self,
-        mservo,
-        angle_unit: float = DEF_ANGLE_UNIT,
+        mservo: MultiServo | ThreadMultiServo,
         move_sec: float = DEF_MODE_SEC,
         step_n: int = MultiServo.DEF_STEP_N,
+        angle_unit: float = DEF_ANGLE_UNIT,
         angle_factor: list[int] | None = None,
         cmd_chars: dict[str, str] | None = None,
         debug: bool = False,
@@ -66,7 +69,8 @@ class StrControl:
         self.servo_n = self.mservo.servo_n
 
         if angle_factor is None:
-            self.angle_factor = [1] * self.servo_n
+            # self.angle_factor = [1] * self.servo_n
+            self.angle_factor = self.DEF_ANGLE_FACTOR
         else:
             if len(angle_factor) != self.servo_n:
                 raise ValueError(
@@ -111,12 +115,12 @@ class StrControl:
     def _is_str_cmd(self, cmd: str) -> tuple[bool, str]:
         """文字列がポーズコマンドか判定する。"""
         if len(cmd) != self.servo_n:
-            return False, "invalid length"
+            return False, f"'{cmd}': invalid length"
 
         valid_chars = list(self.cmd_chars.values())
         for char in cmd.lower():
             if char not in valid_chars:
-                return False, "invalid char"
+                return False, f"'{char}': invalid char"
 
         return True, "True"
 
@@ -143,6 +147,9 @@ class StrControl:
         if self._is_float_str(cmd):
             return {"cmd": "sleep", "sec": float(cmd)}
 
+        if self.cmd_chars['cancel_cmds'] in cmd.lower():
+            return {"cmd": "cancel"}
+
         _res, _res_str = self._is_str_cmd(cmd)
         if _res is False:
             return {"cmd": "error", "err": _res_str}
@@ -154,33 +161,42 @@ class StrControl:
                 factor *= 2  # 大文字の場合は角度を2倍
                 _ch = _ch.lower()
 
-            angle = None
+            _angle = None
             _c_ch = self.cmd_chars
             _s = self.mservo.servo[i]  # CalibrableServo instance
 
             if _ch == _c_ch["center"]:
-                angle = _s.ANGLE_CENTER
+                _angle = _s.ANGLE_CENTER
             elif _ch == _c_ch["min"]:
-                angle = _s.ANGLE_MIN
+                _angle = _s.ANGLE_MIN
             elif _ch == _c_ch["max"]:
-                angle = _s.ANGLE_MAX
+                _angle = _s.ANGLE_MAX
             elif _ch == _c_ch["forward"]:
-                angle = self.angle_unit
+                _angle = self.angle_unit
             elif _ch == _c_ch["backward"]:
-                angle = -self.angle_unit
+                _angle = -self.angle_unit
             elif _ch == _c_ch["dont_move"]:
-                angle = _s.get_angle()
+                # XXXX _angle = _s.get_angle()
+                _angle = None
 
-            if angle is not None:
+            self.__log.debug("%s[%s],%s: _angle=%s", i, _s.pin, _ch, _angle)
+
+            if _angle is not None:
                 # `dont_move`以外は係数を適用
                 if _ch != _c_ch["dont_move"]:
-                    angle *= factor
+                    _angle *= factor
 
                 # 可動範囲内にクリップ
-                angle = self._clip(angle, _s.ANGLE_MIN, _s.ANGLE_MAX)
-                angles.append(angle)
+                _angle = self._clip(_angle, _s.ANGLE_MIN, _s.ANGLE_MAX)
 
-        return {"cmd": "angles", "angles": angles}
+            angles.append(_angle)
+
+        return {
+            "cmd": "move_angle_sync",
+            "target_angles": angles,
+            "move_sec": None,
+            "step_n": None,
+        }
 
     def exec_cmd(self, cmd: str):
         """
@@ -190,21 +206,65 @@ class StrControl:
             cmd (str): ポーズ文字列またはスリープ時間。
         """
         parsed_cmd = self.parse_cmd(cmd)
-        self.__log.debug(f"parsed_cmd={parsed_cmd}")
+        self.__log.debug("parsed_cmd=%s", parsed_cmd)
 
         cmd_type = parsed_cmd.get("cmd")
 
-        if cmd_type == "angles":
-            angles = parsed_cmd.get("angles", [])
-            self.mservo.move_angle_sync(angles, self.move_sec, self.step_n)
+        #
+        # mservoが、ThreadMultiServoの場合は、コマンドをダイレクトに送る
+        #
+        if isinstance(self.mservo, ThreadMultiServo):
+            if cmd_type == "error":
+                self.__log.debug("%s .. ignored", parsed_cmd["err"])
+                return parsed_cmd
 
-        elif cmd_type == "sleep":
+            if cmd_type == "cancel":
+                self.mservo.cancel_cmds()
+                return parsed_cmd
+
+            self.mservo.send_cmd(parsed_cmd)
+            return parsed_cmd
+
+
+        #
+        # mservoが、MultiServoの場合は、コマンドによってメソッドを呼び出す
+        #
+
+        if cmd_type == "move_angle_sync":
+            angles = parsed_cmd.get("target_angles", [])
+            self.mservo.move_angle_sync(angles, self.move_sec, self.step_n)
+            return parsed_cmd
+
+        if cmd_type == "sleep":
             sec = parsed_cmd.get("sec", 0)
             if sec > 0:
                 time.sleep(sec)
+            return parsed_cmd
 
-        elif cmd_type == "error":
-            self.__log.error(parsed_cmd.get("err"))
+        self.__log.warning("parsed_cmd=%s .. ignored", parsed_cmd)
+        return parsed_cmd
+
+    def exec_multi_cmds(self, cmds: str | list):
+        """
+        複数のコマンドを実行する。
+
+        Args:
+            cmds (str | list[str]): スペース区切りの文字列、または、リスト
+        """
+        self.__log.debug("cmds=%s", cmds)
+
+        if isinstance(cmds, str):
+            cmds = cmds.split()
+
+        _return = []
+        for _cmd in cmds:
+            _res = self.exec_cmd(_cmd)
+            self.__log.debug("_res=%s", _res)
+
+            _return.append(_res)
+
+        self.__log.debug("_return=%s", _return)
+        return _return
 
     @staticmethod
     def flip_cmds(cmds: list[str]) -> list[str]:

@@ -3,9 +3,9 @@
 #
 from typing import Optional
 
-from .calibrable_servo import CalibrableServo
-from .multi_servo import MultiServo
-from .my_logger import get_logger
+from ..core.calibrable_servo import CalibrableServo
+from ..core.multi_servo import MultiServo
+from ..utils.my_logger import get_logger
 from .thread_worker import ThreadWorker
 
 
@@ -83,11 +83,15 @@ class ThreadMultiServo:
         self._mservo.off()
         self.__log.debug("Worker ended.")
 
-    def _send_cmd(self, cmd: dict):
+    def send_cmd(self, cmd: dict):
+        """ コマンドをキューに送る """
+        self.__log.debug("cmd=%s", cmd)
         self._worker.send(cmd)
 
-        """コマンドをJSON形式でThreadWorkerに送信する。(プライベートメソッド)"""
-        # self._worker.send(json.dumps(cmd))
+    def cancel_cmds(self):
+        """ 今まで送ったコマンドをキャンセルする """
+        self.__log.debug("")
+        self._worker.clear_cmdq()
 
     # --- 非同期制御メソッド ---
 
@@ -100,7 +104,7 @@ class ThreadMultiServo:
             各サーボの目標角度のリスト。
         """
         cmd = {"cmd": "move_angle", "target_angles": target_angles}
-        self._send_cmd(cmd)
+        self.send_cmd(cmd)
 
     def move_angle_sync(
         self,
@@ -128,7 +132,7 @@ class ThreadMultiServo:
             "move_sec": move_sec,
             "step_n": step_n,
         }
-        self._send_cmd(cmd)
+        self.send_cmd(cmd)
 
     def set_move_sec(self, sec: float):
         """
@@ -138,7 +142,7 @@ class ThreadMultiServo:
             sec (float): 移動時間(秒)。
         """
         cmd = {"cmd": "move_sec", "sec": sec}
-        self._send_cmd(cmd)
+        self.send_cmd(cmd)
 
     def set_step_n(self, n: int):
         """
@@ -148,7 +152,7 @@ class ThreadMultiServo:
             n (int): ステップ数。
         """
         cmd = {"cmd": "step_n", "n": n}
-        self._send_cmd(cmd)
+        self.send_cmd(cmd)
 
     def set_interval(self, sec: float):
         """
@@ -158,7 +162,7 @@ class ThreadMultiServo:
             sec (float): インターバル時間(秒)。
         """
         cmd = {"cmd": "interval", "sec": sec}
-        self._send_cmd(cmd)
+        self.send_cmd(cmd)
 
     def sleep(self, sec: float):
         """
@@ -168,7 +172,7 @@ class ThreadMultiServo:
             sec (float): スリープ時間(秒)。
         """
         cmd = {"cmd": "sleep", "sec": sec}
-        self._send_cmd(cmd)
+        self.send_cmd(cmd)
 
     def off(self):
         """

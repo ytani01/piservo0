@@ -1,10 +1,11 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
+""" multi_servo.py """
 import time
 
+from ..utils.my_logger import get_logger
 from .calibrable_servo import CalibrableServo
-from .my_logger import get_logger
 
 
 class MultiServo:
@@ -43,19 +44,169 @@ class MultiServo:
 
         self._pi = pi
         self.pins = pins
-        self.conf_file = conf_file
         self.first_move = first_move
 
         self.servo_n = len(pins)
 
         self.servo = [
             CalibrableServo(
-                self._pi, _pin, conf_file=self.conf_file, debug=False
+                self._pi, _pin, conf_file=conf_file, debug=False
             ) for _pin in self.pins
         ]
 
+        self.conf_file = self.servo[0].conf_file
+        self.__log.debug("conf_file=%s", self.conf_file)
+
         if self.first_move:
             self.move_angle([0] * self.servo_n)
+
+    def __getattr__(self, name):
+        """
+        存在しない属性が呼び出された場合に、
+        各サーボの同名メソッドを呼び出す。
+        """
+        self.__log.debug("name=%s", name)
+
+        # 各サーボインスタンスに同じ名前のメソッドが存在するか確認
+        if not all(
+            hasattr(s, name) and callable(getattr(s, name))
+            for s in self.servo
+        ):
+            msg = (
+                f"'{self.__class__.__name__}' object and its servos "
+                f"have no attribute '{name}'"
+            )
+            raise AttributeError(msg)
+
+        def method(*args, **kwargs):
+            results = []
+            for s in self.servo:
+                # 各サーボのメソッドを呼び出す
+                result = getattr(s, name)(*args, **kwargs)
+                results.append(result)
+
+            # 結果がすべてNoneならNoneを、そうでなければ結果のリストを返す
+            if all(r is None for r in results):
+                return None
+            return results
+
+        return method
+
+    @property
+    def pulse_center(self):
+        """
+        すべてのサーボの中央位置のパルス幅を取得する。
+
+        Returns
+        -------
+        list[int]
+            各サーボの中央位置のパルス幅のリスト。
+        """
+        pulses = [s.pulse_center for s in self.servo]
+        self.__log.debug("pulses=%s", pulses)
+        return pulses
+
+    @pulse_center.setter
+    def pulse_center(self, pulses: list[int]):
+        """
+        すべてのサーボの中央位置のパルス幅を設定する。
+
+        Parameters
+        ----------
+        pulses: list[int]
+            各サーボに設定する中央位置のパルス幅のリスト。
+        """
+        if not self._validate_pulse_list(pulses):
+            return
+        for i, s in enumerate(self.servo):
+            s.pulse_center = pulses[i]
+
+    @property
+    def pulse_min(self):
+        """
+        すべてのサーボの最小位置のパルス幅を取得する。
+
+        Returns
+        -------
+        list[int]
+            各サーボの最小位置のパルス幅のリスト。
+        """
+        pulses = [s.pulse_min for s in self.servo]
+        self.__log.debug("pulses=%s", pulses)
+        return pulses
+
+    @pulse_min.setter
+    def pulse_min(self, pulses: list[int]):
+        """
+        すべてのサーボの最小位置のパルス幅を設定する。
+
+        Parameters
+        ----------
+        pulses: list[int]
+            各サーボに設定する最小位置のパルス幅のリスト。
+        """
+        if not self._validate_pulse_list(pulses):
+            return
+        for i, s in enumerate(self.servo):
+            s.pulse_min = pulses[i]
+
+    @property
+    def pulse_max(self):
+        """
+        すべてのサーボの最大位置のパルス幅を取得する。
+
+        Returns
+        -------
+        list[int]
+            各サーボの最大位置のパルス幅のリスト。
+        """
+        pulses = [s.pulse_max for s in self.servo]
+        self.__log.debug("pulses=%s", pulses)
+        return pulses
+
+    @pulse_max.setter
+    def pulse_max(self, pulses: list[int]):
+        """
+        すべてのサーボの最大位置のパルス幅を設定する。
+
+        Parameters
+        ----------
+        pulses: list[int]
+            各サーボに設定する最大位置のパルス幅のリスト。
+        """
+        if not self._validate_pulse_list(pulses):
+            return
+        for i, s in enumerate(self.servo):
+            s.pulse_max = pulses[i]
+
+    def _validate_pulse_list(self, pulses):
+        """
+        パルス幅のリストを検証する。
+        有効な場合はTrue、そうでない場合はFalseを返す。
+
+        Parameters
+        ----------
+        pulses: list[int] or tuple[int]
+            検証するパルス幅のリストまたはタプル。
+
+        Returns
+        -------
+        bool
+            検証結果。
+        """
+        if not isinstance(pulses, (list, tuple)):
+            self.__log.error(
+                "pulses:%s must be list or tupple:%s", pulses, type(pulses)
+            )
+            return False
+
+        if len(pulses) != self.servo_n:
+            self.__log.error(
+                "len(%s)=%s != servo_n=%s", pulses, len(pulses), self.servo_n
+            )
+            return False
+
+        return True
 
     def _validate_angle_list(self, angles):
         """
@@ -119,7 +270,7 @@ class MultiServo:
             Trueの場合、可動範囲外のパルス幅も強制的に設定する。
         """
         for i, s in enumerate(self.servo):
-            self.__log.debug(f"pin=s.pin, pulse={pulses[i]}")
+            self.__log.debug("pin=%s, pulse=%s", s.pin, pulses[i])
             s.move_pulse(pulses[i], forced)
 
     def get_angle(self):
@@ -150,7 +301,7 @@ class MultiServo:
             return
 
         for _i, _s in enumerate(self.servo):
-            # self.__log.debug(f"pin={_s.pin}, angle={target_angles[_i]}")
+            # self.__log.debug("pin=%s, angle=%s", _s.pin, target_angles[_i])
             _s.move_angle(target_angles[_i])
 
     def move_angle_sync(
@@ -176,9 +327,7 @@ class MultiServo:
         """
         self.__log.debug(
             "target_angles=%s, move_sec=%s, step_n=%s",
-            target_angles,
-            move_sec,
-            step_n
+            target_angles, move_sec, step_n
         )
 
         if not self._validate_angle_list(target_angles):
