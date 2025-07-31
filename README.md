@@ -164,43 +164,13 @@ uv run piservo0 servo 18 1500
 
 uv run piservo0 cservo --help
 uv run piservo0 cservo 18
+
+文字列コマンドによるサーボ制御については、[`STR_CMD.md`](docs/STR_CMD.md) をご覧ください。
 ```
 
 ### --- Web API
 
-APIサーバーを立ち上げると、REST APIの形式でネットワーク経由で、サーボの操作ができるようになります。
-
-
-**APIサーバーの起動**
-
-``` bash
-# コマンドラインヘルプ
-uv run piservo0 web-str-api -h
-
-# 実行例
-uv run piservo0 web-str-api --pins '25,22,27,17' --angle-factor '1,1,-1,-1'
-```
-
-
-**コマンドラインによる、APIクライアントからの操作**
-
-テスト用です。
-
-``` bash
-# コマンドラインヘルプ
-uv run piservo0 web-client -h
-
-# コマンド実行例: 1-shot
-uv run piservo0 web-client cccc fbbf
-
-#  コマンド実行例: インタラクティブモード
-uv run piservo0 web-client
-:
-> ffff
-> cccc ffff
-> (Ctrl-D で終了)
-
-```
+Web APIによるサーボ制御については、[`WEB_API.md`](docs/WEB_API.md) をご覧ください。
 
 
 ## == 使用するGPIOピンについて
