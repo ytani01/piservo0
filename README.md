@@ -96,31 +96,38 @@ uv pip install -e '.[dev]' # 開発用
 
 ## == 使い方
 
-### --- 基本的な使い方 (`CalibrableServo`)
+### --- 基本的な使い方 (`ThreadMultiServo`)
 
-`CalibrableServo` を使うと、サーボモーターの個体差に合わせたキャリブレーションが簡単に行えます。
-`MultiServo` を使うと、複数サーボモーターを同時に動かすことができます。`MultiServo`は、内部で`CalibrableServo`を使っているので、キャリブレーションもできます。
-キャリブレーションや、複数サーボの動機を必要とせず、シンプルな動作だけなら、`PiServo`を使えば、より手軽にサーボを制御できます。
+`ThreadMultiServo` は、バックグラウンドスレッドでサーボモーターを制御するため、メインプログラムの実行をブロックせずに複数のサーボを同期して動かすことができる。これにより、より複雑なロボットの動作や、リアルタイム性が求められるアプリケーションに適している。
+
+`CalibrableServo` を使うと、サーボモーターの個体差に合わせたキャリブレーションが簡単に行える。`ThreadMultiServo` は内部で `CalibrableServo` を利用しているため、キャリブレーション機能も利用できる。
 
 具体的な使用例は、[`samples/`](samples/) をご覧ください。
 
 ```python
-# ``MultiServo``の例
+# ``ThreadMultiServo``の例
 
 import time
 import pigpio
-from piservo0 import MultiServo
+from piservo0 import ThreadMultiServo
 
 PIN = [18, 21]
 
 pi = pigpio.pi()
 
-servo = MultiServo(pi, PIN)
+# ThreadMultiServoのインスタンスを作成
+# バックグラウンドスレッドが自動的に開始される
+servo = ThreadMultiServo(pi, PIN)
 
-servo.move_angle_sync([90, -90])
-servo.move_angle_sync([0, 0])
+# コマンドをキューに追加し、バックグラウンドで実行
+servo.send_cmd({"cmd": "move_angle_sync", "target_angles": [90, -90]})
+time.sleep(1) # コマンドが実行されるのを待つ
 
-servo.off()
+servo.send_cmd({"cmd": "move_angle_sync", "target_angles": [0, 0]})
+time.sleep(1) # コマンドが実行されるのを待つ
+
+# 終了処理
+servo.end()
 pi.stop()
 ```
 
