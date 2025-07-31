@@ -3,6 +3,7 @@
 #
 import click
 import pigpio
+import uvicorn
 
 from .command.cmd_calib import CalibApp
 from .command.cmd_servo import CmdServo
@@ -226,12 +227,11 @@ def strctrl(
 
 @cli.command(
     help="""
-Web API Client
+String API Server
 """
 )
-@click.argument("cmdline", type=str, nargs=-1)
 @click.option(
-    "--host", "-s", type=str, default="localhost", show_default=True,
+    "--server_host", "-s", type=str, default="0.0.0.0", show_default=True,
     help="server hostname or IP address"
 )
 @click.option(
@@ -243,11 +243,41 @@ Web API Client
     "--debug", "-d", is_flag=True, default=False, help="debug flag"
 )
 @click.pass_context
-def web_client(ctx, cmdline, host, port, debug):
+def web_str_api(ctx, server_host, port, debug):
     """ Web API Client """
 
     _log = get_logger(__name__, debug)
-    _log.debug("host=%s, port=%s", host, port)
+    _log.debug("server_host=%s, port=%s", server_host, port)
+
+    uvicorn.run(
+        "piservo0.web.str_api:app", host=server_host, port=port, reload=True
+    )
+
+
+@cli.command(
+    help="""
+String API Client
+"""
+)
+@click.argument("cmdline", type=str, nargs=-1)
+@click.option(
+    "--server_host", "-s", type=str, default="localhost", show_default=True,
+    help="server hostname or IP address"
+)
+@click.option(
+    "--port", "-p", type=int, default=8000, show_default=True,
+    help="port number"
+)
+# for debug
+@click.option(
+    "--debug", "-d", is_flag=True, default=False, help="debug flag"
+)
+@click.pass_context
+def web_client(ctx, cmdline, server_host, port, debug):
+    """ Web API Client """
+
+    _log = get_logger(__name__, debug)
+    _log.debug("server_host=%s, port=%s", server_host, port)
 
     cmdline = " ".join(cmdline)
     _log.debug("cmdline=%a", cmdline)
@@ -255,7 +285,7 @@ def web_client(ctx, cmdline, host, port, debug):
     cmd_name = ctx.command.name
     _log.debug("cmd_name=%s", cmd_name)
 
-    _app = WebClientApp(host, port, cmdline, debug)
+    _app = WebClientApp(server_host, port, cmdline, debug)
     try:
         _app.main()
 
@@ -264,4 +294,3 @@ def web_client(ctx, cmdline, host, port, debug):
 
     finally:
         _app.end()
-        pass

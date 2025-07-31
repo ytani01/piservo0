@@ -17,23 +17,27 @@ from fastapi import FastAPI, Request
 
 from piservo0 import StrControl, ThreadMultiServo, get_logger
 
-# --- Constants ---
-PINS = [17, 27, 22, 25]
-ANGLE_FACTOR = [-1, -1, 1, 1]
-
 
 class StrApi:
     """Main class for Web Application"""
 
-    def __init__(self, debug=False):
+    PINS = [17, 27, 22, 25]
+    ANGLE_FACTOR = [-1, -1, 1, 1]
+
+    def __init__(self, pins=PINS, angle_factor=ANGLE_FACTOR, debug=False):
         """ constractor """
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
-        
+
+        self.pins = pins
+        self.angle_factor = angle_factor
+
         print("Initializing ...")
         self.pi = pigpio.pi()
-        self.mservo = ThreadMultiServo(self.pi, PINS, debug=False)
-        self.str_ctrl = StrControl(self.mservo, debug=False)
+        self.mservo = ThreadMultiServo(self.pi, self.pins, debug=False)
+        self.str_ctrl = StrControl(
+            self.mservo, angle_factor=self.angle_factor, debug=False
+        )
 
     def end(self):
         """ end """
@@ -47,6 +51,7 @@ class StrApi:
         self.__log.info("_res=%s", _res)
 
         return _res
+
 
 # --- FastAPI Lifespan Management ---
 @asynccontextmanager
