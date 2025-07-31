@@ -171,9 +171,9 @@ uv run piservo0 servo 18 1500
 
 uv run piservo0 cservo --help
 uv run piservo0 cservo 18
+```
 
 文字列コマンドによるサーボ制御については、[`STR_CMD.md`](docs/STR_CMD.md) をご覧ください。
-```
 
 ### --- Web API
 
