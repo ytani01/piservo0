@@ -166,6 +166,42 @@ uv run piservo0 cservo --help
 uv run piservo0 cservo 18
 ```
 
+### --- Web API
+
+APIサーバーを立ち上げると、REST APIの形式でネットワーク経由で、サーボの操作ができるようになります。
+
+
+**APIサーバーの起動**
+
+``` bash
+# コマンドラインヘルプ
+uv run piservo0 web-str-api -h
+
+# 実行例
+uv run piservo0 web-str-api --pins '25,22,27,17' --angle-factor '1,1,-1,-1'
+```
+
+
+**コマンドラインによる、APIクライアントからの操作**
+
+テスト用です。
+
+``` bash
+# コマンドラインヘルプ
+uv run piservo0 web-client -h
+
+# コマンド実行例: 1-shot
+uv run piservo0 web-client cccc fbbf
+
+#  コマンド実行例: インタラクティブモード
+uv run piservo0 web-client
+:
+> ffff
+> cccc ffff
+> (Ctrl-D で終了)
+
+```
+
 
 ## == 使用するGPIOピンについて
 
@@ -204,15 +240,11 @@ GPIO26 (37) (38) GPIO20
 
 ## == APIリファレンス
 
-より詳しいクラスやメソッドの仕様については、[こちらで生成されたドキュメント](https://ytani01.github.io/piservo0/)をご覧ください。
-
-ローカルでドキュメントを生成するには、以下のコマンドを実行してください。
+より詳しいクラスやメソッドの仕様については、以下のコマンドを実行してください。
 
 ```bash
-uv run sphinx-build -b html docs docs/_build/html
+uv run python -m pydoc piservo0
 ```
-
-生成されたドキュメントは `docs/_build/html/index.html` にあります。
 
 ### --- 他のプロジェクトから依存ライブラリとして、本プロジェクトを参照する場合の例
 
