@@ -4,13 +4,12 @@
 """
 Test for ThreadMultiServo
 """
-import json
+from unittest.mock import MagicMock
+
 import pytest
-from unittest.mock import MagicMock, patch
 
-from piservo0.helper.thread_multi_servo import ThreadMultiServo
 from piservo0.core.calibrable_servo import CalibrableServo
-
+from piservo0.helper.thread_multi_servo import ThreadMultiServo
 
 TEST_PINS = [17, 27, 22, 23]
 
@@ -21,7 +20,8 @@ def mock_mservo(mocker):
     mock_instance = MagicMock()
     # patchの対象は、テスト対象のモジュールがインポートしている場所
     mocker.patch(
-        "piservo0.helper.thread_multi_servo.MultiServo", return_value=mock_instance
+        "piservo0.helper.thread_multi_servo.MultiServo",
+        return_value=mock_instance,
     )
     return mock_instance
 
@@ -31,7 +31,8 @@ def mock_worker(mocker):
     """ThreadWorkerのモックを作成するフィクスチャ"""
     mock_instance = MagicMock()
     mocker.patch(
-        "piservo0.helper.thread_multi_servo.ThreadWorker", return_value=mock_instance
+        "piservo0.helper.thread_multi_servo.ThreadWorker",
+        return_value=mock_instance,
     )
     return mock_instance
 

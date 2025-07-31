@@ -4,7 +4,8 @@
 import sys
 
 import pigpio
-from piservo0 import MultiServo, ThreadMultiServo, StrControl, get_logger
+
+from piservo0 import MultiServo, StrControl, ThreadMultiServo, get_logger
 
 
 class TinyRobotApp:

@@ -6,14 +6,15 @@ Test for ThreadWorker
 """
 import json
 import time
+from unittest.mock import ANY, MagicMock, call
+
 import pytest
-from unittest.mock import MagicMock, ANY, call
-from piservo0.helper.thread_worker import ThreadWorker
+
 from piservo0.core.multi_servo import MultiServo
+from piservo0.helper.thread_worker import ThreadWorker
 
 
 # --- フィクスチャ ---
-
 @pytest.fixture
 def mock_multi_servo(mocker):
     """MultiServoのモックオブジェクトを作成するフィクスチャ。"""
@@ -36,18 +37,18 @@ def worker(mock_multi_servo):
 
 
 # --- ヘルパー関数 ---
-
 def wait_for_call(mock_obj, timeout=1.0):
     """モックオブジェクトが呼び出されるのを待機する。"""
     start_time = time.time()
     while not mock_obj.called:
         if time.time() - start_time > timeout:
-            raise TimeoutError("Mock was not called within the timeout period.")
+            raise TimeoutError(
+                "Mock was not called within the timeout period."
+            )
         time.sleep(0.01)
 
 
 # --- テストケース ---
-
 def test_initialization(mock_multi_servo):
     """
     ThreadWorkerが正しく初期化されるかテストする。
@@ -60,7 +61,9 @@ def test_initialization(mock_multi_servo):
     assert not worker_def.is_alive()
 
     # 明示的に値を指定する場合
-    worker_custom = ThreadWorker(mservo=mock_multi_servo, move_sec=0.5, step_n=50)
+    worker_custom = ThreadWorker(
+        mservo=mock_multi_servo, move_sec=0.5, step_n=50
+    )
     assert worker_custom.move_sec == 0.5
     assert worker_custom.step_n == 50
 
@@ -99,13 +102,6 @@ def test_start_and_end(worker):
             "move_angle",
             lambda w: ([30, 40],),
         ),
-        # angles (move_angle_syncのエイリアス)
-        (
-            "angles",
-            {"angles": [50, 60]},
-            "move_angle_sync",
-            lambda w: ([50, 60], w.move_sec, w.step_n),
-        ),
     ],
 )
 def test_move_commands(
@@ -142,7 +138,9 @@ def test_parameter_commands(worker, cmd_dict, expected_attr, expected_value):
     start_time = time.time()
     while getattr(worker_instance, expected_attr) != expected_value:
         if time.time() - start_time > timeout:
-            pytest.fail(f"Attribute '{expected_attr}' was not updated in time.")
+            pytest.fail(
+                f"Attribute '{expected_attr}' was not updated in time."
+            )
         time.sleep(0.01)
 
     assert getattr(worker_instance, expected_attr) == expected_value
@@ -165,7 +163,7 @@ def test_sleep_command(worker, mocker):
                 assert True
                 return
         time.sleep(0.01)
-    
+
     pytest.fail("time.sleep(1.23) was not called")
 
 
@@ -179,7 +177,9 @@ def test_interval_sleep(worker, mocker):
     time.sleep(0.1)  # コマンド処理を待つ
 
     # 動作コマンドを送信
-    worker_instance.send(json.dumps({"cmd": "angles", "angles": [10]}))
+    worker_instance.send(
+        json.dumps({"cmd": "move_angle", "target_angles": [10]})
+    )
 
     # 呼び出しを待機
     timeout = time.time() + 2
@@ -198,14 +198,19 @@ def test_invalid_json(worker, mocker):
     """無効なJSON文字列を処理しようとした際のエラーをテストする。"""
     worker_instance, mock_mservo = worker
     mock_log_instance = MagicMock()
-    mocker.patch("piservo0.helper.thread_worker.get_logger", return_value=mock_log_instance)
+    mocker.patch(
+        "piservo0.helper.thread_worker.get_logger",
+        return_value=mock_log_instance,
+    )
     worker_instance.end()
     worker_instance = ThreadWorker(mservo=mock_mservo, debug=True)
     worker_instance.start()
 
     worker_instance.send("not a json")
     wait_for_call(mock_log_instance.error)
-    mock_log_instance.error.assert_called_once_with(ANY, "JSONDecodeError", ANY)
+    mock_log_instance.error.assert_called_once_with(
+        ANY, "JSONDecodeError", ANY
+    )
     mock_mservo.move_angle_sync.assert_not_called()
     worker_instance.end()
 
@@ -214,7 +219,10 @@ def test_no_cmd_key(worker, mocker):
     """'cmd'キーがないコマンドを処理しようとした際のエラーをテストする。"""
     worker_instance, mock_mservo = worker
     mock_log_instance = MagicMock()
-    mocker.patch("piservo0.helper.thread_worker.get_logger", return_value=mock_log_instance)
+    mocker.patch(
+        "piservo0.helper.thread_worker.get_logger",
+        return_value=mock_log_instance,
+    )
     worker_instance.end()
     worker_instance = ThreadWorker(mservo=mock_mservo, debug=True)
     worker_instance.start()
@@ -230,7 +238,10 @@ def test_unknown_command(worker, mocker):
     """未知のコマンドを処理しようとした際のエラーをテストする。"""
     worker_instance, mock_mservo = worker
     mock_log_instance = MagicMock()
-    mocker.patch("piservo0.helper.thread_worker.get_logger", return_value=mock_log_instance)
+    mocker.patch(
+        "piservo0.helper.thread_worker.get_logger",
+        return_value=mock_log_instance,
+    )
     worker_instance.end()
     worker_instance = ThreadWorker(mservo=mock_mservo, debug=True)
     worker_instance.start()

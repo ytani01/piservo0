@@ -24,9 +24,18 @@ ANGLE_FACTOR = [-1, -1, 1, 1]
 CONF_FILE = expanduser("~/servo.json")
 
 # Motion Commands
-FORWARD_CMDS = "cccc fccc fbbb cbbb ccbb cfbb cfbc bccc cccc cccf bbbf bbbc bbcc bbfc cbfc cccb"
-RIGHT_CMDS = "cccc bbff bbFf fbFf fbfF cbcF cfcF bFcc bFcb bfbb bcBc fcBc fcbc Fccc Fcbc fcbc fcbB"
-LEFT_CMDS = "cccc ffbb fFbb fFbf Ffbf Fcbc Fcfc ccFb bcFb bbfb cBcb cBcf cbcf cccF cbcF cbcf Bbcf"
+FORWARD_CMDS = (
+    "cccc fccc fbbb cbbb ccbb cfbb cfbc bccc "
+    "cccc cccf bbbf bbbc bbcc bbfc cbfc cccb"
+)
+RIGHT_CMDS = (
+    "cccc bbff bbFf fbFf fbfF cbcF cfcF bFcc "
+    "bFcb bfbb bcBc fcBc fcbc Fccc Fcbc fcbc fcbB"
+)
+LEFT_CMDS = (
+    "cccc ffbb fFbb fFbf Ffbf Fcbc Fcfc ccFb "
+    "bcFb bbfb cBcb cBcf cbcf cccF cbcF cbcf Bbcf"
+)
 STOP_CMDS = "0.5 cccc 0.5 cFFc"
 
 print(f"__name__={__name__}")
@@ -39,8 +48,12 @@ class TinyRobotWebApp:
     def __init__(self):
         print("Initializing TinyRobotWebApp...")
         self.pi = pigpio.pi()
-        self.mservo = MultiServo(self.pi, PINS, conf_file=CONF_FILE, debug=False)
-        self.str_ctrl = StrControl(self.mservo, angle_factor=ANGLE_FACTOR, debug=False)
+        self.mservo = MultiServo(
+            self.pi, PINS, conf_file=CONF_FILE, debug=False
+        )
+        self.str_ctrl = StrControl(
+            self.mservo, angle_factor=ANGLE_FACTOR, debug=False
+        )
         self.thr_worker = ThreadWorker(self.mservo, debug=True)
 
     def startup(self):
