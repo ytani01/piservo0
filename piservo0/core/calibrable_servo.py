@@ -78,11 +78,11 @@ class CalibrableServo(PiServo):
             pulse = self.get_pulse()
 
         if pulse < super().MIN:
-            self.__log.warning(f"pulse({pulse}) < {super().MIN}")
+            self.__log.warning("pulse=%s < %s", pulse, super().MIN)
             pulse = super().MIN
 
         if pulse > super().MAX:
-            self.__log.warning(f"pulse({pulse}) > {super().MAX}")
+            self.__log.warning("pulse=%s > %s", pulse, super().MAX)
             pulse = super().MAX
 
         return pulse
@@ -146,13 +146,13 @@ class CalibrableServo(PiServo):
         if not forced:
             if pulse < self.pulse_min:
                 self.__log.warning(
-                    "pulse(%s) < self.pulse_min(%s)", pulse, self.pulse_min
+                    "pulse(%s) < pulse_min(%s)", pulse, self.pulse_min
                 )
                 pulse = self.pulse_min
 
             if pulse > self.pulse_max:
                 self.__log.warning(
-                    "pulse(%s) > self.pulse_max(%s)", pulse, self.pulse_max
+                    "pulse(%s) > pulse_max(%s)", pulse, self.pulse_max
                 )
                 pulse = self.pulse_max
 
@@ -183,7 +183,7 @@ class CalibrableServo(PiServo):
         pulse_float = d / self.ANGLE_MAX * deg + self.pulse_center
         pulse_int = int(round(pulse_float))
         self.__log.debug(
-            f"deg={deg},pulse_float={pulse_float},pulse_int={pulse_int}"
+            "deg=%s,pulse_float=%s,pulse_int=%s", deg, pulse_float, pulse_int
         )
 
         return pulse_int
@@ -196,7 +196,7 @@ class CalibrableServo(PiServo):
             d = self.pulse_center - self.pulse_min
 
         deg = (pulse - self.pulse_center) / d * self.ANGLE_MAX
-        self.__log.debug(f"pulse={pulse},deg={deg}")
+        self.__log.debug("pulse=%s,deg=%s", pulse, deg)
 
         return deg
 
@@ -204,7 +204,7 @@ class CalibrableServo(PiServo):
         """現在のサーボの角度を取得する。"""
         pulse = self.get_pulse()
         angle = self.pulse2deg(pulse)
-        self.__log.debug(f"pulse={pulse}, angle={angle}")
+        self.__log.debug("pulse=%s, angle=%s", pulse, angle)
 
         return angle
 
@@ -214,7 +214,7 @@ class CalibrableServo(PiServo):
         文字列: 'center' | 'min' | 'max'
         None | '': 動かさない (現在角度を維持)
         """
-        self.__log.debug(f"deg={deg}")
+        self.__log.debug("deg=%s", deg)
 
         if deg is None:  # None の場合は、動かさない
             deg = self.get_angle()
@@ -250,10 +250,7 @@ class CalibrableServo(PiServo):
 
         self.__log.debug(
             "Loaded: pin=%s, min=%s, center=%s, max=%s",
-            self.pin,
-            self.pulse_min,
-            self.pulse_center,
-            self.pulse_max,
+            self.pin, self.pulse_min, self.pulse_center, self.pulse_max
         )
 
     def save_conf(self):
@@ -265,7 +262,7 @@ class CalibrableServo(PiServo):
             "max": self.pulse_max,
         }
         self._config_manager.save_config(new_config)
-        self.__log.debug(f"Saved: {new_config}")
+        self.__log.debug("Saved: %s", new_config)
 
     def _ensure_config_exists(self):
         """もし設定がなければ、現在の値で保存する。(プライベートメソッド)"""

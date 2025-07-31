@@ -1,6 +1,7 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
+""" multi_servo.py """
 import time
 
 from ..utils.my_logger import get_logger
@@ -152,7 +153,7 @@ class MultiServo:
             return
 
         for _i, _s in enumerate(self.servo):
-            # self.__log.debug(f"pin={_s.pin}, angle={target_angles[_i]}")
+            # self.__log.debug("pin=%s, angle=%s", _s.pin, target_angles[_i])
             _s.move_angle(target_angles[_i])
 
     def move_angle_sync(
@@ -178,9 +179,7 @@ class MultiServo:
         """
         self.__log.debug(
             "target_angles=%s, move_sec=%s, step_n=%s",
-            target_angles,
-            move_sec,
-            step_n
+            target_angles, move_sec, step_n
         )
 
         if not self._validate_angle_list(target_angles):
