@@ -92,6 +92,122 @@ class MultiServo:
 
         return method
 
+    @property
+    def pulse_center(self):
+        """
+        すべてのサーボの中央位置のパルス幅を取得する。
+
+        Returns
+        -------
+        list[int]
+            各サーボの中央位置のパルス幅のリスト。
+        """
+        pulses = [s.pulse_center for s in self.servo]
+        self.__log.debug("pulses=%s", pulses)
+        return pulses
+
+    @pulse_center.setter
+    def pulse_center(self, pulses: list[int]):
+        """
+        すべてのサーボの中央位置のパルス幅を設定する。
+
+        Parameters
+        ----------
+        pulses: list[int]
+            各サーボに設定する中央位置のパルス幅のリスト。
+        """
+        if not self._validate_pulse_list(pulses):
+            return
+        for i, s in enumerate(self.servo):
+            s.pulse_center = pulses[i]
+
+    @property
+    def pulse_min(self):
+        """
+        すべてのサーボの最小位置のパルス幅を取得する。
+
+        Returns
+        -------
+        list[int]
+            各サーボの最小位置のパルス幅のリスト。
+        """
+        pulses = [s.pulse_min for s in self.servo]
+        self.__log.debug("pulses=%s", pulses)
+        return pulses
+
+    @pulse_min.setter
+    def pulse_min(self, pulses: list[int]):
+        """
+        すべてのサーボの最小位置のパルス幅を設定する。
+
+        Parameters
+        ----------
+        pulses: list[int]
+            各サーボに設定する最小位置のパルス幅のリスト。
+        """
+        if not self._validate_pulse_list(pulses):
+            return
+        for i, s in enumerate(self.servo):
+            s.pulse_min = pulses[i]
+
+    @property
+    def pulse_max(self):
+        """
+        すべてのサーボの最大位置のパルス幅を取得する。
+
+        Returns
+        -------
+        list[int]
+            各サーボの最大位置のパルス幅のリスト。
+        """
+        pulses = [s.pulse_max for s in self.servo]
+        self.__log.debug("pulses=%s", pulses)
+        return pulses
+
+    @pulse_max.setter
+    def pulse_max(self, pulses: list[int]):
+        """
+        すべてのサーボの最大位置のパルス幅を設定する。
+
+        Parameters
+        ----------
+        pulses: list[int]
+            各サーボに設定する最大位置のパルス幅のリスト。
+        """
+        if not self._validate_pulse_list(pulses):
+            return
+        for i, s in enumerate(self.servo):
+            s.pulse_max = pulses[i]
+
+    def _validate_pulse_list(self, pulses):
+        """
+        パルス幅のリストを検証する。
+        有効な場合はTrue、そうでない場合はFalseを返す。
+
+        Parameters
+        ----------
+        pulses: list[int] or tuple[int]
+            検証するパルス幅のリストまたはタプル。
+
+        Returns
+        -------
+        bool
+            検証結果。
+        """
+        if not isinstance(pulses, (list, tuple)):
+            self.__log.error(
+                "pulses:%s must be list or tupple:%s", pulses, type(pulses)
+            )
+            return False
+
+        if len(pulses) != self.servo_n:
+            self.__log.error(
+                "len(%s)=%s != servo_n=%s", pulses, len(pulses), self.servo_n
+            )
+            return False
+
+        return True
+
     def _validate_angle_list(self, angles):
         """
         角度のリストを検証する。
