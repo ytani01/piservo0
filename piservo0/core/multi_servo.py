@@ -106,20 +106,24 @@ class MultiServo:
         self.__log.debug("pulses=%s", pulses)
         return pulses
 
-    @pulse_center.setter
-    def pulse_center(self, pulses: list[int]):
+    def set_pulse_center(self, index: int, pulse: int):
         """
-        すべてのサーボの中央位置のパルス幅を設定する。
+        指定したサーボの中央位置のパルス幅を設定する。
 
         Parameters
         ----------
-        pulses: list[int]
-            各サーボに設定する中央位置のパルス幅のリスト。
+        index: int
+            配列インデックス
+        pulses: int
+            パルス幅
         """
-        if not self._validate_pulse_list(pulses):
-            return
-        for i, s in enumerate(self.servo):
-            s.pulse_center = pulses[i]
+        self.__log.debug("index=%s, pulse=%s", index, pulse)
+
+        if 0 <= index <= len(self.servo):
+            self.servo[index].pulse_center = pulse
+        else:
+            msg = f"Index({index}) out of range: 0 .. {len(self.servo)}"
+            raise IndexError(msg)
 
     @property
     def pulse_min(self):
@@ -135,20 +139,24 @@ class MultiServo:
         self.__log.debug("pulses=%s", pulses)
         return pulses
 
-    @pulse_min.setter
-    def pulse_min(self, pulses: list[int]):
+    def set_pulse_min(self, index: int, pulse: int):
         """
-        すべてのサーボの最小位置のパルス幅を設定する。
+        指定したサーボの最小位置のパルス幅を設定する。
 
         Parameters
         ----------
-        pulses: list[int]
-            各サーボに設定する最小位置のパルス幅のリスト。
+        index: int
+            配列インデックス
+        pulses: int
+            パルス幅
         """
-        if not self._validate_pulse_list(pulses):
-            return
-        for i, s in enumerate(self.servo):
-            s.pulse_min = pulses[i]
+        self.__log.debug("index=%s, pulse=%s", index, pulse)
+
+        if 0 <= index <= len(self.servo):
+            self.servo[index].pulse_min = pulse
+        else:
+            msg = f"Index({index}) out of range: 0 .. {len(self.servo)}"
+            raise IndexError(msg)
 
     @property
     def pulse_max(self):
@@ -164,20 +172,24 @@ class MultiServo:
         self.__log.debug("pulses=%s", pulses)
         return pulses
 
-    @pulse_max.setter
-    def pulse_max(self, pulses: list[int]):
+    def set_pulse_max(self, index: int, pulse: int):
         """
-        すべてのサーボの最大位置のパルス幅を設定する。
+        指定したサーボの最小位置のパルス幅を設定する。
 
         Parameters
         ----------
-        pulses: list[int]
-            各サーボに設定する最大位置のパルス幅のリスト。
+        index: int
+            配列インデックス
+        pulses: int
+            パルス幅
         """
-        if not self._validate_pulse_list(pulses):
-            return
-        for i, s in enumerate(self.servo):
-            s.pulse_max = pulses[i]
+        self.__log.debug("index=%s, pulse=%s", index, pulse)
+
+        if 0 <= index <= len(self.servo):
+            self.servo[index].pulse_max = pulse
+        else:
+            msg = f"Index({index}) out of range: 0 .. {len(self.servo)}"
+            raise IndexError(msg)
 
     def _validate_pulse_list(self, pulses):
         """
