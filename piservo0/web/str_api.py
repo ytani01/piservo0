@@ -89,6 +89,7 @@ async def read_root():
     """root"""
     return {"Hello": "World"}
 
+
 @app.get("/cmd/{cmdline}")
 async def exec_cmd(request: Request, cmdline: str):
     """execute commands"""

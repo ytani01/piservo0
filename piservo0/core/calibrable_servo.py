@@ -140,8 +140,18 @@ class CalibrableServo(PiServo):
 
         指定されたパルス幅がキャリブレーション範囲外の場合、範囲内に調整される。
 
-        `forced`が`True`の場合は、範囲外でも動かす。
+        Parameters
+        ----------
+        pulse: int | None
+            パルス幅
+            `None`の場合は、動かさずに戻る
+
+        forced: bool
+            `True`の場合は、範囲チェックを行わない
         """
+
+        if pulse is None:
+            return
 
         if not forced:
             if pulse < self.pulse_min:
@@ -235,8 +245,7 @@ class CalibrableServo(PiServo):
         deg = max(min(deg, self.ANGLE_MAX), self.ANGLE_MIN)
         self.__log.debug("deg=%s", deg)
 
-        f_deg = float(deg)
-        pulse = self.deg2pulse(f_deg)
+        pulse = self.deg2pulse(deg)
 
         self.move_pulse(pulse)
 

@@ -104,16 +104,14 @@ class ThreadWorker(threading.Thread):
                     _cmd = json.loads(_cmd)
                     self.__log.debug("json.loads() --> _cmd=%a", _cmd)
 
-                _cmd_type = _cmd["cmd"]
-
-                # e.g. {
-                #        "cmd": "move_angle_sync",
-                #        "target_angles": [30, 0, -30, 0],
-                #        "move_sec": 0.2,
-                #        "step_n": 40
-                #      }
-                if _cmd_type == "move_angle_sync":
-                    _target_angles = _cmd["target_angles"]
+                if _cmd["cmd"] == "move_angle_sync":
+                    # e.g. {
+                    #        "cmd": "move_angle_sync",
+                    #        "angles": [30, None, -30, 0],
+                    #        "move_sec": 0.2,  # optional
+                    #        "step_n": 40  # optional
+                    #      }
+                    _angles = _cmd["angles"]
 
                     try:
                         _move_sec = _cmd["move_sec"]
@@ -134,7 +132,7 @@ class ThreadWorker(threading.Thread):
                         _step_n = self.step_n
 
                     self.mservo.move_angle_sync(
-                        _target_angles, _move_sec, _step_n
+                        _angles, _move_sec, _step_n
                     )
 
                     if self.interval_sec > 0:
@@ -145,14 +143,14 @@ class ThreadWorker(threading.Thread):
                         time.sleep(self.interval_sec)
                     continue
 
-                # e.g. {
-                #        "cmd": "move_angle",
-                #        "target_angles": [30, 0, -30, 0]
-                #      }
-                if _cmd_type == "move_angle":
-                    _target_angles = _cmd["target_angles"]
+                if _cmd["cmd"] == "move_angle":
+                    # e.g. {
+                    #        "cmd": "move_angle",
+                    #        "angles": [30, None, -30, 0]
+                    #      }
+                    _angles = _cmd["angles"]
 
-                    self.mservo.move_angle(_target_angles)
+                    self.mservo.move_angle(_angles)
 
                     if self.interval_sec > 0:
                         self.__log.debug(
@@ -162,28 +160,37 @@ class ThreadWorker(threading.Thread):
                         time.sleep(self.interval_sec)
                     continue
 
-                # e.g. {"cmd": "move_sec", "sec": 1.5}
-                if _cmd_type == "move_sec":
+                if _cmd["cmd"] == "move_pulse":
+                    # e.g. {
+                    #        "cmd": "move_pulse",
+                    #        "pulses": [2000, 1000, None, 0]
+                    _pulses = _cmd["pulses"]
+
+                    self.mservo.move_pulse(_pulses, forced=True)
+                    continue
+
+                if _cmd["cmd"] == "move_sec":
+                    # e.g. {"cmd": "move_sec", "sec": 1.5}
                     self.move_sec = float(_cmd["sec"])
                     self.__log.debug("move_sec=%s", self.move_sec)
                     continue
 
-                # e.g. {"cmd": "step_n", "n": 40}
-                if _cmd_type == "step_n":
+                if _cmd["cmd"] == "step_n":
+                    # e.g. {"cmd": "step_n", "n": 40}
                     self.step_n = int(_cmd["n"])
                     self.__log.debug("step_n=%s", self.step_n)
                     continue
 
-                # e.g. {"cmd": "interval", "sec": 0.5}
-                if _cmd_type == "interval":
+                if _cmd["cmd"] == "interval":
+                    # e.g. {"cmd": "interval", "sec": 0.5}
                     self.interval_sec = float(_cmd["sec"])
                     self.__log.debug(
                         "set interval_sec=%s", self.interval_sec
                     )
                     continue
 
-                # e.g. {"cmd": "sleep", "sec": 1.0}
-                if _cmd_type == "sleep":
+                if _cmd["cmd"] == "sleep":
+                    # e.g. {"cmd": "sleep", "sec": 1.0}
                     _sec = float(_cmd["sec"])
                     self.__log.debug("sleep: %s sec", _sec)
                     if _sec > 0.0:
