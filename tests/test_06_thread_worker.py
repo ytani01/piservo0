@@ -209,7 +209,7 @@ def test_invalid_json(worker, mocker):
     worker_instance.send("not a json")
     wait_for_call(mock_log_instance.error)
     mock_log_instance.error.assert_called_once_with(
-        ANY, "JSONDecodeError", ANY
+        "%s: %s", "JSONDecodeError", ANY
     )
     mock_mservo.move_angle_sync.assert_not_called()
     worker_instance.end()
@@ -227,9 +227,12 @@ def test_no_cmd_key(worker, mocker):
     worker_instance = ThreadWorker(mservo=mock_mservo, debug=True)
     worker_instance.start()
 
-    worker_instance.send(json.dumps({"no_cmd_key": "value"}))
+    cmd = {"no_cmd_key": "value"}
+    worker_instance.send(json.dumps(cmd))
     wait_for_call(mock_log_instance.error)
-    mock_log_instance.error.assert_called_once_with(ANY, "KeyError", ANY)
+    mock_log_instance.error.assert_called_once_with(
+        "invalid command (no 'cmd' key): %s", cmd
+    )
     mock_mservo.move_angle_sync.assert_not_called()
     worker_instance.end()
 
@@ -249,6 +252,8 @@ def test_unknown_command(worker, mocker):
     cmd = {"cmd": "unknown_command"}
     worker_instance.send(json.dumps(cmd))
     wait_for_call(mock_log_instance.error)
-    mock_log_instance.error.assert_called_once_with("ERROR: %s", cmd)
+    mock_log_instance.error.assert_called_once_with(
+        "unknown command: %s", cmd
+    )
     mock_mservo.move_angle_sync.assert_not_called()
     worker_instance.end()

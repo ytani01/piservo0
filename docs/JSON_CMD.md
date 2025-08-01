@@ -8,6 +8,15 @@
   "cmd": "move_angle_sync",
   "angles": [0, null, 30, -60],
   "move_sec": 0.2,
+  "step_n": 40
+}
+```
+
+**非同期移動**
+``` json
+{
+  "cmd": "move_angle",
+  "angles": [0, null, 30, -60]
 }
 ```
 
