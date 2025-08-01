@@ -2,7 +2,7 @@
 # (c) 2025 Yoichi Tanibayashi
 #
 """
-piservo0 String API Server
+piservo0 JSON API Server
 """
 import json
 import os
@@ -13,7 +13,6 @@ from fastapi import FastAPI, Request
 
 from piservo0 import MultiServo, ThreadWorker, get_logger
 
-json_app = None
 
 class JsonApi:
     """Main class for Web Application"""
@@ -30,8 +29,8 @@ class JsonApi:
         print("Initializing ...")
         self.pi = pigpio.pi()
 
-        self.mservo = MultiServo(self.pi, self.pins, debug=False)
-        self.thr_worker = ThreadWorker(self.mservo, debug=True)
+        self.mservo = MultiServo(self.pi, self.pins, debug=self._debug)
+        self.thr_worker = ThreadWorker(self.mservo, debug=self._debug)
         self.thr_worker.start()
 
     def end(self):
@@ -42,15 +41,14 @@ class JsonApi:
         """ send JSON command to thread worker """
         self.__log.debug("cmdjson=%s", cmdjson)
 
-        _res = self.thr_worker.send(cmdjson)
-        self.__log.debug("_res=%s", _res)
+        self.thr_worker.send(cmdjson)
 
-        return _res
+        return {"sent": cmdjson}
 
 
 # --- FastAPI Lifespan Management ---
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI):
     """Lifespan manager for the application"""
 
     # --- get options from envron variables ---
@@ -96,9 +94,10 @@ async def exec_cmd(cmdjson, request: Request):
         cmdjson = [cmdjson]
         print(f"cmdjson={cmdjson}, {type(cmdjson)}")
 
+    _res = []
     for c in cmdjson:
         print(f"c={c}")
-        _res = request.app.state.json_app.send_cmdjson(c)
+        _res.append(request.app.state.json_app.send_cmdjson(c))
 
     print(f"_res={_res}")
     return _res

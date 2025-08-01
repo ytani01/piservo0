@@ -6,24 +6,40 @@ import queue
 import threading
 import time
 
+from ..core.multi_servo import MultiServo
 from ..utils.my_logger import get_logger
 
 
 class ThreadWorker(threading.Thread):
-    """ Thred worker """
+    """ Thred worker
+
+    すべてのコマンドは、キューを介して受け渡される。
+
+    利用者は、コマンドを`send()`したら、ブロックせずに、
+    非同期に他の処理を行える。
+
+    `Worker`は、コマンドキューから一つずつコマンドを取り出し、
+    順に実行する。
+
+    コマンドをキャンセルしたい場合は、`clear_cmdq()`で、
+    キューに溜まっているコマンドをすべてキャンセルできる。
+    """
 
     DEF_RECV_TIMEOUT = 0.2  # sec
     DEF_INTERVAL_SEC = 0.0  # sec
 
     def __init__(
-        self, mservo,
-        move_sec=None,
-        step_n=None,
-        interval_sec=DEF_INTERVAL_SEC, debug=False
+        self, mservo: MultiServo,
+        move_sec: float | None = None,
+        step_n: int | None = None,
+        interval_sec: float = DEF_INTERVAL_SEC,
+        debug=False
     ):
         """ constructor """
+        super().__init__(daemon=True)
+
         self._debug = debug
-        self.__log = get_logger(__class__.__name__, self._debug)
+        self.__log = get_logger(self.__class__.__name__, self._debug)
         self.__log.debug("")
 
         self.mservo = mservo
@@ -38,12 +54,20 @@ class ThreadWorker(threading.Thread):
         else:
             self.step_n = step_n
 
-        self.interval_sec = self.DEF_INTERVAL_SEC
+        self.interval_sec = interval_sec
 
-        self._cmdq = queue.Queue()
+        self._cmdq: queue.Queue = queue.Queue()
         self._active = False
 
-        super().__init__(daemon=True)
+        self._command_handlers = {
+            "move_angle_sync": self._handle_move_angle_sync,
+            "move_angle": self._handle_move_angle,
+            "move_pulse": self._handle_move_pulse,
+            "move_sec": self._handle_move_sec,
+            "step_n": self._handle_step_n,
+            "interval": self._handle_interval,
+            "sleep": self._handle_sleep,
+        }
 
     def __del__(self):
         """ del """
@@ -84,6 +108,89 @@ class ThreadWorker(threading.Thread):
 
         return _cmd
 
+    def _handle_move_angle_sync(self, cmd: dict):
+        """
+        e.g. {
+               "cmd": "move_angle_sync",
+               "angles": [30, None, -30, 0],
+               "move_sec": 0.2,  # optional
+               "step_n": 40  # optional
+             }
+        """
+        _angles = cmd["angles"]
+
+        _move_sec = cmd.get("move_sec")
+        if _move_sec is None:
+            _move_sec = self.move_sec
+
+        _step_n = cmd.get("step_n")
+        if _step_n is None:
+            _step_n = self.step_n
+
+        self.mservo.move_angle_sync(_angles, _move_sec, _step_n)
+        self._sleep_interval()
+
+    def _handle_move_angle(self, cmd: dict):
+        """
+        e.g. {
+               "cmd": "move_angle",
+               "angles": [30, None, -30, 0]
+             }
+        """
+        _angles = cmd["angles"]
+        self.mservo.move_angle(_angles)
+        self._sleep_interval()
+
+    def _handle_move_pulse(self, cmd: dict):
+        """
+        e.g. {
+               "cmd": "move_pulse",
+               "pulses": [2000, 1000, None, 0]
+        """
+        _pulses = cmd["pulses"]
+        self.mservo.move_pulse(_pulses, forced=True)
+
+    def _handle_move_sec(self, cmd: dict):
+        """ e.g. {"cmd": "move_sec", "sec": 1.5} """
+        self.move_sec = float(cmd["sec"])
+        self.__log.debug("move_sec=%s", self.move_sec)
+
+    def _handle_step_n(self, cmd: dict):
+        """ e.g. {"cmd": "step_n", "n": 40} """
+        self.step_n = int(cmd["n"])
+        self.__log.debug("step_n=%s", self.step_n)
+
+    def _handle_interval(self, cmd: dict):
+        """ e.g. {"cmd": "interval", "sec": 0.5} """
+        self.interval_sec = float(cmd["sec"])
+        self.__log.debug("set interval_sec=%s", self.interval_sec)
+
+    def _handle_sleep(self, cmd: dict):
+        """ e.g. {"cmd": "sleep", "sec": 1.0} """
+        _sec = float(cmd["sec"])
+        self.__log.debug("sleep: %s sec", _sec)
+        if _sec > 0.0:
+            time.sleep(_sec)
+
+    def _sleep_interval(self):
+        """ sleep interval """
+        if self.interval_sec > 0:
+            self.__log.debug("sleep interval_sec: %s sec", self.interval_sec)
+            time.sleep(self.interval_sec)
+
+    def _dispatch_cmd(self, cmd: dict):
+        """ dispatch command """
+        _cmd_str = cmd.get("cmd")
+        if not _cmd_str:
+            self.__log.error("invalid command (no 'cmd' key): %s", cmd)
+            return
+
+        handler = self._command_handlers.get(_cmd_str)
+        if handler:
+            handler(cmd)
+        else:
+            self.__log.error("unknown command: %s", cmd)
+
     def run(self):
         """ run """
         self.__log.debug("start")
@@ -91,113 +198,18 @@ class ThreadWorker(threading.Thread):
         self._active = True
 
         while self._active:
-            # コマンド受信
             _cmd = self.recv()
-            if _cmd == "":
+            if not _cmd:
                 time.sleep(0.1)
                 continue
             self.__log.debug("_cmd=%a", _cmd)
 
             try:
-                # 文字列の場合は、JSONと仮定して変換
                 if isinstance(_cmd, str):
                     _cmd = json.loads(_cmd)
                     self.__log.debug("json.loads() --> _cmd=%a", _cmd)
 
-                if _cmd["cmd"] == "move_angle_sync":
-                    # e.g. {
-                    #        "cmd": "move_angle_sync",
-                    #        "angles": [30, None, -30, 0],
-                    #        "move_sec": 0.2,  # optional
-                    #        "step_n": 40  # optional
-                    #      }
-                    _angles = _cmd["angles"]
-
-                    try:
-                        _move_sec = _cmd["move_sec"]
-                    except KeyError as _e:
-                        self.__log.debug("%s, %s", type(_e).__name__, _e)
-                        _move_sec = self.move_sec
-                        self.__log.debug("_move_sec=%s", _move_sec)
-                    if _move_sec is None:
-                        _move_sec = self.move_sec
-
-                    try:
-                        _step_n = _cmd["step_n"]
-                    except KeyError as _e:
-                        self.__log.debug("%s, %s", type(_e).__name__, _e)
-                        _step_n = self.step_n
-                        self.__log.debug("_step_n=%s", _step_n)
-                    if _step_n is None:
-                        _step_n = self.step_n
-
-                    self.mservo.move_angle_sync(
-                        _angles, _move_sec, _step_n
-                    )
-
-                    if self.interval_sec > 0:
-                        self.__log.debug(
-                            "sleep interval_sec: %s sec",
-                            self.interval_sec
-                        )
-                        time.sleep(self.interval_sec)
-                    continue
-
-                if _cmd["cmd"] == "move_angle":
-                    # e.g. {
-                    #        "cmd": "move_angle",
-                    #        "angles": [30, None, -30, 0]
-                    #      }
-                    _angles = _cmd["angles"]
-
-                    self.mservo.move_angle(_angles)
-
-                    if self.interval_sec > 0:
-                        self.__log.debug(
-                            "sleep interval_sec: %s sec",
-                            self.interval_sec
-                        )
-                        time.sleep(self.interval_sec)
-                    continue
-
-                if _cmd["cmd"] == "move_pulse":
-                    # e.g. {
-                    #        "cmd": "move_pulse",
-                    #        "pulses": [2000, 1000, None, 0]
-                    _pulses = _cmd["pulses"]
-
-                    self.mservo.move_pulse(_pulses, forced=True)
-                    continue
-
-                if _cmd["cmd"] == "move_sec":
-                    # e.g. {"cmd": "move_sec", "sec": 1.5}
-                    self.move_sec = float(_cmd["sec"])
-                    self.__log.debug("move_sec=%s", self.move_sec)
-                    continue
-
-                if _cmd["cmd"] == "step_n":
-                    # e.g. {"cmd": "step_n", "n": 40}
-                    self.step_n = int(_cmd["n"])
-                    self.__log.debug("step_n=%s", self.step_n)
-                    continue
-
-                if _cmd["cmd"] == "interval":
-                    # e.g. {"cmd": "interval", "sec": 0.5}
-                    self.interval_sec = float(_cmd["sec"])
-                    self.__log.debug(
-                        "set interval_sec=%s", self.interval_sec
-                    )
-                    continue
-
-                if _cmd["cmd"] == "sleep":
-                    # e.g. {"cmd": "sleep", "sec": 1.0}
-                    _sec = float(_cmd["sec"])
-                    self.__log.debug("sleep: %s sec", _sec)
-                    if _sec > 0.0:
-                        time.sleep(_sec)
-                    continue
-
-                self.__log.error("ERROR: %s", _cmd)
+                self._dispatch_cmd(_cmd)
 
             except Exception as _e:
                 self.__log.error("%s: %s", type(_e).__name__, _e)
