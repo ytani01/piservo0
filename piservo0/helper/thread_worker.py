@@ -6,20 +6,34 @@ import queue
 import threading
 import time
 
+from ..core.multi_servo import MultiServo
 from ..utils.my_logger import get_logger
 
 
 class ThreadWorker(threading.Thread):
-    """ Thred worker """
+    """ Thred worker
+
+    すべてのコマンドは、キューを介して受け渡される。
+
+    利用者は、コマンドを`send()`したら、ブロックせずに、
+    非同期に他の処理を行える。
+
+    `Worker`は、コマンドキューから一つずつコマンドを取り出し、
+    順に実行する。
+
+    コマンドをキャンセルしたい場合は、`clear_cmdq()`で、
+    キューに溜まっているコマンドをすべてキャンセルできる。
+    """
 
     DEF_RECV_TIMEOUT = 0.2  # sec
     DEF_INTERVAL_SEC = 0.0  # sec
 
     def __init__(
-        self, mservo,
-        move_sec=None,
-        step_n=None,
-        interval_sec=DEF_INTERVAL_SEC, debug=False
+        self, mservo: MultiServo,
+        move_sec: float | None = None,
+        step_n: int | None = None,
+        interval_sec: float = DEF_INTERVAL_SEC,
+        debug=False
     ):
         """ constructor """
         self._debug = debug
@@ -38,9 +52,9 @@ class ThreadWorker(threading.Thread):
         else:
             self.step_n = step_n
 
-        self.interval_sec = self.DEF_INTERVAL_SEC
+        self.interval_sec = interval_sec
 
-        self._cmdq = queue.Queue()
+        self._cmdq: queue.Queue = queue.Queue()
         self._active = False
 
         super().__init__(daemon=True)
