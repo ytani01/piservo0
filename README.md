@@ -184,10 +184,12 @@ Web APIを使えば、リモートから制御することができます。
 - `Web JSON API`
 
 
-**`Web String API`**
+◆◆ **`Web String API`** ◆◆
 
 簡略化された文字列で、手軽に複数のサーボを制御することができます。
-詳細は、[`WEB_API.md`](docs/WEB_API.md) をご覧ください。
+詳細は、
+[`WEB_API.md`](docs/WEB_API.md) 
+をご覧ください。
 
 サーバーの起動方法は、以下の方法でヘルプを表示して参照してください。
 
@@ -213,10 +215,12 @@ Options:
 ```
 
 
-**`Web JSON API`**
+◆◆ **`Web JSON API`** ◆◆
 
 JSON形式で、複数のサーボを詳細に制御することができます。
-コマンド一覧は、[`JSON_CMD.md`](docs/JSON_CMD.md) をご覧ください。
+コマンド一覧は、
+[`JSON_CMD.md`](docs/JSON_CMD.md)
+をご覧ください。
 
 サーバーの起動方法は、以下の方法でヘルプを表示して参照してください。
 
