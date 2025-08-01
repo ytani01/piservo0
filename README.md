@@ -275,7 +275,15 @@ GPIO26 (37) (38) GPIO20
 ### --- 2. 公式サイト情報
 [Raspberry Pi Pinout](https://pinout.xyz/)
 
-## == APIリファレンス
+
+## ソフトウェア内部情報
+
+### === ソフトウェア・アーキテクチャ
+
+![Architecture](docs/SoftwareArchitecture.png)
+
+
+### === APIリファレンス ===
 
 より詳しいクラスやメソッドの仕様については、以下のコマンドを実行してください。
 
@@ -283,7 +291,7 @@ GPIO26 (37) (38) GPIO20
 uv run python -m pydoc piservo0
 ```
 
-### --- 他のプロジェクトから依存ライブラリとして、本プロジェクトを参照する場合の例
+### === 他のプロジェクトから依存ライブラリとして、本プロジェクトを参照する場合の例 ===
 
 `pyproject.toml`
 ```
