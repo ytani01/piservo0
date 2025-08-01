@@ -177,7 +177,67 @@ uv run piservo0 cservo 18
 
 ### --- Web API
 
-Web APIによるサーボ制御については、[`WEB_API.md`](docs/WEB_API.md) をご覧ください。
+Web APIを使えば、リモートから制御することができます。
+以下の2種類の Web APIがあります。
+
+- `Web String API`
+- `Web JSON API`
+
+
+**`Web String API`**
+
+簡略化された文字列で、手軽に複数のサーボを制御することができます。
+詳細は、[`WEB_API.md`](docs/WEB_API.md) をご覧ください。
+
+サーバーの起動方法は、以下の方法でヘルプを表示して参照してください。
+
+``` bash
+uv run piservo0 web-str-api -h
+
+```
+
+``` text
+Usage: piservo0 web-str-api [OPTIONS]
+
+  String API Server
+
+Options:
+  -s, --server_host TEXT   server hostname or IP address  [default: 0.0.0.0]
+  -p, --port INTEGER       port number  [default: 8000]
+  --pins TEXT              GPIO pins (e.g. '17,27,22,25')  [default:
+                           17,27,22,25]
+  -a, --angle-factor TEXT  Angle factors (e.g. '-1,-1,1,1')  [default:
+                           -1,-1,1,1]
+  -d, --debug              debug flag
+  -h, --help               Show this message and exit.
+```
+
+
+**`Web JSON API`**
+
+JSON形式で、複数のサーボを詳細に制御することができます。
+コマンド一覧は、[`JSON_CMD.md`](docs/JSON_CMD.md) をご覧ください。
+
+サーバーの起動方法は、以下の方法でヘルプを表示して参照してください。
+
+``` bash
+uv run piservo0 web-json-api -h
+
+```
+
+``` text
+Usage: piservo0 web-json-api [OPTIONS]
+
+  JSON API Server
+
+Options:
+  -s, --server_host TEXT  server hostname or IP address  [default: 0.0.0.0]
+  -p, --port INTEGER      port number  [default: 8000]
+  --pins TEXT             GPIO pins (e.g. '17,27,22,25')  [default:
+                          17,27,22,25]
+  -d, --debug             debug flag
+  -h, --help              Show this message and exit.
+```
 
 
 ## == 使用するGPIOピンについて
