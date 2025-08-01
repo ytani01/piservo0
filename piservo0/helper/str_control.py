@@ -138,7 +138,7 @@ class StrControl:
 
         Returns:
             dict: 解析結果。
-                  例: {'cmd': 'angles', 'angles': [-40, 0, -40, 0]}
+                  例: {'cmd': 'move_angle_sync', 'angles': [-40, 0, -40, 0]}
                   例: {'cmd': 'sleep', 'sec': 0.5}
                   例: {'cmd': 'error', 'err': 'invalid command'}
         """
@@ -152,7 +152,7 @@ class StrControl:
 
         _res, _res_str = self._is_str_cmd(cmd)
         if _res is False:
-            return {"cmd": "error", "err": _res_str}
+            return {"cmd": "error", "msg": _res_str}
 
         angles = []
         for i, _ch in enumerate(cmd):
@@ -193,7 +193,7 @@ class StrControl:
 
         return {
             "cmd": "move_angle_sync",
-            "target_angles": angles,
+            "angles": angles,
             "move_sec": None,
             "step_n": None,
         }
@@ -215,7 +215,7 @@ class StrControl:
         #
         if isinstance(self.mservo, ThreadMultiServo):
             if cmd_type == "error":
-                self.__log.debug("%s .. ignored", parsed_cmd["err"])
+                self.__log.debug("%s .. ignored", parsed_cmd["msg"])
                 return parsed_cmd
 
             if cmd_type == "cancel":
@@ -231,7 +231,7 @@ class StrControl:
         #
 
         if cmd_type == "move_angle_sync":
-            angles = parsed_cmd.get("target_angles", [])
+            angles = parsed_cmd.get("angles", [])
             self.mservo.move_angle_sync(angles, self.move_sec, self.step_n)
             return parsed_cmd
 

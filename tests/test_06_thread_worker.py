@@ -81,7 +81,7 @@ def test_start_and_end(worker):
         (
             "move_angle_sync",
             {
-                "target_angles": [10, 20],
+                "angles": [10, 20],
                 "move_sec": 0.1,
                 "step_n": 10,
             },
@@ -91,14 +91,14 @@ def test_start_and_end(worker):
         # move_angle_sync: move_sec, step_nがNone (デフォルト値使用)
         (
             "move_angle_sync",
-            {"target_angles": [15, 25], "move_sec": None, "step_n": None},
+            {"angles": [15, 25], "move_sec": None, "step_n": None},
             "move_angle_sync",
             lambda w: ([15, 25], w.move_sec, w.step_n),
         ),
         # move_angle
         (
             "move_angle",
-            {"target_angles": [30, 40]},
+            {"angles": [30, 40]},
             "move_angle",
             lambda w: ([30, 40],),
         ),
@@ -178,7 +178,7 @@ def test_interval_sleep(worker, mocker):
 
     # 動作コマンドを送信
     worker_instance.send(
-        json.dumps({"cmd": "move_angle", "target_angles": [10]})
+        json.dumps({"cmd": "move_angle", "angles": [10]})
     )
 
     # 呼び出しを待機

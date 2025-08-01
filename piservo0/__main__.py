@@ -314,7 +314,52 @@ def web_client(ctx, cmdline, server_host, port, debug):
         _app.main()
 
     except (KeyboardInterrupt, EOFError):
-        pass
+        print("\nBye\n")
 
     finally:
         _app.end()
+
+
+@cli.command(
+    help="""
+JSON API Server
+"""
+)
+@click.option(
+    "--server_host", "-s", type=str, default="0.0.0.0", show_default=True,
+    help="server hostname or IP address"
+)
+@click.option(
+    "--port", "-p", type=int, default=8000, show_default=True,
+    help="port number"
+)
+@click.option(
+    "--pins", type=str, default='17,27,22,25', show_default=True,
+    help="GPIO pins (e.g. '17,27,22,25')"
+)
+# for debug
+@click.option(
+    "--debug", "-d", is_flag=True, default=False, help="debug flag"
+)
+@click.pass_context
+def web_json_api(ctx, server_host, port, pins, debug):
+    """ Web API Client """
+
+    cmd_name = ctx.command.name
+
+    _log = get_logger(__name__, debug)
+    _log.debug("cmd_name=%s", cmd_name)
+    _log.debug("server_host=%s, port=%s", server_host, port)
+    _log.debug("pins=%s", pins)
+    _log.debug("debug=%s", debug)
+
+    if pins:
+        os.environ["PISERVO0_PINS"] = pins
+    if debug:
+        os.environ["PISERVO0_DEBUG"] = "1"
+    else:
+        os.environ["PISERVO0_DEBUG"] = "0"
+
+    uvicorn.run(
+        "piservo0.web.json_api:app", host=server_host, port=port, reload=True
+    )

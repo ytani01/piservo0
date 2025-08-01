@@ -12,6 +12,7 @@ from piservo0.core.multi_servo import MultiServo
 from piservo0.helper.str_control import StrControl
 
 # --- 定数 ---
+PINS = [17, 27, 22, 25]
 SERVO_N = 4
 ANGLE_UNIT = 30.0
 MOVE_SEC = 0.2
@@ -35,6 +36,7 @@ def mock_multi_servo(mocker):
         mock_servo.ANGLE_MIN = -90.0
         mock_servo.ANGLE_MAX = 90.0
         mock_servo.ANGLE_CENTER = 0.0
+        mock_servo.pin = PINS[i]
         # get_angle()が呼ばれた際のデフォルトの戻り値を設定
         mock_servo.get_angle.return_value = 0.0
         mock_servos.append(mock_servo)
@@ -70,7 +72,7 @@ def test_constructor_default(mock_multi_servo):
     assert scon.mservo == mock_multi_servo
     assert scon.angle_unit == StrControl.DEF_ANGLE_UNIT
     assert scon.move_sec == StrControl.DEF_MODE_SEC
-    assert scon.angle_factor == [1] * SERVO_N
+    assert scon.angle_factor == [-1, -1, 1, 1]
 
 
 def test_constructor_custom(mock_multi_servo):
@@ -80,11 +82,11 @@ def test_constructor_custom(mock_multi_servo):
     custom_angle_factor = [-1, 1, -1, 1]
     scon = StrControl(
         mservo=mock_multi_servo,
-        angle_unit=45.0,
+        angle_unit=30.0,
         move_sec=0.5,
         angle_factor=custom_angle_factor,
     )
-    assert scon.angle_unit == 45.0
+    assert scon.angle_unit == 30.0
     assert scon.move_sec == 0.5
     assert scon.angle_factor == custom_angle_factor
 
@@ -93,18 +95,43 @@ def test_constructor_custom(mock_multi_servo):
     "cmd_str, expected_dict",
     [
         # 基本的なポーズコマンド
-        ("cccc", {"cmd": "angles", "angles": [0.0, 0.0, 0.0, 0.0]}),
-        ("ffff", {"cmd": "angles", "angles": [30.0, 30.0, 30.0, 30.0]}),
-        ("bbbb", {"cmd": "angles", "angles": [-30.0, -30.0, -30.0, -30.0]}),
-        ("fbcb", {"cmd": "angles", "angles": [30.0, -30.0, 0.0, -30.0]}),
+        ("cccc", {
+            "cmd": "move_angle_sync",
+            "angles": [-0.0, -0.0, 0.0, 0.0],
+            "move_sec": None,
+            "step_n": None
+        }),
+        ("ffff", {
+            "cmd": "move_angle_sync",
+            "angles": [-30.0, -30.0, 30.0, 30.0],
+            "move_sec": None,
+            "step_n": None
+        }),
+        ("bbbb", {
+            "cmd": "move_angle_sync",
+            "angles": [30.0, 30.0, -30.0, -30.0],
+            "move_sec": None,
+            "step_n": None
+        }),
+        ("fbcb", {
+            "cmd": "move_angle_sync",
+            "angles": [-30.0, 30.0, 0.0, -30.0],
+            "move_sec": None,
+            "step_n": None
+        }),
         # 大文字と'.'を含む応用的なコマンド
-        ("F.bC", {"cmd": "angles", "angles": [60.0, 0.0, -30.0, 0.0]}),
+        ("F.bC", {
+            "cmd": "move_angle_sync",
+            "angles": [-60.0, None, -30.0, 0.0],
+            "move_sec": None,
+            "step_n": None
+        }),
         # 数値（スリープ）コマンド
         ("0.5", {"cmd": "sleep", "sec": 0.5}),
         ("1", {"cmd": "sleep", "sec": 1.0}),
         # エラーケース
-        ("abc", {"cmd": "error", "err": "invalid length"}),
-        ("fbcz", {"cmd": "error", "err": "invalid char"}),
+        ("abc", {"cmd": "error", "msg": "'abc': invalid length"}),
+        ("fbcz", {"cmd": "cancel"}),
     ],
 )
 def test_parse_cmd(str_control, cmd_str, expected_dict):
@@ -128,7 +155,7 @@ def test_parse_cmd_with_angle_factor(mock_multi_servo):
         angle_factor=[-1, 1, -1, 1]
     )
     result = scon.parse_cmd("fbfb")
-    assert result["cmd"] == "angles"
+    assert result["cmd"] == "move_angle_sync"
     assert result["angles"] == [-30.0, -30.0, -30.0, -30.0]
 
 
@@ -138,14 +165,14 @@ def test_exec_cmd_angles(str_control, mocker):
     """
     scon, mock_mservo = str_control
     mocker.patch.object(scon, "parse_cmd", return_value={
-        "cmd": "angles",
-        "angles": [30.0, -30.0, 30.0, -30.0]
+        "cmd": "move_angle_sync",
+        "angles": [-30.0, 30.0, 0.0, -30.0]
     })
 
     scon.exec_cmd("fbcb")
 
     mock_mservo.move_angle_sync.assert_called_once_with(
-        [30.0, -30.0, 30.0, -30.0], scon.move_sec, scon.step_n
+        [-30.0, 30.0, 0.0, -30.0], scon.move_sec, scon.step_n
     )
 
 

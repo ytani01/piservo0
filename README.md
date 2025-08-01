@@ -13,12 +13,11 @@
 
 ### --- さらに、本ライブラリでは…
 
-- 複数のサーボを同期させながら動かすことができます。ロボットの制御に最適です。
-- キャリブレーション(補正)機能があり、-90度、 0度、+90度の位置を補正でき、ファイルに補正値を保存します。安価なサーボをより実用的に利用できます。
+- **複数のサーボを同期**させながら動かすことができます。ロボットの制御に最適です。
+- **キャリブレーション(補正)機能**があり、-90度、 0度、+90度の位置を補正でき、ファイルに補正値を保存します。安価なサーボをより実用的に利用できます。
 - キャリブレーションのためのツールも含まれてます。
-- シンプルなAPIで、簡単なメソッド呼び出しで、サーボモーターを直感的に操作できます。(「デューティー比」とか専門知識は不要です。)
-- 角度指定と、パルス指定の両方のAPIを用意してます。
-- 入門用や、簡単にサーボを動かしたい場合のために、キャリブレーションや複数サーボの動機は不要のシンプルなAPIも用意してます。
+- **ネットワーク経由**で、**`REST API`**で制御することもできます。
+- 入門用や、簡単にサーボを動かせる、より**シンプルなAPIも**用意してます。
 
 
 ## == インストール
@@ -171,13 +170,77 @@ uv run piservo0 servo 18 1500
 
 uv run piservo0 cservo --help
 uv run piservo0 cservo 18
+```
 
 文字列コマンドによるサーボ制御については、[`STR_CMD.md`](docs/STR_CMD.md) をご覧ください。
-```
 
 ### --- Web API
 
-Web APIによるサーボ制御については、[`WEB_API.md`](docs/WEB_API.md) をご覧ください。
+Web APIを使えば、リモートから制御することができます。
+以下の2種類の Web APIがあります。
+
+- `Web String API`
+- `Web JSON API`
+
+
+◆◆ **`Web String API`** ◆◆
+
+簡略化された文字列で、手軽に複数のサーボを制御することができます。
+詳細は、
+[`WEB_API.md`](docs/WEB_API.md) 
+をご覧ください。
+
+サーバーの起動方法は、以下の方法でヘルプを表示して参照してください。
+
+``` bash
+uv run piservo0 web-str-api -h
+
+```
+
+``` text
+Usage: piservo0 web-str-api [OPTIONS]
+
+  String API Server
+
+Options:
+  -s, --server_host TEXT   server hostname or IP address  [default: 0.0.0.0]
+  -p, --port INTEGER       port number  [default: 8000]
+  --pins TEXT              GPIO pins (e.g. '17,27,22,25')  [default:
+                           17,27,22,25]
+  -a, --angle-factor TEXT  Angle factors (e.g. '-1,-1,1,1')  [default:
+                           -1,-1,1,1]
+  -d, --debug              debug flag
+  -h, --help               Show this message and exit.
+```
+
+
+◆◆ **`Web JSON API`** ◆◆
+
+JSON形式で、複数のサーボを詳細に制御することができます。
+コマンド一覧は、
+[`JSON_CMD.md`](docs/JSON_CMD.md)
+をご覧ください。
+
+サーバーの起動方法は、以下の方法でヘルプを表示して参照してください。
+
+``` bash
+uv run piservo0 web-json-api -h
+
+```
+
+``` text
+Usage: piservo0 web-json-api [OPTIONS]
+
+  JSON API Server
+
+Options:
+  -s, --server_host TEXT  server hostname or IP address  [default: 0.0.0.0]
+  -p, --port INTEGER      port number  [default: 8000]
+  --pins TEXT             GPIO pins (e.g. '17,27,22,25')  [default:
+                          17,27,22,25]
+  -d, --debug             debug flag
+  -h, --help              Show this message and exit.
+```
 
 
 ## == 使用するGPIOピンについて
@@ -215,7 +278,15 @@ GPIO26 (37) (38) GPIO20
 ### --- 2. 公式サイト情報
 [Raspberry Pi Pinout](https://pinout.xyz/)
 
-## == APIリファレンス
+
+## ソフトウェア内部情報
+
+### === ソフトウェア・アーキテクチャ
+
+![Architecture](docs/SoftwareArchitecture.png)
+
+
+### === APIリファレンス ===
 
 より詳しいクラスやメソッドの仕様については、以下のコマンドを実行してください。
 
@@ -223,7 +294,7 @@ GPIO26 (37) (38) GPIO20
 uv run python -m pydoc piservo0
 ```
 
-### --- 他のプロジェクトから依存ライブラリとして、本プロジェクトを参照する場合の例
+### === 他のプロジェクトから依存ライブラリとして、本プロジェクトを参照する場合の例 ===
 
 `pyproject.toml`
 ```

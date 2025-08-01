@@ -122,7 +122,7 @@ class ThrManualApp(TinyRobotApp):
                     self.__log.debug("res=%s", res)
 
                     if res["cmd"] == "error":
-                        self.__log.error('"%s": %s', _cmd, res["err"])
+                        self.__log.error('"%s": %s', _cmd, res["msg"])
                         continue
 
                     self.worker.send(res)
