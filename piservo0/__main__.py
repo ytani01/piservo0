@@ -325,6 +325,7 @@ def web_client(ctx, cmdline, server_host, port, debug):
 JSON API Server
 """
 )
+@click.argument("pins", type=int, nargs=-1)
 @click.option(
     "--server_host", "-s", type=str, default="0.0.0.0", show_default=True,
     help="server hostname or IP address"
@@ -333,28 +334,33 @@ JSON API Server
     "--port", "-p", type=int, default=8000, show_default=True,
     help="port number"
 )
-@click.option(
-    "--pins", type=str, default='17,27,22,25', show_default=True,
-    help="GPIO pins (e.g. '17,27,22,25')"
-)
 # for debug
 @click.option(
     "--debug", "-d", is_flag=True, default=False, help="debug flag"
 )
 @click.pass_context
-def web_json_api(ctx, server_host, port, pins, debug):
+def web_json_api(ctx, pins, server_host, port, debug):
     """ Web API Client """
 
     cmd_name = ctx.command.name
 
     _log = get_logger(__name__, debug)
     _log.debug("cmd_name=%s", cmd_name)
-    _log.debug("server_host=%s, port=%s", server_host, port)
     _log.debug("pins=%s", pins)
+    _log.debug("server_host=%s, port=%s", server_host, port)
     _log.debug("debug=%s", debug)
 
     if pins:
-        os.environ["PISERVO0_PINS"] = pins
+        os.environ["PISERVO0_PINS"] = ','.join([str(p) for p in pins])
+    else:
+        print()
+        print("Error: Please specify GPIO pins.")
+        print()
+        print("  e.g. piservo0 calib 17 27")
+        print()
+        print(f"{ctx.get_help()}")
+        return
+
     if debug:
         os.environ["PISERVO0_DEBUG"] = "1"
     else:
