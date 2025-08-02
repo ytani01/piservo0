@@ -356,7 +356,7 @@ def web_json_api(ctx, pins, server_host, port, debug):
         print()
         print("Error: Please specify GPIO pins.")
         print()
-        print("  e.g. piservo0 calib 17 27")
+        print("  e.g. piservo0 web-json-api 17 27")
         print()
         print(f"{ctx.get_help()}")
         return
