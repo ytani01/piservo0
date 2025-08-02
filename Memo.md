@@ -14,8 +14,17 @@
 
 ## bipad
 
+``` bash
 uv run piservo0 web-str-api -a -0.5,1,-1,0.5 17 27 22 25 -d
+```
+
 
 - walk
+
+``` bash
+uv run piservo0 web-client
+```
+
+``` text
 cccc .5   Nccf Nbff cbfc    fccN ffbN cfbc    cccc
-cccc .5   Nccf Nbff cbfc fccN ffbN cfbc Nccf Nbff cbfc fccN ffbN cfbc Nccf .2 cccc
+```
