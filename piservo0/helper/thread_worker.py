@@ -28,6 +28,8 @@ class ThreadWorker(threading.Thread):
     DEF_RECV_TIMEOUT = 0.2  # sec
     DEF_INTERVAL_SEC = 0.0  # sec
 
+    CMD_CANCEL = 'cancel'
+
     def __init__(
         self, mservo: MultiServo,
         move_sec: float | None = None,
@@ -89,33 +91,43 @@ class ThreadWorker(threading.Thread):
             _count += 1
             _cmd = self._cmdq.get()
             self.__log.debug("%2d:%s", _count, _cmd)
+        return _count
 
-    def send(self, cmd):
+    def send(self, cmd_data):
         """ send """
-        self._cmdq.put(cmd)
-        _qsize = self._cmdq.qsize()
-        self.__log.debug("cmd=%s --> qsize=%s", cmd, _qsize)
+        try:
+            if isinstance(cmd_data, str):
+                cmd_data = json.loads(cmd_data)
+
+            if cmd_data.get("cmd") == self.CMD_CANCEL:
+                cmd_data['count'] = self.clear_cmdq()
+            else:
+                self._cmdq.put(cmd_data)
+                cmd_data['qsize'] = self._cmdq.qsize()
+
+            self.__log.debug("cmd_data=%s", cmd_data)
+
+        except Exception as _e:
+            self.__log.error("%s: %s", type(_e).__name__, _e)
+
+        return cmd_data
 
     def recv(self, timeout=DEF_RECV_TIMEOUT):
         """ recv """
         try:
-            _cmd = self._cmdq.get(timeout=timeout)
-            _qsize = self._cmdq.qsize()
+            _cmd_data = self._cmdq.get(timeout=timeout)
         except queue.Empty:
-            _cmd = ""
-        else:
-            self.__log.debug("_cmd=%a --> qsize=%s", _cmd, _qsize)
+            _cmd_data = ""
 
-        return _cmd
+        return _cmd_data
 
     def _handle_move_angle_sync(self, cmd: dict):
-        """
-        e.g. {
-               "cmd": "move_angle_sync",
-               "angles": [30, None, -30, 0],
-               "move_sec": 0.2,  # optional
-               "step_n": 40  # optional
-             }
+        """ e.g. {
+                   "cmd": "move_angle_sync",
+                   "angles": [30, None, -30, 0],
+                   "move_sec": 0.2,  # optional
+                   "step_n": 40  # optional
+                 }
         """
         _angles = cmd["angles"]
 
@@ -131,42 +143,58 @@ class ThreadWorker(threading.Thread):
         self._sleep_interval()
 
     def _handle_move_angle(self, cmd: dict):
-        """
-        e.g. {
-               "cmd": "move_angle",
-               "angles": [30, None, -30, 0]
-             }
+        """ e.g. {
+                   "cmd": "move_angle",
+                   "angles": [30, None, -30, 0]
+                 }
         """
         _angles = cmd["angles"]
         self.mservo.move_angle(_angles)
         self._sleep_interval()
 
     def _handle_move_pulse(self, cmd: dict):
-        """
-        e.g. {
-               "cmd": "move_pulse",
-               "pulses": [2000, 1000, None, 0]
+        """ e.g. {
+                   "cmd": "move_pulse",
+                   "pulses": [2000, 1000, None, 0]
+                 }
         """
         _pulses = cmd["pulses"]
         self.mservo.move_pulse(_pulses, forced=True)
+        self._sleep_interval()
 
     def _handle_move_sec(self, cmd: dict):
-        """ e.g. {"cmd": "move_sec", "sec": 1.5} """
+        """ e.g. {
+                   "cmd": "move_sec",
+                   "sec": 1.5
+                 }
+        """
         self.move_sec = float(cmd["sec"])
         self.__log.debug("move_sec=%s", self.move_sec)
 
     def _handle_step_n(self, cmd: dict):
-        """ e.g. {"cmd": "step_n", "n": 40} """
+        """ e.g. {
+                   "cmd": "step_n",
+                   "n": 40
+                 }
+        """
         self.step_n = int(cmd["n"])
         self.__log.debug("step_n=%s", self.step_n)
 
     def _handle_interval(self, cmd: dict):
-        """ e.g. {"cmd": "interval", "sec": 0.5} """
+        """ e.g. {
+                   "cmd": "interval",
+                   "sec": 0.5
+                 }
+        """
         self.interval_sec = float(cmd["sec"])
         self.__log.debug("set interval_sec=%s", self.interval_sec)
 
     def _handle_sleep(self, cmd: dict):
-        """ e.g. {"cmd": "sleep", "sec": 1.0} """
+        """ e.g. {
+                   "cmd": "sleep",
+                   "sec": 1.0
+                 }
+        """
         _sec = float(cmd["sec"])
         self.__log.debug("sleep: %s sec", _sec)
         if _sec > 0.0:
@@ -178,18 +206,20 @@ class ThreadWorker(threading.Thread):
             self.__log.debug("sleep interval_sec: %s sec", self.interval_sec)
             time.sleep(self.interval_sec)
 
-    def _dispatch_cmd(self, cmd: dict):
+    def _dispatch_cmd(self, cmd_data: dict):
         """ dispatch command """
-        _cmd_str = cmd.get("cmd")
+        self.__log.debug("cmd_data=%a", cmd_data)
+
+        _cmd_str = cmd_data.get("cmd")
         if not _cmd_str:
-            self.__log.error("invalid command (no 'cmd' key): %s", cmd)
+            self.__log.error("invalid command (no 'cmd' key): %s", cmd_data)
             return
 
         handler = self._command_handlers.get(_cmd_str)
         if handler:
-            handler(cmd)
+            handler(cmd_data)
         else:
-            self.__log.error("unknown command: %s", cmd)
+            self.__log.error("unknown command: %s", cmd_data)
 
     def run(self):
         """ run """
@@ -198,18 +228,13 @@ class ThreadWorker(threading.Thread):
         self._active = True
 
         while self._active:
-            _cmd = self.recv()
-            if not _cmd:
+            _cmd_data = self.recv()
+            if not _cmd_data:
                 time.sleep(0.1)
                 continue
-            self.__log.debug("_cmd=%a", _cmd)
 
             try:
-                if isinstance(_cmd, str):
-                    _cmd = json.loads(_cmd)
-                    self.__log.debug("json.loads() --> _cmd=%a", _cmd)
-
-                self._dispatch_cmd(_cmd)
+                self._dispatch_cmd(_cmd_data)
 
             except Exception as _e:
                 self.__log.error("%s: %s", type(_e).__name__, _e)

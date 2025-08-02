@@ -41,9 +41,9 @@ class JsonApi:
         """ send JSON command to thread worker """
         self.__log.debug("cmdjson=%s", cmdjson)
 
-        self.thr_worker.send(cmdjson)
+        _res = self.thr_worker.send(cmdjson)
 
-        return {"sent": cmdjson}
+        return _res
 
 
 # --- FastAPI Lifespan Management ---
@@ -62,8 +62,7 @@ async def lifespan(_app: FastAPI):
     log.debug("pins=%s, debug=%s", pins, debug)
 
     app.state.json_app = JsonApi(pins, debug=debug)
-
-    # --- make 'webapp' ---
+    app.state.debug = debug
 
     yield
 
@@ -85,19 +84,23 @@ async def read_root():
 async def exec_cmd(cmdjson, request: Request):
     """execute commands"""
 
-    print(f"cmdjson={cmdjson}, {type(cmdjson)}")
+    debug = request.app.state.debug
+
+    _log = get_logger(__name__, debug)
+
+    _log.debug("cmdjson=%a %s", cmdjson, type(cmdjson))
 
     cmdjson = json.loads(cmdjson)
-    print(f"cmdjson={cmdjson}, {type(cmdjson)}")
+    _log.debug("cmdjson=%a %s", cmdjson, type(cmdjson))
 
     if not isinstance(cmdjson, list):
         cmdjson = [cmdjson]
-        print(f"cmdjson={cmdjson}, {type(cmdjson)}")
+        _log.debug("cmdjson=%a %s", cmdjson, type(cmdjson))
 
     _res = []
     for c in cmdjson:
-        print(f"c={c}")
+        _log.debug("c=%a", c)
         _res.append(request.app.state.json_app.send_cmdjson(c))
 
-    print(f"_res={_res}")
+    _log.debug("_res=%a", _res)
     return _res
