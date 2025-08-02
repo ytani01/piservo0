@@ -194,7 +194,6 @@ Web APIを使えば、リモートから制御することができます。
 
 ``` bash
 uv run piservo0 web-str-api -h
-
 ```
 
 ``` text
@@ -225,19 +224,16 @@ JSON形式で、複数のサーボを詳細に制御することができます�
 
 ``` bash
 uv run piservo0 web-json-api -h
-
 ```
 
 ``` text
-Usage: piservo0 web-json-api [OPTIONS]
+Usage: piservo0 web-json-api [OPTIONS] [PINS]...
 
   JSON API Server
 
 Options:
   -s, --server_host TEXT  server hostname or IP address  [default: 0.0.0.0]
   -p, --port INTEGER      port number  [default: 8000]
-  --pins TEXT             GPIO pins (e.g. '17,27,22,25')  [default:
-                          17,27,22,25]
   -d, --debug             debug flag
   -h, --help              Show this message and exit.
 ```

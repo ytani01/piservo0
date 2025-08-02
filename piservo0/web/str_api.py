@@ -20,19 +20,20 @@ class StrApi:
         """ constractor """
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
+        self.__log.debug(
+            "pins=%s, angle_factor=%s", pins, angle_factor
+        )
 
         self.pins = pins
         self.angle_factor = angle_factor
 
-        self.__log.debug(
-            "pins=%s, angle_factor=%s", self.pins, self.angle_factor
-        )
-
         print("Initializing ...")
         self.pi = pigpio.pi()
+
         self.mservo = ThreadMultiServo(
             self.pi, self.pins, debug=False
         )
+
         self.str_ctrl = StrControl(
             self.mservo, angle_factor=self.angle_factor, debug=False
         )
@@ -61,7 +62,7 @@ async def lifespan(app: FastAPI):
     pins = [int(p.strip()) for p in pins_str.split(",")]
 
     angle_factor_str = str(os.getenv("PISERVO0_ANGLE_FACTOR"))
-    angle_factor = [int(f.strip()) for f in angle_factor_str.split(",")]
+    angle_factor = [float(f.strip()) for f in angle_factor_str.split(",")]
 
     debug_str = os.getenv("PISERVO0_DEBUG", "0")
     debug = debug_str == "1"

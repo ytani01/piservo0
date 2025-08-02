@@ -232,6 +232,7 @@ def strctrl(
 String API Server
 """
 )
+@click.argument("pins", type=int, nargs=-1)
 @click.option(
     "--server_host", "-s", type=str, default="0.0.0.0", show_default=True,
     help="server hostname or IP address"
@@ -239,10 +240,6 @@ String API Server
 @click.option(
     "--port", "-p", type=int, default=8000, show_default=True,
     help="port number"
-)
-@click.option(
-    "--pins", type=str, default='17,27,22,25', show_default=True,
-    help="GPIO pins (e.g. '17,27,22,25')"
 )
 @click.option(
     "--angle-factor", "-a", type=str, default='-1,-1,1,1', show_default=True,
@@ -253,25 +250,32 @@ String API Server
     "--debug", "-d", is_flag=True, default=False, help="debug flag"
 )
 @click.pass_context
-def web_str_api(ctx, server_host, port, pins, angle_factor, debug):
+def web_str_api(ctx, pins, server_host, port, angle_factor, debug):
     """ Web API Client """
 
     cmd_name = ctx.command.name
 
     _log = get_logger(__name__, debug)
     _log.debug("cmd_name=%s", cmd_name)
+    _log.debug("pins=%s", pins)
     _log.debug("server_host=%s, port=%s", server_host, port)
-    _log.debug("pins=%s, angle_factor=%s", pins, angle_factor)
-    _log.debug("debug=%s", debug)
+    _log.debug("angle_factor=%s", angle_factor)
 
     if pins:
-        os.environ["PISERVO0_PINS"] = pins
+        os.environ["PISERVO0_PINS"] = ','.join([str(p) for p in pins])
+    else:
+        print()
+        print("Error: Please specify GPIO pins.")
+        print()
+        print("  e.g. piservo0 web-json-api 17 27")
+        print()
+        print(f"{ctx.get_help()}")
+        return
+
     if angle_factor:
         os.environ["PISERVO0_ANGLE_FACTOR"] = angle_factor
-    if debug:
-        os.environ["PISERVO0_DEBUG"] = "1"
-    else:
-        os.environ["PISERVO0_DEBUG"] = "0"
+
+    os.environ["PISERVO0_DEBUG"] = "1" if debug else "0"        
 
     uvicorn.run(
         "piservo0.web.str_api:app", host=server_host, port=port, reload=True
@@ -348,7 +352,6 @@ def web_json_api(ctx, pins, server_host, port, debug):
     _log.debug("cmd_name=%s", cmd_name)
     _log.debug("pins=%s", pins)
     _log.debug("server_host=%s, port=%s", server_host, port)
-    _log.debug("debug=%s", debug)
 
     if pins:
         os.environ["PISERVO0_PINS"] = ','.join([str(p) for p in pins])
@@ -361,10 +364,7 @@ def web_json_api(ctx, pins, server_host, port, debug):
         print(f"{ctx.get_help()}")
         return
 
-    if debug:
-        os.environ["PISERVO0_DEBUG"] = "1"
-    else:
-        os.environ["PISERVO0_DEBUG"] = "0"
+    os.environ["PISERVO0_DEBUG"] = "1" if debug else "0"
 
     uvicorn.run(
         "piservo0.web.json_api:app", host=server_host, port=port, reload=True
