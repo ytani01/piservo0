@@ -3,6 +3,7 @@
 `piservo0` は、Raspberry Piでサーボモーターを精密に制御するためのPythonライブラリです。
 `pigpio`ライブラリを基盤とし、安価なサーボモーター(SG90など)を複数、同期させて動かすことに重点を置き、サーボモーターごとの個体差を吸収するためのキャリブレーション機能もあります。
 
+
 ## == 特徴
 
 ### --- `pigpio`をベースにしているので…
@@ -10,6 +11,7 @@
 - 追加のハードウェア(PCA9685など)は不要です。Raspberry PiのGPIOで、直接サーボを制御できます。
 - ほぼすべてのGPIOをサーボ制御用として使えます。(PWM用のピンを選ぶ必要はありません。)
 - ハードウェアPWMと遜色のない性能が出せます。Raspberry Pi Zeroでも、4個以上のサーボを問題なく同時に動かせます。
+
 
 ### --- さらに、本ライブラリでは…
 
@@ -22,9 +24,10 @@
 
 ## == インストール
 
-### --- 通常の利用者向け (推奨)
-
 ライブラリを利用するだけであれば、こちらの方法でインストールしてください。
+
+※ Raspbery Pi OS のインストールについては省略してます。
+
 
 **1. `pigpio`のインストールと起動**
 
@@ -33,37 +36,17 @@
 
 ```bash
 # pigpioのインストール (Raspberry Pi OSにはプリインストールされていることが多いです)
-sudo apt-get update
-sudo apt-get install pigpio
+sudo apt install pigpio
 
 # pigpioデーモンの起動
 sudo systemctl enable pigpiod
 sudo systemctl start pigpiod
 ```
 
-**2. ライブラリのダウンロードとインストール**
-
-次に、`piservo0`ライブラリをインストールします。
-
-- **ダウンロード**: [Releases](https://github.com/ytani01/piservo0/releases) ページから、最新の `.whl` ファイルをダウンロードします。
-
-- **インストール**: ダウンロードしたファイルを`pip`でインストールします。仮想環境の利用を強く推奨します。
-
-  ```bash
-  # 仮想環境を作成し、有効化する
-  python3 -m venv .venv
-  source .venv/bin/activate
-
-  # pipでwhlファイルをインストール
-  pip install /path/to/piservo0-x.x.x-py3-none-any.whl
-  ```
-  ※ `/path/to/` の部分は、ダウンロードしたファイルの実際のパスに置き換えてください。
-
-### --- 開発者向け
-
 ソースコードを編集したり、開発に貢献したりする場合は、以下の手順でセットアップしてください。
 
-**1. `uv` のインストール**
+
+**2. `uv` のインストール**
 
 `uv` は高速なPythonパッケージインストーラー兼リゾルバーです。
 以下のコマンドでインストールできます。
@@ -76,7 +59,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 export PATH=$PATH:~/.local/bin
 ```
 
-**2. リポジトリのクローンとセットアップ**
+
+**3. リポジトリのクローンとセットアップ**
 
 ```bash
 mkdir work1
@@ -93,7 +77,9 @@ uv pip install -e .        # 実行用
 uv pip install -e '.[dev]' # 開発用
 ```
 
+
 ## == 使い方
+
 
 ### --- 基本的な使い方 (`ThreadMultiServo`)
 
@@ -142,6 +128,7 @@ python samples/sample.py
 uv run python samples/sample.py
 ```
 
+
 ### --- コマンドラインからの操作
 
 `piservo0` は、コマンドラインから直接サーボを操作する機能も提供します。
@@ -173,6 +160,7 @@ uv run piservo0 cservo 18
 ```
 
 文字列コマンドによるサーボ制御については、[`STR_CMD.md`](docs/STR_CMD.md) をご覧ください。
+
 
 ### --- Web API
 

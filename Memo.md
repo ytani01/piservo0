@@ -27,4 +27,6 @@ uv run piservo0 web-client
 
 ``` text
 cccc .5   Nccf Nbff cbfc    fccN ffbN cfbc    cccc
+
+.5 fccN ffbN cfbc Nfbf NfbF NbfF cbfc fbfN FbfN FfbN cfbc Nfbf NfbF NbfF cbfc fbfN FbfN FfbN cfbc Nfbf NfbF NbfF cbfc fbfN FbfN FfbN cfbc
 ```
