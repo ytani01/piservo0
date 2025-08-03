@@ -30,3 +30,7 @@ cccc .5   Nccf Nbff cbfc    fccN ffbN cfbc    cccc
 
 .5 fccN ffbN cfbc Nfbf NfbF NbfF cbfc fbfN FbfN FfbN cfbc Nfbf NfbF NbfF cbfc fbfN FbfN FfbN cfbc Nfbf NfbF NbfF cbfc fbfN FbfN FfbN cfbc
 ```
+
+``` text
+cccc .5  cfbc .1   Nfbf BccF bbfF cbfc  fbfN FccB Ffbb cfbc    Nfbf BccF bbfF cbfc  fbfN FccB Ffbb cfbc    Nfbf BccF bbfF cbfc  fbfN FccB Ffbb cfbc
+```
