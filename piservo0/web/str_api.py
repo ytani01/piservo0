@@ -31,11 +31,11 @@ class StrApi:
         self.pi = pigpio.pi()
 
         self.mservo = ThreadMultiServo(
-            self.pi, self.pins, debug=False
+            self.pi, self.pins, debug=self._debug
         )
 
         self.str_ctrl = StrControl(
-            self.mservo, angle_factor=self.angle_factor, debug=False
+            self.mservo, angle_factor=self.angle_factor, debug=self._debug
         )
 
     def end(self):
