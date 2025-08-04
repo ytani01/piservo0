@@ -26,11 +26,19 @@ uv run piservo0 web-client
 ```
 
 ``` text
+# forward
 cccc .5   Nccf Nbff cbfc    fccN ffbN cfbc    cccc
 
 .5 fccN ffbN cfbc Nfbf NfbF NbfF cbfc fbfN FbfN FfbN cfbc Nfbf NfbF NbfF cbfc fbfN FbfN FfbN cfbc Nfbf NfbF NbfF cbfc fbfN FbfN FfbN cfbc
+
+cfbc  Nfbf BccF bbfF cbfc  fbfN FccB Ffbb  cfbc  Nfbf BccF bbfF cbfc  fbfN FccB Ffbb
 ```
 
 ``` text
 cccc .5  cfbc .1   Nfbf BccF bbfF cbfc  fbfN FccB Ffbb cfbc    Nfbf BccF bbfF cbfc  fbfN FccB Ffbb cfbc    Nfbf BccF bbfF cbfc  fbfN FccB Ffbb cfbc
+```
+
+``` text
+# back
+cccc  fbfN cbfc Nfbf cfbc  fbfN cbfc Nfbf cfbc
 ```
