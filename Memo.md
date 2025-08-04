@@ -42,3 +42,7 @@ cccc .5  cfbc .1   Nfbf BccF bbfF cbfc  fbfN FccB Ffbb cfbc    Nfbf BccF bbfF cb
 # back
 cccc  fbfN cbfc Nfbf cfbc  fbfN cbfc Nfbf cfbc
 ```
+
+``` text
+ Ncbf Bfbf bfcF Bbfc cbfc   fbcN fbfB Fcfb cfbB cfbc 
+```
