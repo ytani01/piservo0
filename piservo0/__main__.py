@@ -21,8 +21,8 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 
 def get_pi(debug=False):
-    """
-    Initialize and return a pigpio.pi instance.
+    """Initialize and return a pigpio.pi instance.
+
     If connection fails, log an error and return None.
     """
     _log = get_logger(__name__, debug)
@@ -44,7 +44,7 @@ pyservo0 command
 @click.option("-d", "--debug", is_flag=True, help="debug flag")
 @click.pass_context
 def cli(ctx, debug):
-    """CLI top"""
+    """CLI top."""
     cmd_name = ctx.info_name
     subcmd_name = ctx.invoked_subcommand
 
@@ -70,7 +70,7 @@ servo command"""
 @click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
 @click.pass_context
 def servo(ctx, pin, pulse, sec, debug):
-    """servo command"""
+    """servo command."""
     _log = get_logger(__name__, debug)
     _log.debug('pin=%s, pulse="%s", sec=%s', pin, pulse, sec)
 
@@ -111,8 +111,7 @@ calibration tool
 )
 @click.pass_context
 def calib(ctx, pins, conf_file, debug):
-    """calib command"""
-
+    """calib command."""
     _log = get_logger(__name__, debug)
     _log.debug("pins=%s,conf_file=%s", pins, conf_file)
 
@@ -185,7 +184,7 @@ Multi Servo, String control
 def strctrl(
     ctx, pins, conf_file, move_sec, step_n, angle_unit, angle_factor, debug
 ):
-    """strctrl"""
+    """strctrl."""
     _log = get_logger(__name__, debug)
     _log.debug("pins=%s,conf_file=%s", pins, conf_file)
     _log.debug("move_sec=%s, step_n=%s", move_sec, step_n)
@@ -255,8 +254,7 @@ String API Server
 )
 @click.pass_context
 def web_str_api(ctx, pins, server_host, port, angle_factor, debug):
-    """ Web API Client """
-
+    """Web API Client."""
     cmd_name = ctx.command.name
 
     _log = get_logger(__name__, debug)
@@ -326,8 +324,7 @@ String API Client
 )
 @click.pass_context
 def web_client(ctx, cmdline, server_host, port, debug):
-    """ Web API Client """
-
+    """Web API Client."""
     _log = get_logger(__name__, debug)
     _log.debug("server_host=%s, port=%s", server_host, port)
 
@@ -368,8 +365,7 @@ JSON API Server
 )
 @click.pass_context
 def web_json_api(ctx, pins, server_host, port, debug):
-    """ Web API Client """
-
+    """Web API Client."""
     cmd_name = ctx.command.name
 
     _log = get_logger(__name__, debug)

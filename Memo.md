@@ -14,36 +14,28 @@
 
 ## bipad
 
+### start server
 ``` bash
 uv run piservo0 web-str-api -a -0.5,1,-1,0.5 17 27 22 25 -d
 ```
 
-
-- walk
-
+### start client
 ``` bash
 uv run piservo0 web-client
 ```
 
+** forward **
 ``` text
-# forward
-cccc .5   Nccf Nbff cbfc    fccN ffbN cfbc    cccc
+Nccf Nbff cbfc    fccN ffbN cfbc
 
-.5 fccN ffbN cfbc Nfbf NfbF NbfF cbfc fbfN FbfN FfbN cfbc Nfbf NfbF NbfF cbfc fbfN FbfN FfbN cfbc Nfbf NfbF NbfF cbfc fbfN FbfN FfbN cfbc
+Nfbf NfbF NbfF cbfc   fbfN FbfN FfbN cfbc
 
-cfbc  Nfbf BccF bbfF cbfc  fbfN FccB Ffbb  cfbc  Nfbf BccF bbfF cbfc  fbfN FccB Ffbb
+Nfbf BccF bbfF cbfc   fbfN FccB Ffbb cfbc 
+
+Ncbf Bfbf bfcF Bbfc cbfc   fbcN fbfB Fcfb cfbB cfbc 
 ```
 
+** back **
 ``` text
-cccc .5  cfbc .1   Nfbf BccF bbfF cbfc  fbfN FccB Ffbb cfbc    Nfbf BccF bbfF cbfc  fbfN FccB Ffbb cfbc    Nfbf BccF bbfF cbfc  fbfN FccB Ffbb cfbc
-```
-
-``` text
-# back
-cccc  fbfN cbfc Nfbf cfbc  fbfN cbfc Nfbf cfbc
-```
-
-``` text
-# forwrd
- Ncbf Bfbf bfcF Bbfc cbfc   fbcN fbfB Fcfb cfbB cfbc 
+fbfN cbfc Nfbf cfbc   fbfN cbfc Nfbf cfbc
 ```
