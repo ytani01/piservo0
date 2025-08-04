@@ -103,9 +103,10 @@ class ThreadWorker(threading.Thread):
                 cmd_data['count'] = self.clear_cmdq()
             else:
                 self._cmdq.put(cmd_data)
-                cmd_data['qsize'] = self._cmdq.qsize()
 
-            self.__log.debug("cmd_data=%s", cmd_data)
+            self.__log.debug(
+                "cmd_data=%s, qsize=%s", cmd_data, self._cmdq.qsize()
+            )
 
         except Exception as _e:
             self.__log.error("%s: %s", type(_e).__name__, _e)
@@ -230,9 +231,9 @@ class ThreadWorker(threading.Thread):
         while self._active:
             _cmd_data = self.recv()
             if not _cmd_data:
-                time.sleep(0.1)
                 continue
 
+            self.__log.debug("qsize=%s", self._cmdq.qsize())
             try:
                 self._dispatch_cmd(_cmd_data)
 

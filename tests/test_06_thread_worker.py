@@ -75,7 +75,7 @@ def test_start_and_end(worker):
 
 
 @pytest.mark.parametrize(
-    "cmd_key, cmd_value, expected_method, expected_args_func",
+    "cmd_key, cmd_value, expected_method, expected_call_args_func",
     [
         # move_angle_sync: 全引数指定
         (
@@ -86,26 +86,33 @@ def test_start_and_end(worker):
                 "step_n": 10,
             },
             "move_angle_sync",
-            lambda w: ([10, 20], 0.1, 10),
+            lambda w: (([10, 20], 0.1, 10), {}),
         ),
         # move_angle_sync: move_sec, step_nがNone (デフォルト値使用)
         (
             "move_angle_sync",
             {"angles": [15, 25], "move_sec": None, "step_n": None},
             "move_angle_sync",
-            lambda w: ([15, 25], w.move_sec, w.step_n),
+            lambda w: (([15, 25], w.move_sec, w.step_n), {}),
         ),
         # move_angle
         (
             "move_angle",
             {"angles": [30, 40]},
             "move_angle",
-            lambda w: ([30, 40],),
+            lambda w: (([30, 40],), {}),
+        ),
+        # move_pulse
+        (
+            "move_pulse",
+            {"pulses": [2000, 1000]},
+            "move_pulse",
+            lambda w: (([2000, 1000],), {"forced": True}),
         ),
     ],
 )
 def test_move_commands(
-    worker, cmd_key, cmd_value, expected_method, expected_args_func
+    worker, cmd_key, cmd_value, expected_method, expected_call_args_func
 ):
     """各種移動コマンドが正しくmservoのメソッドを呼び出すかテストする。"""
     worker_instance, mock_mservo = worker
@@ -116,8 +123,8 @@ def test_move_commands(
     target_method = getattr(mock_mservo, expected_method)
     wait_for_call(target_method)
 
-    expected_args = expected_args_func(worker_instance)
-    target_method.assert_called_once_with(*expected_args)
+    expected_args, expected_kwargs = expected_call_args_func(worker_instance)
+    target_method.assert_called_once_with(*expected_args, **expected_kwargs)
 
 
 @pytest.mark.parametrize(
@@ -192,6 +199,27 @@ def test_interval_sleep(worker, mocker):
         time.sleep(0.01)
 
     pytest.fail("time.sleep(0.5) for interval was not called")
+
+
+def test_cancel_command(worker):
+    """'cancel'コマンドがキューをクリアするかテストする。"""
+    worker_instance, _ = worker
+
+    # キューにコマンドを追加
+    worker_instance.send(json.dumps({"cmd": "sleep", "sec": 0.2}))
+    worker_instance.send(json.dumps({"cmd": "sleep", "sec": 0.2}))
+    worker_instance.send(json.dumps({"cmd": "sleep", "sec": 0.2}))
+    time.sleep(0.1)
+    assert worker_instance._cmdq.qsize() > 0
+
+    # cancelコマンドを送信
+    ret = worker_instance.send(json.dumps({"cmd": "cancel"}))
+    time.sleep(0.1)
+
+    # キューが空になったことを確認
+    assert worker_instance._cmdq.empty()
+    # 返り値にクリアした数が含まれることを確認
+    assert ret["count"] > 0
 
 
 def test_invalid_json(worker, mocker):

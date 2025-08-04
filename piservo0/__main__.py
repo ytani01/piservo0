@@ -1,6 +1,7 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
+""" __main__.py """
 import os
 
 import click
@@ -44,11 +45,14 @@ pyservo0 command
 @click.pass_context
 def cli(ctx, debug):
     """CLI top"""
-    subcmd = ctx.invoked_subcommand
-    _log = get_logger(__name__, debug)
-    _log.debug("subcmd=%s", subcmd)
+    cmd_name = ctx.info_name
+    subcmd_name = ctx.invoked_subcommand
 
-    if subcmd is None:
+    _log = get_logger(cmd_name, debug)
+
+    _log.debug("cmd_name=%s, subcmd_name=%s", cmd_name, subcmd_name)
+
+    if subcmd_name is None:
         print(f"{ctx.get_help()}")
 
 
@@ -78,8 +82,8 @@ def servo(ctx, pin, pulse, sec, debug):
         app = CmdServo(pi, pin, pulse, sec, debug=debug)
         app.main(ctx)
 
-    except Exception as e:
-        _log.error("%s: %s", type(e).__name__, e)
+    except Exception as _e:
+        _log.error("%s: %s", type(_e).__name__, _e)
 
     finally:
         if pi:
@@ -242,7 +246,7 @@ String API Server
     help="port number"
 )
 @click.option(
-    "--angle-factor", "-a", type=str, default='-1,-1,1,1', show_default=True,
+    "--angle-factor", "-a", type=str, default='', show_default=True,
     help="Angle factors (e.g. '-1,-1,1,1')"
 )
 # for debug
@@ -261,21 +265,41 @@ def web_str_api(ctx, pins, server_host, port, angle_factor, debug):
     _log.debug("server_host=%s, port=%s", server_host, port)
     _log.debug("angle_factor=%s", angle_factor)
 
+    #
+    # check `pins`
+    #
     if pins:
         os.environ["PISERVO0_PINS"] = ','.join([str(p) for p in pins])
     else:
         print()
         print("Error: Please specify GPIO pins.")
         print()
-        print("  e.g. piservo0 web-json-api 17 27")
+        print("    e.g. piservo0 {cmd_name} 17 27")
         print()
         print(f"{ctx.get_help()}")
+        print()
         return
 
-    if angle_factor:
-        os.environ["PISERVO0_ANGLE_FACTOR"] = angle_factor
+    #
+    # check `angle_factor`
+    #
+    if not angle_factor:
+        angle_factor = ','.join(['1'] * len(pins))
+        _log.debug("angle_factor=%a", angle_factor)
 
-    os.environ["PISERVO0_DEBUG"] = "1" if debug else "0"        
+    if len(angle_factor.split(",")) != len(pins):
+        print()
+        print(f"Error: Invalid angle_factor length: '{angle_factor}'")
+        print()
+        print(f"    pins={pins}: length must be {len(pins)}")
+        print()
+        print(f"{ctx.get_help()}")
+        print()
+        return
+
+    os.environ["PISERVO0_ANGLE_FACTOR"] = angle_factor
+
+    os.environ["PISERVO0_DEBUG"] = "1" if debug else "0"
 
     uvicorn.run(
         "piservo0.web.str_api:app", host=server_host, port=port, reload=True
@@ -359,9 +383,10 @@ def web_json_api(ctx, pins, server_host, port, debug):
         print()
         print("Error: Please specify GPIO pins.")
         print()
-        print("  e.g. piservo0 web-json-api 17 27")
+        print(f"  e.g. piservo0 {cmd_name} 17 27")
         print()
         print(f"{ctx.get_help()}")
+        print()
         return
 
     os.environ["PISERVO0_DEBUG"] = "1" if debug else "0"
