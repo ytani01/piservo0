@@ -6,6 +6,8 @@ from piservo0 import MultiServo
 
 PIN = [17, 22, 23]  # !! Ajust your configuration
 
+
+pi = servo = None
 try:
     pi = pigpio.pi()
 
@@ -48,9 +50,11 @@ except Exception as e:
     print(f"\n !! {type(e)}: {e}")
 
 finally:
-    time.sleep(1)
-    servo.move_angle([0] * len(PIN))
-    time.sleep(1)
-    servo.off()
-    pi.stop()
+    if servo:
+        time.sleep(1)
+        servo.move_angle([0] * len(PIN))
+        time.sleep(1)
+        servo.off()
+    if pi:
+        pi.stop()
     print("* END\n")

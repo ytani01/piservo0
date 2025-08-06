@@ -9,8 +9,8 @@ from piservo0 import StrApiClient, get_logger
 
 
 class WebClientApp:
-    """ WebClientApp """
-
+    """ WebClientApp.
+    """
     HISTORY_FILE = "~/.piservo0_webclient_history"
     PROMPT_STR = "> "
 
@@ -19,8 +19,8 @@ class WebClientApp:
     TIMEOUT_PARAM = (TIMEOUT_CONN, TIMEOUT_READ)
 
     def __init__(self, host, port, cmdline="", debug=False):
-        """ constractor """
-
+        """ constractor.
+        """
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
         self.__log.debug("host=%s, port=%s", host, port)
@@ -53,7 +53,7 @@ class WebClientApp:
 
         if self.cmdline:
             #
-            # send cmdline (1 shot)
+            # 1 shot mode (send cmdline)
             #
             _res = self.api_client.send_cmd(self.cmdline)
             self.print_response(_res)
@@ -62,7 +62,6 @@ class WebClientApp:
         #
         # interactive mode
         #
-
         try:
             # read history file
             readline.read_history_file(self._history_file)

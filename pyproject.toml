@@ -32,6 +32,9 @@ target-version = "py311"
 lint.select = ["E", "F", "I"]
 exclude = ["tests/data"]
 
+[tool.pyright]
+typeCheckingMode = "standard"
+
 [tool.pytest.ini_options]
 pythonpath = "tests"
 
@@ -51,3 +54,4 @@ samples = [
 [[tool.mypy.overrides]]
 module = ['pigpio', 'fastapi', 'requests']
 ignore_missing_imports = true
+

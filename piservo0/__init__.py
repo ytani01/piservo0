@@ -3,7 +3,10 @@
 #
 from importlib.metadata import version
 
-__version__ = version(__package__)
+if __package__:
+    __version__ = version(__package__)
+else:
+    __version__ = "_._._"
 
 from .core.calibrable_servo import CalibrableServo
 from .core.multi_servo import MultiServo

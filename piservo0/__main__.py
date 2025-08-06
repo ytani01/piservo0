@@ -78,6 +78,7 @@ def servo(ctx, pin, pulse, sec, debug):
     if not pi:
         return
 
+    app = None
     try:
         app = CmdServo(pi, pin, pulse, sec, debug=debug)
         app.main(ctx)
@@ -86,8 +87,9 @@ def servo(ctx, pin, pulse, sec, debug):
         _log.error("%s: %s", type(_e).__name__, _e)
 
     finally:
-        if pi:
+        if app:
             app.end()
+        if pi:
             pi.stop()
 
 
@@ -143,8 +145,9 @@ def calib(ctx, pins, conf_file, debug):
         _log.error("%s: %s", type(_e).__name__, _e)
 
     finally:
-        if pi:
+        if app:
             app.end()
+        if pi:
             pi.stop()
 
 
@@ -225,8 +228,9 @@ def strctrl(
         _log.error("%s: %s", type(_e).__name__, _e)
 
     finally:
-        if _pi:
+        if _app:
             _app.end()
+        if _pi:
             _pi.stop()
 
 

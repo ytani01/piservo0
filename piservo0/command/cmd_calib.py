@@ -98,11 +98,14 @@ class CalibApp:
                     _inkey = str(inkey)
                 self.__log.debug("_inkey=%s", _inkey)
 
-                action = self.key_bindings.get(_inkey)
-                if action:
-                    action()
-                else:
-                    print(f"'{_inkey}': unknown key")
+                if _inkey:
+                    action = self.key_bindings.get(_inkey)
+
+                    if action:
+                        action()
+                        continue
+                
+                print(f"'{_inkey}': unknown key")
 
     def draw_prompt(self):
         """プロンプトを表示する"""

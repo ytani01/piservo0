@@ -3,7 +3,7 @@ import time
 
 import pigpio
 
-from piservo0.multi_servo import MultiServo
+from piservo0 import MultiServo
 
 
 def synchronized_servo_dance():

@@ -48,7 +48,7 @@ class JsonApi:
 
 # --- FastAPI Lifespan Management ---
 @asynccontextmanager
-async def lifespan(_app: FastAPI):
+async def lifespan(app: FastAPI):
     """Lifespan manager for the application"""
 
     # --- get options from envron variables ---
