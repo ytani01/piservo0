@@ -32,9 +32,9 @@ class CalibApp:
         self.key_bindings = self._setup_key_bindings()
         self.__log.debug(
             "key_bindings=%s",
-            pprint.pformat(
-                self.key_bindings, indent=2
-            ).replace("{", "{\n ").replace("}", "\n}")
+            pprint.pformat(self.key_bindings, indent=2)
+            .replace("{", "{\n ")
+            .replace("}", "\n}"),
         )
 
     def _setup_key_bindings(self):
@@ -104,7 +104,7 @@ class CalibApp:
                     if action:
                         action()
                         continue
-                
+
                 print(f"'{_inkey}': unknown key")
 
     def draw_prompt(self):
@@ -149,13 +149,10 @@ class CalibApp:
             dst_pulse = cur_pulse[self.selected_servo] + diff_pulse
             dst_pulse = max(min(dst_pulse, PiServo.MAX), PiServo.MIN)
             self.__log.debug("dst_pulse=%s", dst_pulse)
-            self.mservo.servo[self.selected_servo].move_pulse(
-                dst_pulse, forced=True
-            )
+            self.mservo.servo[self.selected_servo].move_pulse(dst_pulse, forced=True)
         else:  # ALL
             dst_pulse = [
-                max(min(p + diff_pulse, PiServo.MAX), PiServo.MIN)
-                for p in cur_pulse
+                max(min(p + diff_pulse, PiServo.MAX), PiServo.MIN) for p in cur_pulse
             ]
             self.__log.debug("dst_pulse=%s", dst_pulse)
             self.mservo.move_pulse(dst_pulse, forced=True)
@@ -216,7 +213,8 @@ class CalibApp:
 
     def display_help(self):
         """ヘルプメッセージを表示する"""
-        print("""
+        print(
+            """
 
 === Usage ===
 * Select servo
@@ -250,7 +248,8 @@ class CalibApp:
 * Misc
   'q', 'Q' : Quit
   'h', '?' : Show this help
-""")
+"""
+        )
 
     def quit(self):
         """アプリケーションを終了する"""

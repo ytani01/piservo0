@@ -11,7 +11,7 @@ from ..utils.my_logger import get_logger
 
 
 class ThreadWorker(threading.Thread):
-    """ Thred worker
+    """Thred worker
 
     すべてのコマンドは、キューを介して受け渡される。
 
@@ -28,16 +28,17 @@ class ThreadWorker(threading.Thread):
     DEF_RECV_TIMEOUT = 0.2  # sec
     DEF_INTERVAL_SEC = 0.0  # sec
 
-    CMD_CANCEL = 'cancel'
+    CMD_CANCEL = "cancel"
 
     def __init__(
-        self, mservo: MultiServo,
+        self,
+        mservo: MultiServo,
         move_sec: float | None = None,
         step_n: int | None = None,
         interval_sec: float = DEF_INTERVAL_SEC,
-        debug=False
+        debug=False,
     ):
-        """ constructor """
+        """constructor"""
         super().__init__(daemon=True)
 
         self._debug = debug
@@ -72,12 +73,12 @@ class ThreadWorker(threading.Thread):
         }
 
     def __del__(self):
-        """ del """
+        """del"""
         self._active = False
         self.__log.debug("")
 
     def end(self):
-        """ end worker """
+        """end worker"""
         self.__log.debug("")
         self._active = False
         self.clear_cmdq()
@@ -85,7 +86,7 @@ class ThreadWorker(threading.Thread):
         self.__log.debug("done")
 
     def clear_cmdq(self):
-        """ clear command queue """
+        """clear command queue"""
         _count = 0
         while not self._cmdq.empty():
             _count += 1
@@ -94,19 +95,17 @@ class ThreadWorker(threading.Thread):
         return _count
 
     def send(self, cmd_data):
-        """ send """
+        """send"""
         try:
             if isinstance(cmd_data, str):
                 cmd_data = json.loads(cmd_data)
 
             if cmd_data.get("cmd") == self.CMD_CANCEL:
-                cmd_data['count'] = self.clear_cmdq()
+                cmd_data["count"] = self.clear_cmdq()
             else:
                 self._cmdq.put(cmd_data)
 
-            self.__log.debug(
-                "cmd_data=%s, qsize=%s", cmd_data, self._cmdq.qsize()
-            )
+            self.__log.debug("cmd_data=%s, qsize=%s", cmd_data, self._cmdq.qsize())
 
         except Exception as _e:
             self.__log.error("%s: %s", type(_e).__name__, _e)
@@ -114,7 +113,7 @@ class ThreadWorker(threading.Thread):
         return cmd_data
 
     def recv(self, timeout=DEF_RECV_TIMEOUT):
-        """ recv """
+        """recv"""
         try:
             _cmd_data = self._cmdq.get(timeout=timeout)
         except queue.Empty:
@@ -123,12 +122,12 @@ class ThreadWorker(threading.Thread):
         return _cmd_data
 
     def _handle_move_angle_sync(self, cmd: dict):
-        """ e.g. {
-                   "cmd": "move_angle_sync",
-                   "angles": [30, None, -30, 0],
-                   "move_sec": 0.2,  # optional
-                   "step_n": 40  # optional
-                 }
+        """e.g. {
+          "cmd": "move_angle_sync",
+          "angles": [30, None, -30, 0],
+          "move_sec": 0.2,  # optional
+          "step_n": 40  # optional
+        }
         """
         _angles = cmd["angles"]
 
@@ -144,57 +143,57 @@ class ThreadWorker(threading.Thread):
         self._sleep_interval()
 
     def _handle_move_angle(self, cmd: dict):
-        """ e.g. {
-                   "cmd": "move_angle",
-                   "angles": [30, None, -30, 0]
-                 }
+        """e.g. {
+          "cmd": "move_angle",
+          "angles": [30, None, -30, 0]
+        }
         """
         _angles = cmd["angles"]
         self.mservo.move_angle(_angles)
         self._sleep_interval()
 
     def _handle_move_pulse(self, cmd: dict):
-        """ e.g. {
-                   "cmd": "move_pulse",
-                   "pulses": [2000, 1000, None, 0]
-                 }
+        """e.g. {
+          "cmd": "move_pulse",
+          "pulses": [2000, 1000, None, 0]
+        }
         """
         _pulses = cmd["pulses"]
         self.mservo.move_pulse(_pulses, forced=True)
         self._sleep_interval()
 
     def _handle_move_sec(self, cmd: dict):
-        """ e.g. {
-                   "cmd": "move_sec",
-                   "sec": 1.5
-                 }
+        """e.g. {
+          "cmd": "move_sec",
+          "sec": 1.5
+        }
         """
         self.move_sec = float(cmd["sec"])
         self.__log.debug("move_sec=%s", self.move_sec)
 
     def _handle_step_n(self, cmd: dict):
-        """ e.g. {
-                   "cmd": "step_n",
-                   "n": 40
-                 }
+        """e.g. {
+          "cmd": "step_n",
+          "n": 40
+        }
         """
         self.step_n = int(cmd["n"])
         self.__log.debug("step_n=%s", self.step_n)
 
     def _handle_interval(self, cmd: dict):
-        """ e.g. {
-                   "cmd": "interval",
-                   "sec": 0.5
-                 }
+        """e.g. {
+          "cmd": "interval",
+          "sec": 0.5
+        }
         """
         self.interval_sec = float(cmd["sec"])
         self.__log.debug("set interval_sec=%s", self.interval_sec)
 
     def _handle_sleep(self, cmd: dict):
-        """ e.g. {
-                   "cmd": "sleep",
-                   "sec": 1.0
-                 }
+        """e.g. {
+          "cmd": "sleep",
+          "sec": 1.0
+        }
         """
         _sec = float(cmd["sec"])
         self.__log.debug("sleep: %s sec", _sec)
@@ -202,13 +201,13 @@ class ThreadWorker(threading.Thread):
             time.sleep(_sec)
 
     def _sleep_interval(self):
-        """ sleep interval """
+        """sleep interval"""
         if self.interval_sec > 0:
             self.__log.debug("sleep interval_sec: %s sec", self.interval_sec)
             time.sleep(self.interval_sec)
 
     def _dispatch_cmd(self, cmd_data: dict):
-        """ dispatch command """
+        """dispatch command"""
         self.__log.debug("cmd_data=%a", cmd_data)
 
         _cmd_str = cmd_data.get("cmd")
@@ -223,7 +222,7 @@ class ThreadWorker(threading.Thread):
             self.__log.error("unknown command: %s", cmd_data)
 
     def run(self):
-        """ run """
+        """run"""
         self.__log.debug("start")
 
         self._active = True

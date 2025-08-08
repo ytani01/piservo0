@@ -1,7 +1,7 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-""" cmd_webclient.py """
+"""cmd_webclient.py"""
 import os
 import readline  # input()でヒストリー機能が使える
 
@@ -9,8 +9,8 @@ from piservo0 import StrApiClient, get_logger
 
 
 class WebClientApp:
-    """ WebClientApp.
-    """
+    """WebClientApp."""
+
     HISTORY_FILE = "~/.piservo0_webclient_history"
     PROMPT_STR = "> "
 
@@ -19,8 +19,7 @@ class WebClientApp:
     TIMEOUT_PARAM = (TIMEOUT_CONN, TIMEOUT_READ)
 
     def __init__(self, host, port, cmdline="", debug=False):
-        """ constractor.
-        """
+        """constractor."""
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
         self.__log.debug("host=%s, port=%s", host, port)
@@ -35,11 +34,11 @@ class WebClientApp:
         self._history_file = os.path.expanduser(self.HISTORY_FILE)
 
     def print_response(self, _res):
-        """ print response in json format"""
+        """print response in json format"""
         print(f"{self.host}:{self.port}> {_res.json()}")
 
     def main(self):
-        """ main loop """
+        """main loop"""
 
         # check server
         try:
@@ -66,9 +65,7 @@ class WebClientApp:
             # read history file
             readline.read_history_file(self._history_file)
             print(f"* history file: {self._history_file}")
-            self.__log.debug(
-                "history_length=%s", readline.get_current_history_length()
-            )
+            self.__log.debug("history_length=%s", readline.get_current_history_length())
 
         except FileNotFoundError:
             self.__log.debug("no history file: %s", self._history_file)
@@ -88,5 +85,5 @@ class WebClientApp:
             self.print_response(_res)
 
     def end(self):
-        """ end """
+        """end"""
         print("\n* Bye\n")

@@ -155,15 +155,11 @@ class CalibrableServo(PiServo):
 
         if not forced:
             if pulse < self.pulse_min:
-                self.__log.warning(
-                    "pulse(%s) < pulse_min(%s)", pulse, self.pulse_min
-                )
+                self.__log.warning("pulse(%s) < pulse_min(%s)", pulse, self.pulse_min)
                 pulse = self.pulse_min
 
             if pulse > self.pulse_max:
-                self.__log.warning(
-                    "pulse(%s) > pulse_max(%s)", pulse, self.pulse_max
-                )
+                self.__log.warning("pulse(%s) > pulse_max(%s)", pulse, self.pulse_max)
                 pulse = self.pulse_max
 
         super().move_pulse(pulse)
@@ -236,7 +232,7 @@ class CalibrableServo(PiServo):
                 deg = self.ANGLE_MIN
             elif deg == self.POS_MAX:
                 deg = self.ANGLE_MAX
-            elif deg == '':
+            elif deg == "":
                 deg = self.get_angle()
             else:
                 self.__log.error('deg="%s": invalid string. do nothing', deg)
@@ -259,7 +255,10 @@ class CalibrableServo(PiServo):
 
         self.__log.debug(
             "Loaded: pin=%s, min=%s, center=%s, max=%s",
-            self.pin, self.pulse_min, self.pulse_center, self.pulse_max
+            self.pin,
+            self.pulse_min,
+            self.pulse_center,
+            self.pulse_max,
         )
 
     def save_conf(self):
@@ -276,7 +275,5 @@ class CalibrableServo(PiServo):
     def _ensure_config_exists(self):
         """もし設定がなければ、現在の値で保存する。(プライベートメソッド)"""
         if self._config_manager.get_config(self.pin) is None:
-            self.__log.warning(
-                "No config for pin %s. Saving current val.", self.pin
-            )
+            self.__log.warning("No config for pin %s. Saving current val.", self.pin)
             self.save_conf()

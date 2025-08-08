@@ -46,14 +46,11 @@ class ThreadMultiServo:
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
         self.__log.debug(
-            "pins=%s, first_move=%s, conf_file=%s",
-            pins, first_move, conf_file
+            "pins=%s, first_move=%s, conf_file=%s", pins, first_move, conf_file
         )
 
         # 同期的な処理を担当するMultiServoを内包する
-        self._mservo = MultiServo(
-            pi, pins, first_move, conf_file, debug=False
-        )
+        self._mservo = MultiServo(pi, pins, first_move, conf_file, debug=False)
         self.servo_n = len(pins)
         self.servo = self._mservo.servo  # list of CalibrableServo
 
@@ -84,12 +81,12 @@ class ThreadMultiServo:
         self.__log.debug("Worker ended.")
 
     def send_cmd(self, cmd: dict):
-        """ コマンドをキューに送る """
+        """コマンドをキューに送る"""
         self.__log.debug("cmd=%s", cmd)
         self._worker.send(cmd)
 
     def cancel_cmds(self):
-        """ 今まで送ったコマンドをキャンセルする """
+        """今まで送ったコマンドをキャンセルする"""
         self.__log.debug("")
         self._worker.clear_cmdq()
 
@@ -123,8 +120,9 @@ class ThreadMultiServo:
             step_n (Optional[int], optional):
                 分割ステップ数。Noneの場合は現在の設定値が使われます。
         """
-        self.__log.debug("target_angle=%s, move_sec=%s, step_n=%s",
-                         target_angles, move_sec, step_n)
+        self.__log.debug(
+            "target_angle=%s, move_sec=%s, step_n=%s", target_angles, move_sec, step_n
+        )
 
         cmd = {
             "cmd": "move_angle_sync",

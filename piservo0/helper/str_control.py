@@ -73,9 +73,7 @@ class StrControl:
             self.angle_factor = self.DEF_ANGLE_FACTOR
         else:
             if len(angle_factor) != self.servo_n:
-                raise ValueError(
-                    f"len(angle_factor) must be {self.servo_n}"
-                )
+                raise ValueError(f"len(angle_factor) must be {self.servo_n}")
             self.angle_factor = angle_factor
 
         # デフォルト引数に辞書などのミュータブルなオブジェクトを使うと、
@@ -99,7 +97,7 @@ class StrControl:
         self.__log.debug("angle_unit=%s", self.angle_unit)
 
     def set_move_sec(self, sec: float):
-        """ 移動時間を設定する。"""
+        """移動時間を設定する。"""
         if sec >= 0:
             self.move_sec = sec
         self.__log.debug("move_sec=%s", self.move_sec)
@@ -147,7 +145,7 @@ class StrControl:
         if self._is_float_str(cmd):
             return {"cmd": "sleep", "sec": float(cmd)}
 
-        if self.cmd_chars['cancel_cmds'] in cmd.lower():
+        if self.cmd_chars["cancel_cmds"] in cmd.lower():
             return {"cmd": "cancel"}
 
         _res, _res_str = self._is_str_cmd(cmd)
@@ -224,7 +222,6 @@ class StrControl:
 
             self.mservo.send_cmd(parsed_cmd)
             return parsed_cmd
-
 
         #
         # mservoが、MultiServoの場合は、コマンドによってメソッドを呼び出す

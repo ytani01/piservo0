@@ -1,7 +1,7 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-""" multi_servo.py """
+"""multi_servo.py"""
 import time
 
 from ..utils.my_logger import get_logger
@@ -17,9 +17,12 @@ class MultiServo:
     DEF_STEP_N = 40
 
     def __init__(
-        self, pi, pins: list[int], first_move=True,
+        self,
+        pi,
+        pins: list[int],
+        first_move=True,
         conf_file=CalibrableServo.DEF_CONF_FILE,
-        debug=False
+        debug=False,
     ):
         """
         MultiServoのインスタンスを初期化する。
@@ -39,8 +42,9 @@ class MultiServo:
         """
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
-        self.__log.debug("pins=%s, first_move=%s, conf_file=%s",
-                         pins, first_move, conf_file)
+        self.__log.debug(
+            "pins=%s, first_move=%s, conf_file=%s", pins, first_move, conf_file
+        )
 
         self._pi = pi
         self.pins = pins
@@ -49,9 +53,8 @@ class MultiServo:
         self.servo_n = len(pins)
 
         self.servo = [
-            CalibrableServo(
-                self._pi, _pin, conf_file=conf_file, debug=False
-            ) for _pin in self.pins
+            CalibrableServo(self._pi, _pin, conf_file=conf_file, debug=False)
+            for _pin in self.pins
         ]
 
         self.conf_file = self.servo[0].conf_file
@@ -68,10 +71,7 @@ class MultiServo:
         self.__log.debug("name=%s", name)
 
         # 各サーボインスタンスに同じ名前のメソッドが存在するか確認
-        if not all(
-            hasattr(s, name) and callable(getattr(s, name))
-            for s in self.servo
-        ):
+        if not all(hasattr(s, name) and callable(getattr(s, name)) for s in self.servo):
             msg = (
                 f"'{self.__class__.__name__}' object and its servos "
                 f"have no attribute '{name}'"
@@ -344,9 +344,7 @@ class MultiServo:
             _s.move_angle(target_angles[_i])
 
     def move_angle_sync(
-        self, target_angles,
-        move_sec: float = DEF_MOVE_SEC,
-        step_n: int = DEF_STEP_N
+        self, target_angles, move_sec: float = DEF_MOVE_SEC, step_n: int = DEF_STEP_N
     ):
         """
         すべてのサーボを目標角度まで同期的かつ滑らかに動かす。
@@ -365,8 +363,7 @@ class MultiServo:
             1以下の場合は、move_angle() を呼び出して、ダイレクトに動かす
         """
         self.__log.debug(
-            "target_angles=%s, move_sec=%s, step_n=%s",
-            target_angles, move_sec, step_n
+            "target_angles=%s, move_sec=%s, step_n=%s", target_angles, move_sec, step_n
         )
 
         if not self._validate_angle_list(target_angles):
@@ -390,21 +387,13 @@ class MultiServo:
 
             if isinstance(_angle, str):
                 if _angle == _servo.POS_CENTER:
-                    _num_target_angles.append(
-                        _servo.ANGLE_CENTER
-                    )
+                    _num_target_angles.append(_servo.ANGLE_CENTER)
                 elif _angle == _servo.POS_MIN:
-                    _num_target_angles.append(
-                        _servo.ANGLE_MIN
-                    )
+                    _num_target_angles.append(_servo.ANGLE_MIN)
                 elif _angle == _servo.POS_MAX:
-                    _num_target_angles.append(
-                        _servo.ANGLE_MAX
-                    )
+                    _num_target_angles.append(_servo.ANGLE_MAX)
                 else:  # 不明な文字: 動かさない
-                    self.__log.warning(
-                        "invalid word %a: ignored", _angle
-                    )
+                    self.__log.warning("invalid word %a: ignored", _angle)
                     _num_target_angles.append(_start_angles[i])
 
             elif _angle is None:  # None は、「動かさない」の意味
@@ -418,8 +407,7 @@ class MultiServo:
         self.__log.debug("_num_target_angles=%s", _num_target_angles)
 
         _diff_angles = [
-            _num_target_angles[i] - _start_angles[i]
-            for i in range(self.servo_n)
+            _num_target_angles[i] - _start_angles[i] for i in range(self.servo_n)
         ]
         self.__log.debug("_diff_angles=%s", _diff_angles)
 

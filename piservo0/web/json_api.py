@@ -18,7 +18,7 @@ class JsonApi:
     """Main class for Web Application"""
 
     def __init__(self, pins, debug=False):
-        """ constractor """
+        """constractor"""
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
 
@@ -34,11 +34,11 @@ class JsonApi:
         self.thr_worker.start()
 
     def end(self):
-        """ end """
+        """end"""
         self.thr_worker.end()
 
     def send_cmdjson(self, cmdjson):
-        """ send JSON command to thread worker """
+        """send JSON command to thread worker"""
         self.__log.debug("cmdjson=%s", cmdjson)
 
         _res = self.thr_worker.send(cmdjson)
@@ -98,9 +98,9 @@ async def exec_cmd(request: Request, cmdjson=Body()):
         except json.decoder.JSONDecodeError as _e:
             _log.error("%s: %s", type(_e).__name__, _e)
             return {"error": "decode error"}
-    
+
     if not isinstance(cmdjson, list):
-        cmdjson = [ cmdjson ]
+        cmdjson = [cmdjson]
         _log.debug("cmdjson=%s %s", cmdjson, type(cmdjson))
 
     _json_app = request.app.state.json_app

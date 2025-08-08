@@ -1,4 +1,3 @@
-
 import json
 from typing import Any, Dict, List, Optional, Union
 
@@ -29,13 +28,13 @@ def _create_error_json(cmdstr: str) -> str:
 def _parse_angles(param_str: str) -> Optional[List[Union[int, str, None]]]:
     """'mv'コマンドのパラメータ文字列をパースして角度のリストを返す"""
     angles: List[Union[int, str, None]] = []
-    parts = param_str.split(',')
+    parts = param_str.split(",")
     for part in parts:
         p = part.strip().lower()
         if not p:  # 空の要素は不正
             return None
 
-        if p == '.':
+        if p == ".":
             angles.append(None)
         elif p in _ANGLE_ALIAS_MAP:
             angles.append(_ANGLE_ALIAS_MAP[p])
@@ -62,18 +61,17 @@ def str_to_json(cmdstr: str) -> str:
     Returns:
         変換されたJSON文字列。変換できない場合はエラー情報を含むJSONを返す。
     """
-    if not isinstance(cmdstr, str) or ' ' in cmdstr:
+    if not isinstance(cmdstr, str) or " " in cmdstr:
         return _create_error_json(cmdstr)
 
-    parts = cmdstr.split(':', 1)
+    parts = cmdstr.split(":", 1)
     cmd_key = parts[0].lower()
-    
+
     # 'ca' や 'zz' のようにパラメータがないコマンドの処理
     if len(parts) == 1:
         param_str = ""
     else:
         param_str = parts[1]
-
 
     if cmd_key not in _COMMAND_MAP:
         return _create_error_json(cmdstr)

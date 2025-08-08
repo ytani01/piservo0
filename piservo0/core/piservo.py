@@ -1,7 +1,7 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-""" piservo.py """
+"""piservo.py"""
 from ..utils.my_logger import get_logger
 
 

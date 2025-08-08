@@ -15,7 +15,7 @@ class StrApiClient:
     TIMEOUT_PARAM = (TIMEOUT_CONN, TIMEOUT_READ)
 
     def __init__(self, host="localhost", port=8000, debug=False):
-        """ constractor """
+        """constractor"""
 
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
@@ -25,7 +25,7 @@ class StrApiClient:
         self.port = port
 
     def make_top_url(self, protocol="http"):
-        """ make top URL """
+        """make top URL"""
 
         _url = f"{protocol}://{self.host}:{self.port}/"
         self.__log.debug("url=%s", _url)
@@ -33,7 +33,7 @@ class StrApiClient:
         return _url
 
     def make_cmd_url(self, cmdline):
-        """ make URL """
+        """make URL"""
         self.__log.debug("cmdline=%s", cmdline)
 
         if isinstance(cmdline, (list, tuple)):
@@ -46,7 +46,7 @@ class StrApiClient:
         return _url
 
     def url_get(self, url):
-        """ get """
+        """get"""
         self.__log.debug("url=%s", url)
 
         try:
@@ -60,7 +60,7 @@ class StrApiClient:
         return _res
 
     def send_cmd(self, cmdline):
-        """ make URL and send """
+        """make URL and send"""
         self.__log.debug("cmdline=%a", cmdline)
 
         return self.url_get(self.make_cmd_url(cmdline))

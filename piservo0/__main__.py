@@ -1,7 +1,7 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-""" __main__.py """
+"""__main__.py"""
 import os
 
 import click
@@ -39,7 +39,7 @@ def get_pi(debug=False):
     context_settings=CONTEXT_SETTINGS,
     help="""
 pyservo0 command
-"""
+""",
 )
 @click.option("-d", "--debug", is_flag=True, help="debug flag")
 @click.pass_context
@@ -63,8 +63,12 @@ servo command"""
 @click.argument("pin", type=int, nargs=1)
 @click.argument("pulse", type=str, nargs=1)
 @click.option(
-    "--sec", "-t", "-s", type=float,
-    default=1.0, show_default=True,
+    "--sec",
+    "-t",
+    "-s",
+    type=float,
+    default=1.0,
+    show_default=True,
     help="sec",
 )
 @click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
@@ -104,13 +108,14 @@ calibration tool
 )
 @click.argument("pins", type=int, nargs=-1)
 @click.option(
-    "--conf_file", "-c", "-f",
-    default=CalibrableServo.DEF_CONF_FILE, show_default=True,
-    help="Config file path"
+    "--conf_file",
+    "-c",
+    "-f",
+    default=CalibrableServo.DEF_CONF_FILE,
+    show_default=True,
+    help="Config file path",
 )
-@click.option(
-    "--debug", "-d", is_flag=True, default=False, help="debug flag"
-)
+@click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
 @click.pass_context
 def calib(ctx, pins, conf_file, debug):
     """calib command."""
@@ -159,33 +164,52 @@ Multi Servo, String control
 @click.argument("pins", type=int, nargs=-1)
 # ThreadMultiServo options
 @click.option(
-    "--conf_file", "-c", type=str, default=CalibrableServo.DEF_CONF_FILE,
-    show_default=True, help="Config file path"
+    "--conf_file",
+    "-c",
+    type=str,
+    default=CalibrableServo.DEF_CONF_FILE,
+    show_default=True,
+    help="Config file path",
 )
 # StrControl options
 @click.option(
-    "--move_sec", "-m", type=float, default=StrControl.DEF_MODE_SEC,
-    show_default=True, help="estimated move time(sec)"
+    "--move_sec",
+    "-m",
+    type=float,
+    default=StrControl.DEF_MODE_SEC,
+    show_default=True,
+    help="estimated move time(sec)",
 )
 @click.option(
-    "--step_n", "-s", type=int, default=MultiServo.DEF_STEP_N,
-    show_default=True, help="Step Number"
+    "--step_n",
+    "-s",
+    type=int,
+    default=MultiServo.DEF_STEP_N,
+    show_default=True,
+    help="Step Number",
 )
 @click.option(
-    "--angle_unit", "-u", type=float, default=StrControl.DEF_ANGLE_UNIT,
-    show_default=True, help="Angle Unit"
+    "--angle_unit",
+    "-u",
+    type=float,
+    default=StrControl.DEF_ANGLE_UNIT,
+    show_default=True,
+    help="Angle Unit",
 )
 @click.option(
-    "--angle_factor", "-f", type=str, default="-1 -1 1 1",
-    show_default=True, help="Angle Factor"
+    "--angle_factor",
+    "-f",
+    type=str,
+    default="-1 -1 1 1",
+    show_default=True,
+    help="Angle Factor",
 )
 # for debug
-@click.option(
-    "--debug", "-d", is_flag=True, default=False, help="debug flag"
-)
+@click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
 @click.pass_context
 def strctrl(
-    ctx, pins, conf_file, move_sec, step_n, angle_unit, angle_factor, debug
+    ctx, pins, conf_file,
+    move_sec, step_n, angle_unit, angle_factor, debug
 ):
     """strctrl."""
     _log = get_logger(__name__, debug)
@@ -214,10 +238,14 @@ def strctrl(
     _app = None
     try:
         _app = StrCtrlApp(
-            _pi, pins, conf_file=conf_file,
-            move_sec=move_sec, step_n=step_n,
-            angle_unit=angle_unit, angle_factor=angle_factor,
-            debug=debug
+            _pi,
+            pins,
+            conf_file=conf_file,
+            move_sec=move_sec,
+            step_n=step_n,
+            angle_unit=angle_unit,
+            angle_factor=angle_factor,
+            debug=debug,
         )
         _app.main()
 
@@ -241,21 +269,27 @@ String API Client
 )
 @click.argument("pins", type=int, nargs=-1)
 @click.option(
-    "--server_host", "-s", type=str, default="0.0.0.0", show_default=True,
-    help="server hostname or IP address"
+    "--server_host",
+    "-s",
+    type=str,
+    default="0.0.0.0",
+    show_default=True,
+    help="server hostname or IP address",
 )
 @click.option(
     "--port", "-p", type=int, default=8000, show_default=True,
     help="port number"
 )
 @click.option(
-    "--angle-factor", "-a", type=str, default='', show_default=True,
-    help="Angle factors (e.g. '-1,-1,1,1')"
+    "--angle-factor",
+    "-a",
+    type=str,
+    default="",
+    show_default=True,
+    help="Angle factors (e.g. '-1,-1,1,1')",
 )
 # for debug
-@click.option(
-    "--debug", "-d", is_flag=True, default=False, help="debug flag"
-)
+@click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
 @click.pass_context
 def web_str_api(ctx, pins, server_host, port, angle_factor, debug):
     """Web API Client."""
@@ -271,7 +305,7 @@ def web_str_api(ctx, pins, server_host, port, angle_factor, debug):
     # check `pins`
     #
     if pins:
-        os.environ["PISERVO0_PINS"] = ','.join([str(p) for p in pins])
+        os.environ["PISERVO0_PINS"] = ",".join([str(p) for p in pins])
     else:
         print()
         print("Error: Please specify GPIO pins.")
@@ -286,7 +320,7 @@ def web_str_api(ctx, pins, server_host, port, angle_factor, debug):
     # check `angle_factor`
     #
     if not angle_factor:
-        angle_factor = ','.join(['1'] * len(pins))
+        angle_factor = ",".join(["1"] * len(pins))
         _log.debug("angle_factor=%a", angle_factor)
 
     if len(angle_factor.split(",")) != len(pins):
@@ -304,7 +338,8 @@ def web_str_api(ctx, pins, server_host, port, angle_factor, debug):
     os.environ["PISERVO0_DEBUG"] = "1" if debug else "0"
 
     uvicorn.run(
-        "piservo0.web.str_api:app", host=server_host, port=port, reload=True
+        "piservo0.web.str_api:app",
+        host=server_host, port=port, reload=True
     )
 
 
@@ -315,17 +350,19 @@ String API Client
 )
 @click.argument("cmdline", type=str, nargs=-1)
 @click.option(
-    "--server_host", "-s", type=str, default="localhost", show_default=True,
-    help="server hostname or IP address"
+    "--server_host",
+    "-s",
+    type=str,
+    default="localhost",
+    show_default=True,
+    help="server hostname or IP address",
 )
 @click.option(
     "--port", "-p", type=int, default=8000, show_default=True,
     help="port number"
 )
 # for debug
-@click.option(
-    "--debug", "-d", is_flag=True, default=False, help="debug flag"
-)
+@click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
 @click.pass_context
 def web_client(ctx, cmdline, server_host, port, debug):
     """String API Server."""
@@ -356,17 +393,19 @@ JSON API Server
 )
 @click.argument("pins", type=int, nargs=-1)
 @click.option(
-    "--server_host", "-s", type=str, default="0.0.0.0", show_default=True,
-    help="server hostname or IP address"
+    "--server_host",
+    "-s",
+    type=str,
+    default="0.0.0.0",
+    show_default=True,
+    help="server hostname or IP address",
 )
 @click.option(
     "--port", "-p", type=int, default=8000, show_default=True,
     help="port number"
 )
 # for debug
-@click.option(
-    "--debug", "-d", is_flag=True, default=False, help="debug flag"
-)
+@click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
 @click.pass_context
 def web_json_api(ctx, pins, server_host, port, debug):
     """Web JSON API Server."""
@@ -378,7 +417,7 @@ def web_json_api(ctx, pins, server_host, port, debug):
     _log.debug("server_host=%s, port=%s", server_host, port)
 
     if pins:
-        os.environ["PISERVO0_PINS"] = ','.join([str(p) for p in pins])
+        os.environ["PISERVO0_PINS"] = ",".join([str(p) for p in pins])
     else:
         print()
         print("Error: Please specify GPIO pins.")
@@ -392,5 +431,6 @@ def web_json_api(ctx, pins, server_host, port, debug):
     os.environ["PISERVO0_DEBUG"] = "1" if debug else "0"
 
     uvicorn.run(
-        "piservo0.web.json_api:app", host=server_host, port=port, reload=True
+        "piservo0.web.json_api:app",
+        host=server_host, port=port, reload=True
     )

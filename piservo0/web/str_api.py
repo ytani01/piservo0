@@ -17,12 +17,10 @@ class StrApi:
     """Main class for Web Application"""
 
     def __init__(self, pins, angle_factor, debug=False):
-        """ constractor """
+        """constractor"""
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
-        self.__log.debug(
-            "pins=%s, angle_factor=%s", pins, angle_factor
-        )
+        self.__log.debug("pins=%s, angle_factor=%s", pins, angle_factor)
 
         self.pins = pins
         self.angle_factor = angle_factor
@@ -30,20 +28,18 @@ class StrApi:
         print("Initializing ...")
         self.pi = pigpio.pi()
 
-        self.mservo = ThreadMultiServo(
-            self.pi, self.pins, debug=self._debug
-        )
+        self.mservo = ThreadMultiServo(self.pi, self.pins, debug=self._debug)
 
         self.str_ctrl = StrControl(
             self.mservo, angle_factor=self.angle_factor, debug=self._debug
         )
 
     def end(self):
-        """ end """
+        """end"""
         self.mservo.end()
 
     def exec_cmdline(self, cmdline):
-        """ execute command line """
+        """execute command line"""
         self.__log.info("cmdline=%s", cmdline)
 
         _res = self.str_ctrl.exec_multi_cmds(cmdline)
@@ -68,9 +64,7 @@ async def lifespan(app: FastAPI):
     debug = debug_str == "1"
 
     log = get_logger(__name__, debug)
-    log.debug(
-        "pins=%s, angle_factor=%s, debug=%s", pins, angle_factor, debug
-    )
+    log.debug("pins=%s, angle_factor=%s, debug=%s", pins, angle_factor, debug)
 
     # --- make 'webapp' ---
     app.state.webapp = StrApi(pins, angle_factor, debug=debug)
