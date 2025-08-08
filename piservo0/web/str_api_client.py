@@ -1,14 +1,14 @@
 #
 # (c) 2025 Yoichi Tanibayashi
 #
-""" """
+"""str_api_client.py."""
 import requests
 
 from piservo0 import get_logger
 
 
 class StrApiClient:
-    """ Web StrApi Client """
+    """String API Client."""
 
     TIMEOUT_CONN = 3.0
     TIMEOUT_READ = 10.0

@@ -9,7 +9,7 @@ import os
 from contextlib import asynccontextmanager
 
 import pigpio
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Body
 
 from piservo0 import MultiServo, ThreadWorker, get_logger
 
@@ -80,27 +80,36 @@ async def read_root():
     return {"Hello": "World"}
 
 
-@app.post("/cmd/")
-async def exec_cmd(cmdjson, request: Request):
+@app.post("/cmd")
+async def exec_cmd(request: Request, cmdjson=Body()):
     """execute commands"""
 
     debug = request.app.state.debug
 
     _log = get_logger(__name__, debug)
 
-    _log.debug("cmdjson=%a %s", cmdjson, type(cmdjson))
+    _log.debug("cmdjson=%s %s", cmdjson, type(cmdjson))
+    # _log.debug("request.body=%s", await request.body())
 
-    cmdjson = json.loads(cmdjson)
-    _log.debug("cmdjson=%a %s", cmdjson, type(cmdjson))
-
+    if isinstance(cmdjson, (str, bytes)):
+        try:
+            cmdjson = json.loads(cmdjson)
+            _log.debug("cmdjson=%s %s", cmdjson, type(cmdjson))
+        except json.decoder.JSONDecodeError as _e:
+            _log.error("%s: %s", type(_e).__name__, _e)
+            return {"error": "decode error"}
+    
     if not isinstance(cmdjson, list):
-        cmdjson = [cmdjson]
-        _log.debug("cmdjson=%a %s", cmdjson, type(cmdjson))
+        cmdjson = [ cmdjson ]
+        _log.debug("cmdjson=%s %s", cmdjson, type(cmdjson))
 
+    _json_app = request.app.state.json_app
     _res = []
     for c in cmdjson:
-        _log.debug("c=%a", c)
-        _res.append(request.app.state.json_app.send_cmdjson(c))
+        _res1 = _json_app.send_cmdjson(c)
+        _log.debug("c=%s, _res1=%s", c, _res1)
+
+        _res.append(_res1)
 
     _log.debug("_res=%a", _res)
     return _res

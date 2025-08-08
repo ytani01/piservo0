@@ -236,7 +236,7 @@ def strctrl(
 
 @cli.command(
     help="""
-String API Server
+String API Client
 """
 )
 @click.argument("pins", type=int, nargs=-1)
@@ -328,7 +328,7 @@ String API Client
 )
 @click.pass_context
 def web_client(ctx, cmdline, server_host, port, debug):
-    """Web API Client."""
+    """String API Server."""
     _log = get_logger(__name__, debug)
     _log.debug("server_host=%s, port=%s", server_host, port)
 
@@ -369,7 +369,7 @@ JSON API Server
 )
 @click.pass_context
 def web_json_api(ctx, pins, server_host, port, debug):
-    """Web API Client."""
+    """Web JSON API Server."""
     cmd_name = ctx.command.name
 
     _log = get_logger(__name__, debug)
