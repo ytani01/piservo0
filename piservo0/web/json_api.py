@@ -9,7 +9,7 @@ import os
 from contextlib import asynccontextmanager
 
 import pigpio
-from fastapi import FastAPI, Request, Body
+from fastapi import Body, FastAPI, Request
 
 from piservo0 import MultiServo, ThreadWorker, get_logger
 
