@@ -149,10 +149,13 @@ class CalibApp:
             dst_pulse = cur_pulse[self.selected_servo] + diff_pulse
             dst_pulse = max(min(dst_pulse, PiServo.MAX), PiServo.MIN)
             self.__log.debug("dst_pulse=%s", dst_pulse)
-            self.mservo.servo[self.selected_servo].move_pulse(dst_pulse, forced=True)
+            self.mservo.servo[self.selected_servo].move_pulse(
+                dst_pulse, forced=True
+            )
         else:  # ALL
             dst_pulse = [
-                max(min(p + diff_pulse, PiServo.MAX), PiServo.MIN) for p in cur_pulse
+                max(min(p + diff_pulse, PiServo.MAX), PiServo.MIN)
+                for p in cur_pulse
             ]
             self.__log.debug("dst_pulse=%s", dst_pulse)
             self.mservo.move_pulse(dst_pulse, forced=True)

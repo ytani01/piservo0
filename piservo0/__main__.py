@@ -8,8 +8,10 @@ import click
 import pigpio
 import uvicorn
 
+from .command.cmd_apiclient import CmdApiClient
 from .command.cmd_calib import CalibApp
 from .command.cmd_servo import CmdServo
+from .command.cmd_strclient import CmdStrClient
 from .command.cmd_strctrl import StrCtrlApp
 from .command.cmd_webclient import WebClientApp
 from .core.calibrable_servo import CalibrableServo
@@ -434,3 +436,98 @@ def web_json_api(ctx, pins, server_host, port, debug):
         "piservo0.web.json_api:app",
         host=server_host, port=port, reload=True
     )
+
+
+@cli.command(
+    help="""
+API Client
+"""
+)
+@click.argument("cmdline", type=str, nargs=-1)
+@click.option(
+    "--url", "-u", type=str,
+    default="http://localhost:8000/cmd", show_default=True,
+    help="API URL"
+)
+@click.option(
+    "--history_file", type=str,
+    default="~/.piservo0_apiclient_history", show_default=True,
+    help="History file"
+)
+# for debug
+@click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
+@click.pass_context
+def api_client(ctx, cmdline, url, history_file, debug):
+    """String API Server."""
+    _log = get_logger(__name__, debug)
+    _log.debug("url=%s, history_file=%s", url, history_file)
+
+    cmdline = " ".join(cmdline)
+    _log.debug("cmdline=%a", cmdline)
+
+    cmd_name = ctx.command.name
+    _log.debug("cmd_name=%s", cmd_name)
+
+    _app = CmdApiClient(url, cmdline, history_file, debug)
+    try:
+        _app.main()
+
+    except (KeyboardInterrupt, EOFError):
+        pass
+
+    finally:
+        _app.end()
+
+
+@cli.command(
+    help="""
+String Command API Client
+"""
+)
+@click.argument("cmdline", type=str, nargs=-1)
+@click.option(
+    "--url", "-u", type=str,
+    default="http://localhost:8000/cmd", show_default=True,
+    help="API URL"
+)
+@click.option(
+    "--history_file", type=str,
+    default="~/.piservo0_apiclient_history", show_default=True,
+    help="History file"
+)
+@click.option(
+    "--angle_factor", "-a", type=str,
+    default="1,1,1,1", show_default=True,
+    help="Angle Factor"
+)
+# for debug
+@click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
+@click.pass_context
+def str_client(
+        ctx, cmdline, url, history_file, angle_factor, debug
+):
+    """String Command API Client."""
+    _log = get_logger(__name__, debug)
+    _log.debug(
+        "url=%s, history_file=%s, angle_factor=%s",
+        url, history_file, angle_factor
+    )
+
+    cmdline = " ".join(cmdline)
+    _log.debug("cmdline=%a", cmdline)
+
+    af_list = [int(i) for i in angle_factor.split(',')]
+    _log.debug("af_list=%s", af_list)
+
+    cmd_name = ctx.command.name
+    _log.debug("cmd_name=%s", cmd_name)
+
+    _app = CmdStrClient(url, cmdline, history_file, af_list, debug)
+    try:
+        _app.main()
+
+    except (KeyboardInterrupt, EOFError):
+        pass
+
+    finally:
+        _app.end()

@@ -64,7 +64,9 @@ class ServoConfigManager:
 
         # 見つからなかった場合はカレントディレクトリに作成する
         default_path = Path.cwd() / conf_file
-        self.__log.warning("Config file not found. Defaulting to: %s", default_path)
+        self.__log.warning(
+            "Config file not found. Defaulting to: %s", default_path
+        )
         return str(default_path)
 
     def read_all_configs(self):
@@ -82,7 +84,9 @@ class ServoConfigManager:
             self.__log.warning("Config file not found: %s", self.conf_file)
             return []
         except json.JSONDecodeError as e:
-            self.__log.error("Invalid JSON format in %s: %s", self.conf_file, e)
+            self.__log.error(
+                "Invalid JSON format in %s: %s", self.conf_file, e
+            )
             return []
 
     def save_all_configs(self, data):

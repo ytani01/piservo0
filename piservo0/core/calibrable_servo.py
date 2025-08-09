@@ -155,11 +155,15 @@ class CalibrableServo(PiServo):
 
         if not forced:
             if pulse < self.pulse_min:
-                self.__log.warning("pulse(%s) < pulse_min(%s)", pulse, self.pulse_min)
+                self.__log.warning(
+                    "pulse(%s) < pulse_min(%s)", pulse, self.pulse_min
+                )
                 pulse = self.pulse_min
 
             if pulse > self.pulse_max:
-                self.__log.warning("pulse(%s) > pulse_max(%s)", pulse, self.pulse_max)
+                self.__log.warning(
+                    "pulse(%s) > pulse_max(%s)", pulse, self.pulse_max
+                )
                 pulse = self.pulse_max
 
         super().move_pulse(pulse)
@@ -275,5 +279,7 @@ class CalibrableServo(PiServo):
     def _ensure_config_exists(self):
         """もし設定がなければ、現在の値で保存する。(プライベートメソッド)"""
         if self._config_manager.get_config(self.pin) is None:
-            self.__log.warning("No config for pin %s. Saving current val.", self.pin)
+            self.__log.warning(
+                "No config for pin %s. Saving current val.", self.pin
+            )
             self.save_conf()

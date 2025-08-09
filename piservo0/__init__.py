@@ -11,8 +11,8 @@ else:
 from .core.calibrable_servo import CalibrableServo
 from .core.multi_servo import MultiServo
 from .core.piservo import PiServo
+from .helper.str_cmd_to_json import StrCmdToJson
 from .helper.str_control import StrControl
-from .helper.cmd_to_json import CmdToJson
 from .helper.thread_multi_servo import ThreadMultiServo
 from .helper.thread_worker import ThreadWorker
 from .utils.my_logger import get_logger
@@ -30,5 +30,5 @@ __all__ = [
     "ThreadWorker",
     "ThreadMultiServo",
     "JsonApiClient",
-    "CmdToJson",
+    "StrCmdToJson",
 ]

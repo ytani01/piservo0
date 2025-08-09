@@ -14,7 +14,8 @@ class StrCtrlApp:
     PROMPT_STR = "> "
 
     def __init__(
-        self, pi, pins, conf_file, move_sec, step_n, angle_unit, angle_factor, debug
+        self, pi, pins, conf_file, move_sec, step_n, angle_unit,
+        angle_factor, debug
     ):
         """constractor"""
         self._debug = debug
@@ -25,7 +26,8 @@ class StrCtrlApp:
             pi, pins, conf_file=conf_file, debug=self._debug
         )
         self._str_ctrl = StrControl(
-            self._mservo, move_sec, step_n, angle_unit, angle_factor, debug=self._debug
+            self._mservo, move_sec, step_n, angle_unit, angle_factor,
+            debug=self._debug
         )
 
         self._history_file = os.path.expanduser(self.HISTORY_FILE)
@@ -35,7 +37,9 @@ class StrCtrlApp:
         try:
             readline.read_history_file(self._history_file)
             print(f"* history file: {self._history_file}")
-            self.__log.debug("history_length=%s", readline.get_current_history_length())
+            self.__log.debug(
+                "history_length=%s", readline.get_current_history_length()
+            )
         except FileNotFoundError:
             self.__log.debug("no history file: %s", self._history_file)
 

@@ -5,7 +5,7 @@
 
 import requests
 
-from piservo0 import CmdToJson, get_logger
+from piservo0 import get_logger
 
 
 class JsonApiClient:

@@ -65,7 +65,9 @@ class WebClientApp:
             # read history file
             readline.read_history_file(self._history_file)
             print(f"* history file: {self._history_file}")
-            self.__log.debug("history_length=%s", readline.get_current_history_length())
+            self.__log.debug(
+                "history_length=%s", readline.get_current_history_length()
+            )
 
         except FileNotFoundError:
             self.__log.debug("no history file: %s", self._history_file)

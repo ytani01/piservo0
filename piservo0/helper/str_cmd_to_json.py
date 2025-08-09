@@ -8,8 +8,8 @@ from typing import Any, Dict, List, Optional, Union
 from piservo0.utils.my_logger import get_logger
 
 
-class CmdToJson:
-    """Command string to JSON."""
+class StrCmdToJson:
+    """String Command to JSON."""
     
     # コマンド文字列とJSONコマンド名のマッピング
     COMMAND_MAP: Dict[str, str] = {
@@ -47,16 +47,26 @@ class CmdToJson:
         """set angle_factor."""
         self._angle_factor = af
 
-    def _create_error_json(self, cmdstr: str) -> dict:
+    def _create_error_json(self, strcmd: str) -> dict:
         """エラー用のJSON文字列を生成する"""
-        return {"err": cmdstr}
+        return {"err": strcmd}
 
     def _parse_angles(
             self, param_str: str
     ) -> Optional[List[Union[int, str, None]]]:
-        """'mv'コマンドのパラメータ文字列をパースして角度のリストを返す"""
+        """'mv'コマンドのパラメータ文字列をパースして角度のリストを返す.
+
+        e.g.
+            "40,30,20,10"   --> [40,30,20,10]
+            "-40,.,."       --> [-40,null,null]
+            "mx,min,center" --> ["max","min","center"]
+            "x,n,c"         --> ["max","min","center"]
+            "x,.,center,20" --> ["max",null,"center",20]
+        """
 
         _parts = param_str.split(",")
+        self.__log.debug("_parts=%s", _parts)
+
         _angles: List[Union[int, str, None]] = []
 
         for _part in _parts:
@@ -91,6 +101,7 @@ class CmdToJson:
 
             if isinstance(_angles[i], int):
                 _angles[i] *= self._angle_factor[i]
+                
             elif self._angle_factor[i] == -1:
                 if _angles[i] == "min":
                     _angles[i] = "max"
@@ -98,25 +109,28 @@ class CmdToJson:
                     _angles[i] = "min"
 
         self.__log.debug("_angles=%s", _angles)
-
         return _angles
 
-    def json(self, cmdstr: str) -> dict:
+    def json(self, strcmd: str) -> dict:
         """
         コマンド文字列をJSON文字列に変換する。
 
         Args:
-            cmdstr: "mv:40,30", "sl:0.5" のようなコマンド文字列。
+            strcmd: "mv:40,30", "sl:0.5" のようなコマンド文字列。
 
         Returns:
             変換されたJSON文字列。変換できない場合はエラー情報を含むJSONを返す。
         """
-        self.__log.debug("cmdstr=%s", cmdstr)
+        self.__log.debug("strcmd=%s", strcmd)
 
-        if not isinstance(cmdstr, str) or " " in cmdstr:
-            return self._create_error_json(cmdstr)
+        # 不正な文字列はエラー
+        if not isinstance(strcmd, str) or " " in strcmd:
+            return self._create_error_json(strcmd)
 
-        _parts = cmdstr.split(":", 1)
+        # e.g. "mv:10,20,30,40" --> _parts = ["mv", "10,20,30,40"]
+        _parts = strcmd.split(":", 1)
+
+        # e.g. _cmd_key = "mv"
         _cmd_key = _parts[0].lower()
 
         # パラメータがないコマンドの処理
@@ -126,19 +140,19 @@ class CmdToJson:
             _param_str = _parts[1]
 
         if _cmd_key not in self.COMMAND_MAP:
-            return self._create_error_json(cmdstr)
+            return self._create_error_json(strcmd)
 
         _cmd_name = self.COMMAND_MAP[_cmd_key]
         _json: Dict[str, Any] = {"cmd": _cmd_name}
 
         if _cmd_key == "mv":
             if not _param_str:
-                return self._create_error_json(cmdstr)
+                return self._create_error_json(strcmd)
 
             _angles = self._parse_angles(_param_str)
 
             if _angles is None:
-                return self._create_error_json(cmdstr)
+                return self._create_error_json(strcmd)
 
             _json["angles"] = _angles
 
@@ -146,31 +160,31 @@ class CmdToJson:
             try:
                 sec = float(_param_str)
                 if sec < 0:
-                    return self._create_error_json(cmdstr)
+                    return self._create_error_json(strcmd)
 
                 _json["sec"] = sec
 
             except (ValueError, TypeError):
-                return self._create_error_json(cmdstr)
+                return self._create_error_json(strcmd)
 
         elif _cmd_key == "st":
             try:
-                n = int(_param_str)
-                if n < 1:
-                    return self._create_error_json(cmdstr)
-                _json["n"] = n
+                _n = int(_param_str)
+                if _n < 1:
+                    return self._create_error_json(strcmd)
+
+                _json["n"] = _n
 
             except (ValueError, TypeError):
-                return self._create_error_json(cmdstr)
+                return self._create_error_json(strcmd)
 
         elif _cmd_key in ["ca", "zz"]:
             if _param_str:  # パラメータがあってはならない
-                return self._create_error_json(cmdstr)
+                return self._create_error_json(strcmd)
 
         return _json
 
-    def jsonstr(self, cmdstr: str) -> str:
+    def jsonstr(self, strcmd: str) -> str:
         """コマンド文字列をJSON文字列に変換."""
-        self.__log.debug("cmdstr=%s", cmdstr)
-
-        return json.dumps(self.json(cmdstr))
+        self.__log.debug("strcmd=%s", strcmd)
+        return json.dumps(self.json(strcmd))

@@ -46,11 +46,14 @@ class ThreadMultiServo:
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
         self.__log.debug(
-            "pins=%s, first_move=%s, conf_file=%s", pins, first_move, conf_file
+            "pins=%s, first_move=%s, conf_file=%s",
+            pins, first_move, conf_file
         )
 
         # 同期的な処理を担当するMultiServoを内包する
-        self._mservo = MultiServo(pi, pins, first_move, conf_file, debug=False)
+        self._mservo = MultiServo(
+            pi, pins, first_move, conf_file, debug=False
+        )
         self.servo_n = len(pins)
         self.servo = self._mservo.servo  # list of CalibrableServo
 
@@ -121,7 +124,8 @@ class ThreadMultiServo:
                 分割ステップ数。Noneの場合は現在の設定値が使われます。
         """
         self.__log.debug(
-            "target_angle=%s, move_sec=%s, step_n=%s", target_angles, move_sec, step_n
+            "target_angle=%s, move_sec=%s, step_n=%s",
+            target_angles, move_sec, step_n
         )
 
         cmd = {
