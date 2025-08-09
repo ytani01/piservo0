@@ -26,7 +26,7 @@
 
 ライブラリを利用するだけであれば、こちらの方法でインストールしてください。
 
-※ Raspbery Pi OS のインストールについては省略してます。
+※ Raspbery Pi OS のインストールと、一般的な設定については省略してます。
 
 
 **1. `pigpio`のインストールと起動**
@@ -43,13 +43,23 @@ sudo systemctl enable pigpiod
 sudo systemctl start pigpiod
 ```
 
-ソースコードを編集したり、開発に貢献したりする場合は、以下の手順でセットアップしてください。
+**2. 開発環境の設定 -- `mise`のインストールと関連ツールのインストール
+XXX 要追記
 
+```bash
+# miseのインストール
 
-**2. `uv` のインストール**
+# Pythonと関連ツールのインストール
 
-`uv` は高速なPythonパッケージインストーラー兼リゾルバーです。
+```
+
+**3. `uv` のインストール**
+XXX 要修正
+
+`uv` は高速なPythonパッケージ管理、仮想環境(venv)の管理などを行うものです。
+
 以下のコマンドでインストールできます。
+
 ```bash
 # uv のインストール
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -60,7 +70,7 @@ export PATH=$PATH:~/.local/bin
 ```
 
 
-**3. リポジトリのクローンとセットアップ**
+**4. リポジトリのクローンとセットアップ**
 
 ```bash
 mkdir work1
