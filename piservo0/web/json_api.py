@@ -4,9 +4,9 @@
 """
 piservo0 JSON API Server
 """
-import json
 import os
 from contextlib import asynccontextmanager
+from typing import Any, Dict, List, Union
 
 import pigpio
 from fastapi import Body, FastAPI, Request
@@ -29,7 +29,7 @@ class JsonApi:
         print("Initializing ...")
         self.pi = pigpio.pi()
 
-        self.mservo = MultiServo(self.pi, self.pins, debug=self._debug)
+        self.mservo = MultiServo(self.pi, self.pins) #  debug=self._debug)
         self.thr_worker = ThreadWorker(self.mservo, debug=self._debug)
         self.thr_worker.start()
 
@@ -81,35 +81,32 @@ async def read_root():
 
 
 @app.post("/cmd")
-async def exec_cmd(request: Request, cmdjson=Body()):
-    """execute commands"""
+async def exec_cmd(
+    request: Request,
+    cmd: Union[List[Dict[str, Any]], Dict[str, Any]] = Body()
+):
+    """execute commands.
 
+       JSON配列を受取、コマンドを実行する。
+    """
     debug = request.app.state.debug
-
     _log = get_logger(__name__, debug)
+    _log.debug("cmd=%s, type=%s", cmd, type(cmd))
 
-    _log.debug("cmdjson=%s %s", cmdjson, type(cmdjson))
-    # _log.debug("request.body=%s", await request.body())
+    cmd_list: List[Dict[str, Any]]
+    if isinstance(cmd, dict):
+        cmd_list = [cmd]
+    else:
+        cmd_list = cmd
 
-    if isinstance(cmdjson, (str, bytes)):
-        try:
-            cmdjson = json.loads(cmdjson)
-            _log.debug("cmdjson=%s %s", cmdjson, type(cmdjson))
-        except json.decoder.JSONDecodeError as _e:
-            _log.error("%s: %s", type(_e).__name__, _e)
-            return {"error": "decode error"}
-
-    if not isinstance(cmdjson, list):
-        cmdjson = [cmdjson]
-        _log.debug("cmdjson=%s %s", cmdjson, type(cmdjson))
+    _log.debug("cmd_list=%s", cmd_list)
 
     _json_app = request.app.state.json_app
     _res = []
-    for c in cmdjson:
+    for c in cmd_list:
         _res1 = _json_app.send_cmdjson(c)
         _log.debug("c=%s, _res1=%s", c, _res1)
-
         _res.append(_res1)
 
-    _log.debug("_res=%a", _res)
+    _log.debug("_res=%s", _res)
     return _res
