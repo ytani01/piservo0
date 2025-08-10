@@ -12,23 +12,17 @@ from .core.calibrable_servo import CalibrableServo
 from .core.multi_servo import MultiServo
 from .core.piservo import PiServo
 from .helper.str_cmd_to_json import StrCmdToJson
-from .helper.str_control import StrControl
 from .helper.thread_multi_servo import ThreadMultiServo
 from .helper.thread_worker import ThreadWorker
 from .utils.my_logger import get_logger
-from .web.json_api_client import JsonApiClient
-from .web.str_api_client import StrApiClient
 
 __all__ = [
     "__version__",
-    "get_logger",
-    "PiServo",
     "CalibrableServo",
     "MultiServo",
-    "StrApiClient",
-    "StrControl",
-    "ThreadWorker",
-    "ThreadMultiServo",
-    "JsonApiClient",
+    "PiServo",
     "StrCmdToJson",
+    "ThreadMultiServo",
+    "ThreadWorker",
+    "get_logger",
 ]

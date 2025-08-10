@@ -32,7 +32,7 @@ class StrCmdToJson:
     def __init__(self, angle_factor: List =[], debug=False):
         """constractor."""
         self._debug = debug
-        self.__log = get_logger(__class__.__name__, self._debug)
+        self.__log = get_logger(self.__class__.__name__, self._debug)
         self.__log.debug("angle_factor=%s", angle_factor)
 
         self._angle_factor = angle_factor #  property

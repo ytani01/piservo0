@@ -87,7 +87,7 @@ async def exec_cmd(
 ):
     """execute commands.
 
-       JSON配列を受取、コマンドを実行する。
+       JSON配列を受け取り、コマンドを実行する。
     """
     debug = request.app.state.debug
     _log = get_logger(__name__, debug)

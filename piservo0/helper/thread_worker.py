@@ -105,7 +105,9 @@ class ThreadWorker(threading.Thread):
             else:
                 self._cmdq.put(cmd_data)
 
-            self.__log.debug("cmd_data=%s, qsize=%s", cmd_data, self._cmdq.qsize())
+            self.__log.debug(
+                "cmd_data=%s, qsize=%s", cmd_data, self._cmdq.qsize()
+            )
 
         except Exception as _e:
             self.__log.error("%s: %s", type(_e).__name__, _e)
