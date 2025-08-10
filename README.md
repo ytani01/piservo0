@@ -337,7 +337,12 @@ piservo0 cservo 18
 # 複数サーボの同時操作
 piservo0 multi --help
 piservo0 multi 18 21
+
+# 文字列コマンドをJSONに変換して、Web JSON APIに送信
+piservo0 str-client --help
+piservo0 str-client 'mv:c,c,c,c'
 ```
+`str-client`の詳細は、[`docs/STR_CLIENT.md`](docs/STR_CLIENT.md) をご覧ください。
 
 ### --- Web API
 
