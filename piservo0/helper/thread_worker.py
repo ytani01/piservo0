@@ -63,6 +63,7 @@ class ThreadWorker(threading.Thread):
         self._active = False
 
         self._command_handlers = {
+            "move": self._handle_move_angle_sync,
             "move_angle_sync": self._handle_move_angle_sync,
             "move_angle": self._handle_move_angle,
             "move_pulse": self._handle_move_pulse,

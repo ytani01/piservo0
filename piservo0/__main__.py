@@ -210,16 +210,18 @@ API Client (JSON)
 @click.pass_context
 def api_client(ctx, cmdline, url, history_file, debug):
     """String API Server."""
+    cmd_name = ctx.command.name
+
     _log = get_logger(__name__, debug)
-    _log.debug("url=%s, history_file=%s", url, history_file)
+    _log.debug(
+        "cmd_name=%s, url=%s, history_file=%s",
+        cmd_name, url, history_file
+    )
 
     cmdline = " ".join(cmdline)
     _log.debug("cmdline=%a", cmdline)
 
-    cmd_name = ctx.command.name
-    _log.debug("cmd_name=%s", cmd_name)
-
-    _app = CmdApiClient(url, cmdline, history_file, debug)
+    _app = CmdApiClient(cmd_name, url, cmdline, history_file, debug)
     try:
         _app.main()
 
@@ -254,10 +256,12 @@ String Command API Client
 @click.pass_context
 def str_client(ctx, cmdline, url, history_file, angle_factor, debug):
     """String Command API Client."""
+    cmd_name = ctx.command.name
+
     _log = get_logger(__name__, debug)
     _log.debug(
-        "url=%s, history_file=%s, angle_factor=%s",
-        url, history_file, angle_factor
+        "cmd_name=%s, url=%s, history_file=%s, angle_factor=%s",
+        cmd_name, url, history_file, angle_factor
     )
 
     cmdline = " ".join(cmdline)
@@ -266,10 +270,7 @@ def str_client(ctx, cmdline, url, history_file, angle_factor, debug):
     af_list = [int(i) for i in angle_factor.split(',')]
     _log.debug("af_list=%s", af_list)
 
-    cmd_name = ctx.command.name
-    _log.debug("cmd_name=%s", cmd_name)
-
-    _app = CmdStrClient(url, cmdline, history_file, af_list, debug)
+    _app = CmdStrClient(cmd_name, url, cmdline, history_file, af_list, debug)
     try:
         _app.main()
 

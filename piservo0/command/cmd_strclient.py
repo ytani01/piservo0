@@ -11,13 +11,16 @@ class CmdStrClient(CmdApiClient):
     """CmdStrClient."""
 
     def __init__(
-            self, url, cmdline, history_file, angle_factor, debug=False
+            self, cmd_name, url, cmdline, history_file, angle_factor,
+            debug=False
     ):
-        super().__init__(url, cmdline, history_file, debug)
+        super().__init__(cmd_name, url, cmdline, history_file, debug)
 
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
-        self.__log.debug("angle_factor=%s", angle_factor)
+        self.__log.debug(
+            "cmd_name=%s, angle_factor=%s", cmd_name, angle_factor
+        )
 
         self.angle_factor = angle_factor
 

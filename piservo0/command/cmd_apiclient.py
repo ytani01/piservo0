@@ -21,13 +21,14 @@ class CmdApiClient:
     TIMEOUT_READ = 10.0
     TIMEOUT_PARAM = (TIMEOUT_CONN, TIMEOUT_READ)
 
-    def __init__(self, url, cmdline, history_file, debug=False):
+    def __init__(self, cmd_name, url, cmdline, history_file, debug=False):
         """constractor."""
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
-        self.__log.debug("url=%s", url)
+        self.__log.debug("cmd_name=%s, url=%s", cmd_name, url)
         self.__log.debug("cmdline=%a", cmdline)
 
+        self.cmd_name = cmd_name
         self.url = url
         self.cmdline = cmdline
         self.history_file = os.path.expanduser(history_file)
@@ -81,7 +82,7 @@ class CmdApiClient:
 
         while True:
             try:
-                _line = input(self.PROMPT_STR)
+                _line = input(self.cmd_name + self.PROMPT_STR)
                 self.__log.debug("_line=%s", _line)
                 readline.write_history_file(self.history_file)
 
