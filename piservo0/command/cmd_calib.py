@@ -10,7 +10,7 @@ from piservo0 import MultiServo, PiServo, get_logger
 
 class CalibApp:
     """
-    サーボキャリブレーション用TUIアプリケーション
+    サーボキャリブレーション用CUIアプリケーション
     """
 
     SELECTED_SERVO_ALL = -1

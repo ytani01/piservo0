@@ -1,45 +1,16 @@
+# GPIO17に接続されたサーボをパルス幅で動かす例
 import time
-
 import pigpio
+from piservo0 import PiServo
 
-from piservo0 import CalibrableServo
+pi = pigpio.pi()         # pigpioの初期化
+servo = PiServo(pi, 17)  # GPIO17に接続されたサーボモーターの初期化
 
-# pigpio.piのインスタンスを生成
-pi = pigpio.pi()
-if not pi.connected:
-    exit()
+servo.move_pulse(2000)   # パルス幅2000に動かす
+time.sleep(0.5)          # サーボが動くのを待つ(0.5秒間スリープ)
 
-# GPIO 17番ピンに接続されたサーボを操作
-# キャリブレーションデータは 'servo.json' に保存されます
-servo = CalibrableServo(pi, 17, debug=True)
+servo.move_pulse(1000)   # パルス幅1000に動かす
+time.sleep(0.5)          # サーボが動くのを待つ(0.5秒間スリープ)
 
-try:
-    # --- パルスをしていして移動 ---
-    print("Move by pulse")
-    servo.move_pulse(1000)
-    time.sleep(1)
-    servo.move_pulse(2000)
-    time.sleep(1)
-
-    # --- キャリブレーションされた位置へ移動 ---
-    print("Move to calibrated positions")
-    servo.move_min()
-    time.sleep(1)
-    servo.move_max()
-    time.sleep(1)
-    servo.move_center()
-    time.sleep(1)
-
-    # --- 角度を指定して移動 ---
-    print("Move by angle")
-    servo.move_angle(-90)
-    time.sleep(1)
-    servo.move_angle(90)
-    time.sleep(1)
-    servo.move_angle(0)
-    time.sleep(1)
-
-finally:
-    # サーボの電源をオフにする
-    servo.off()
-    pi.stop()
+servo.off()              # サーボOFF
+pi.stop()                # pigpioの終了

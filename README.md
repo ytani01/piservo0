@@ -86,41 +86,24 @@ uv pip install -e '.[dev]' # 開発用
 
 ### --- 1. 基本的な使い方 (`PiServo`)
 
-まず、1つのサーボモーターを直接制御する例です。
 `PiServo`クラスは、指定したGPIOピンに接続されたサーボを、パルス幅で制御する最も基本的な機能を提供します。
+最も手軽に使えますが、正確な角度を指定したり、複数のサーボを同期させたりすることはできません。
 
 ```python
-# samples/sample_01_piservo.py
+# GPIO17に接続されたサーボをパルス幅で動かす例
 import time
 import pigpio
 from piservo0 import PiServo
 
-PIN = 18
+pi = pigpio.pi()         # pigpioの初期化
+servo = PiServo(pi, 17)  # GPIO17に接続されたサーボモーターの初期化
 
-pi = pigpio.pi()
-if not pi.connected:
-    print("pigpio not connected.")
-    exit()
+servo.move_pulse(2000)   # パルス幅2000に動かす 
+time.sleep(1)            # 1秒間スリープ
+servo.move_pulse(1000)   # パルス幅1000に動かす
 
-servo = PiServo(pi, PIN)
-
-try:
-    print("Move to center")
-    servo.move_center()
-    time.sleep(1)
-
-    print("Move to min")
-    servo.move_min()
-    time.sleep(1)
-
-    print("Move to max")
-    servo.move_max()
-    time.sleep(1)
-
-finally:
-    print("Turning off")
-    servo.off()
-    pi.stop()
+servo.off()              # サーボOFF
+pi.stop()                # pigpioの終了
 ```
 
 ### --- 2. キャリブレーション機能を使う (`CalibrableServo`)
