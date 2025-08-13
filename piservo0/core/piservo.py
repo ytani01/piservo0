@@ -43,10 +43,10 @@ class PiServo:
         self.pin = pin
 
     def get_pulse(self):
-        """現在のサーボモーターのパルス幅を取得する。
+        """Get pulse.
 
         Returns:
-            int: 現在のパルス幅 (マイクロ秒)。
+            int: pulse width (micro sec)
         """
         pulse = self.pi.get_servo_pulsewidth(self.pin)
         self.__log.debug("pulse=%s", pulse)
@@ -71,6 +71,24 @@ class PiServo:
             self.__log.debug("pulse=%s", pulse)
 
         self.pi.set_servo_pulsewidth(self.pin, pulse)
+
+    def move_pulse_relative(self, diff_pulse):
+        """Move relative.
+
+        もし、現在のパルスが、0(off)の場合は、動かさない。
+
+        Args:
+            diff_pulse (int): Differential Pulse
+        """
+        self.__log.debug("pin=%s, diff_pulse=%s", self.pin, diff_pulse)
+
+        _cur_pulse = self.get_pulse()
+        self.__log.debug("cur_pulse=%s", _cur_pulse)
+        
+        if _cur_pulse == 0:
+            return
+
+        self.move_pulse(_cur_pulse + diff_pulse)
 
     def move_min(self):
         """サーボモーターを最小位置に移動させる。
