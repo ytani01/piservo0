@@ -6,28 +6,22 @@
 
 ## == 特徴
 
-### --- `pigpio`をベースにしているので…
+### === `pigpio`をベースにしているので…
 
-- 追加のハードウェア(PCA9685など)は不要です。Raspberry PiのGPIOで、直接サーボを制御できます。
-- ほぼすべてのGPIOをサーボ制御用として使えます。(PWM用のピンを選ぶ必要はありません。)
-- ハードウェアPWMと遜色のない性能が出せます。Raspberry Pi Zeroでも、4個以上のサーボを問題なく同時に動かせます。
+- ***追加ハードウェア不要*** : PCA9685などのモータードライバー回路は不要です。Raspberry PiのGPIOで、直接サーボを制御できます。
+- ***ほぼすべてのGPIOを使える*** : PWM用のピンを選ぶ必要はありません。柔軟性が高く、多数のサーボを使えます。
+- ***高性能*** : Raspberry Pi Zeroでも、多数のサーボを問題なく同時に動かせます。
 
 
-### --- さらに、本ライブラリでは…
+### === さらに、本ライブラリでは…
 
-- **複数のサーボを同期**させながら動かすことができます。ロボットの制御に最適です。
-- **キャリブレーション(補正)機能**があり、-90度、 0度、+90度の位置を補正でき、ファイルに補正値を保存します。安価なサーボをより実用的に利用できます。
-- キャリブレーションのためのツールも含まれてます。
-- **ネットワーク経由**で、**`REST API`**で制御することもできます。
-- 入門用や、簡単にサーボを動かせる、より**シンプルなAPIも**用意してます。
+- ***複数のサーボを同期*** : ロボットの制御に最適です。
+- ***キャリブレーション(補正)機能*** : -90度、 0度、+90度の位置を補正でき、ファイルに補正値を保存します。安価なサーボをより実用的に利用できます。
+- ***ネットワーク経由***で、***`REST API`***で制御することもできます。
+- ***シンプルなAPIも用意*** : 入門用としても最適です。
 
 
 ## == インストール
-
-ライブラリを利用するだけであれば、こちらの方法でインストールしてください。
-
-※ Raspbery Pi OS のインストールと、一般的な設定については省略してます。
-
 
 **1. `pigpio`のインストールと起動**
 
@@ -42,6 +36,7 @@ sudo apt install pigpio
 sudo systemctl enable pigpiod
 sudo systemctl start pigpiod
 ```
+
 
 **2. 開発環境の設定 -- `mise`と`uv`のインストール**
 
@@ -58,6 +53,7 @@ echo 'eval "$(~/.local/bin/mise activate bash)"' >> ~/.bashrc
 # mise経由でuvをインストール
 mise use --global uv@latest
 ```
+
 
 **3. リポジトリのクローンとセットアップ**
 
@@ -84,7 +80,7 @@ uv pip install -e '.[dev]' # 開発用
 
 このライブラリは、単純なものから複雑なものまで、段階的に使えるように設計されています。
 
-### --- 1. 基本的な使い方 (`PiServo`)
+### === 1. 基本的な使い方 (`PiServo`)
 
 `PiServo`クラスは、指定したGPIOピンに接続されたサーボを、パルス幅で制御する最も基本的な機能を提供します。
 最も手軽に使えますが、正確な角度を指定したり、複数のサーボを同期させたりすることはできません。
@@ -106,12 +102,27 @@ servo.off()              # サーボOFF
 pi.stop()                # pigpioの終了
 ```
 
-### --- 2. キャリブレーション機能を使う (`CalibrableServo`)
+### === 2. キャリブレーション機能を使う (`CalibrableServo`)
 
 安価なサーボモーターは、製品の個体差により、同じパルス幅でも回転角度が微妙に異なります。
 `CalibrableServo`クラスを使うと、各サーボの最小(-90度)、中央(0度)、最大(+90度)の位置を調整し、その設定を `servo.json` ファイルに保存できます。
 
 これにより、より正確な角度での制御が可能になります。
+
+***キャリブレーションツール***
+
+詳しくは、コマンド内の [h]キーで、ヘルプ画面を参照してください。
+
+```bash
+uv run piservo0 calib 17
+
+Calibration Tool: 'h' for help, 'q' for quit
+ :
+GPIO17: 0 deg: pulse=1560> 
+ :
+```
+
+***サンプルプログラム***
 
 ```python
 # samples/sample_02_calibrable_servo.py
@@ -142,54 +153,17 @@ finally:
     pi.stop()
 ```
 
-### --- 3. 複数のサーボを動かす (`MultiServo`)
+### === 3. 複数のサーボを動かす (`MultiServo`)
 
 `MultiServo`クラスは、複数の`CalibrableServo`をまとめて扱います。
-ロボットアームのように、複数のサーボを同時に、しかしそれぞれ異なる角度に動かしたい場合に便利です。
+ロボットアームのように、複数のサーボを同時に、異なる角度に動かしたい場合に便利です。
+
+さらに、`move_angle_sync`メソッドを使うと、複数のサーボがそれぞれの目標角度まで、指定した時間をかけて同時に到着するように、滑らかに動かすことができます。これにより、ロボットのダンスのような、より自然で協調した動きが実現できます。
+
+***サンプルプログラム***
 
 ```python
-# samples/sample_03_multi_servo.py
-import time
-import pigpio
-from piservo0 import MultiServo
-
-PINS = [18, 23]
-
-pi = pigpio.pi()
-if not pi.connected:
-    print("pigpio not connected.")
-    exit()
-
-# 2つのサーボをMultiServoで管理
-multi_servo = MultiServo(pi, PINS)
-
-try:
-    # 各サーボを異なる角度に動かす
-    print("Move to [90, -90]")
-    multi_servo.move_angle([90, -90])
-    time.sleep(1)
-
-    print("Move to [0, 0]")
-    multi_servo.move_angle([0, 0])
-    time.sleep(1)
-
-    # 1番目のサーボだけ動かす (Noneを指定すると現在の角度を維持)
-    print("Move to [-90, None]")
-    multi_servo.move_angle([-90, None])
-    time.sleep(1)
-
-finally:
-    print("Turning off")
-    multi_servo.off()
-    pi.stop()
-```
-
-### --- 4. 複数のサーボを滑らかに同期させて動かす (`MultiServo.move_angle_sync`)
-
-`MultiServo`の`move_angle_sync`メソッドを使うと、複数のサーボがそれぞれの目標角度まで、指定した時間をかけて同時に到着するように、滑らかに動かすことができます。これにより、ロボットのダンスのような、より自然で協調した動きが実現できます。
-
-```python
-# samples/sample_04_synchronized_servo_dance.py
+# 
 import time
 import pigpio
 from piservo0 import MultiServo
@@ -205,8 +179,8 @@ dance_bot = MultiServo(pi, PINS)
 
 # ダンスの振り付け
 dance_moves = [
-    {"angles": [90, -90, 90, -90], "time": 1.0},
-    {"angles": [-90, 90, -90, 90], "time": 1.0},
+    {"angles": [90, -90, 90, -90], "time": 2.0},
+    {"angles": [-90, 90, -90, 90], "time": 2.0},
     {"angles": [45, -45, 45, -45], "time": 0.5},
     {"angles": [-45, 45, -45, 45], "time": 0.5},
     {"angles": [0, 0, 0, 0], "time": 1.0},
@@ -214,9 +188,16 @@ dance_moves = [
 
 try:
     print("Start Dance!")
+
     for move in dance_moves:
         print(f"Moving to {move['angles']} in {move['time']}s")
-        dance_bot.move_angle_sync(move["angles"], move_sec=move["time"])
+
+        dance_bot.move_angle_sync(
+            dance_move["angles"], move_sec=dance_move["time"]
+        )
+
+        time.sleep(1)
+
     print("Finish!")
 
 finally:
@@ -225,9 +206,11 @@ finally:
     pi.stop()
 ```
 
-### --- 5. 応用的な使い方: 非同期制御 (`ThreadMultiServo`)
+### === 4. 応用的な使い方: 非同期制御 (`ThreadMultiServo`)
 
 `ThreadMultiServo` は、バックグラウンドスレッドでサーボモーターを制御するため、メインプログラムの実行をブロックせずに複数のサーボを同期して動かすことができます。これにより、より複雑なロボットの動作や、リアルタイム性が求められるアプリケーションに適しています。
+
+***サンプルプログラム***
 
 ```python
 # ``ThreadMultiServo``の例
@@ -235,20 +218,23 @@ import time
 import pigpio
 from piservo0 import ThreadMultiServo
 
-PIN = [18, 21]
+PINS = [18, 21]
 
 pi = pigpio.pi()
 
 # ThreadMultiServoのインスタンスを作成
 # バックグラウンドスレッドが自動的に開始される
-servo = ThreadMultiServo(pi, PIN)
+servo = ThreadMultiServo(pi, PINS)
 
 # コマンドをキューに追加し、バックグラウンドで実行
-servo.send_cmd({"cmd": "move_angle_sync", "target_angles": [90, -90]})
-time.sleep(1) # コマンドが実行されるのを待つ
+servo.move_angle_sync([90, -90], move_sec=3) #  3秒かけて動かす
+# 非同期なので、メソッド呼び出しからは、すぐに帰ってくる。
 
-servo.send_cmd({"cmd": "move_angle_sync", "target_angles": [0, 0]})
-time.sleep(1) # コマンドが実行されるのを待つ
+# 前の動作が完了する前に、次の動作を呼び出すことができる。
+servo.move_angle_sync([0, 0], move_sec=2)    #  2秒かけて動かす
+# 非同期なので、メソッド呼び出しからは、すぐに帰ってくる。
+
+time.sleep(6)  # 上記動作の終了を待つ
 
 # 終了処理
 servo.end()
@@ -265,11 +251,12 @@ pi.stop()
 python samples/sample_01_piservo.py
 ```
 
+
 ## == コマンド体系
 
 本ライブラリでは、動作を指示するために「JSONコマンド」と「短縮文字列コマンド」の2種類の書式が利用されます。
 
-### --- JSONコマンド
+### === JSONコマンド
 
 `ThreadMultiServo` や `Web JSON API` で使用される、より詳細な制御が可能なコマンド形式です。
 
@@ -284,7 +271,7 @@ python samples/sample_01_piservo.py
 
 より詳細なコマンド一覧は [`docs/JSON_CMD.md`](docs/JSON_CMD.md) をご覧ください。
 
-### --- 短縮文字列コマンド
+### === 短縮文字列コマンド
 
 `Web String API` などで、より手軽にコマンドを送信するための簡易的な形式です。内部でJSONコマンドに変換されます。
 
@@ -300,7 +287,7 @@ python samples/sample_01_piservo.py
 
 ## == CLI / Web API
 
-### --- コマンドラインからの操作
+### === コマンドラインからの操作
 
 `piservo0` は、コマンドラインから直接サーボを操作する機能も提供します。
 
@@ -327,7 +314,7 @@ piservo0 str-client 'mv:c,c,c,c'
 ```
 `str-client`の詳細は、[`docs/STR_CLIENT.md`](docs/STR_CLIENT.md) をご覧ください。
 
-### --- Web API
+### === Web API
 
 Web APIを使えば、HTTP経由でリモートから制御することができます。
 
@@ -377,7 +364,7 @@ http://<RaspberryPiのIP>:8000/cmd
 
 ほとんどのGPIOピンを使うことができます。
 
-### --- 1. コマンドで確認
+### === 1. コマンドで確認
 ```
 pinout
 ```
@@ -405,7 +392,7 @@ GPIO26 (37) (38) GPIO20
    GND (39) (40) GPIO21
 ```
 
-### --- 2. 公式サイト情報
+### === 2. 公式サイト情報
 [Raspberry Pi Pinout](https://pinout.xyz/)
 
 
