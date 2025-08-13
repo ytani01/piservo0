@@ -98,23 +98,23 @@ calibration tool
     Current dir --> Home dir --> /etc
 """
 )
-@click.argument("pins", type=int, nargs=-1)
+@click.argument("pin", type=int, nargs=1)
 @click.option(
     "--conf_file", "-c", "-f", type=str,
     default=CalibrableServo.DEF_CONF_FILE, show_default=True,
-    help="Config file path"
+    help="Config file"
 )
 @click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
 @click.pass_context
-def calib(ctx, pins, conf_file, debug):
-    """calib command."""
+def calib(ctx, pin, conf_file, debug):
+    """calibration command."""
     _log = get_logger(__name__, debug)
-    _log.debug("pins=%s,conf_file=%s", pins, conf_file)
+    _log.debug("pin=%s,conf_file=%s", pin, conf_file)
 
     cmd_name = ctx.command.name
     _log.debug("cmd_name=%s", cmd_name)
 
-    if not pins:
+    if not pin:
         print()
         print("Error: Please specify GPIO pins.")
         print()
@@ -129,7 +129,7 @@ def calib(ctx, pins, conf_file, debug):
 
     app = None
     try:
-        app = CalibApp(pi, pins, conf_file, debug=debug)
+        app = CalibApp(pi, pin, conf_file, debug=debug)
         app.main()
 
     except (EOFError, KeyboardInterrupt):

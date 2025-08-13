@@ -19,8 +19,7 @@ class ServoConfigManager:
 
         Args:
             conf_file (str): 設定ファイルのパス。
-            debug (bool, optional): デバッグログを有効にするフラグ。
-                                    デフォルトはFalse。
+            debug (bool, optional): debug flag.
         """
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
