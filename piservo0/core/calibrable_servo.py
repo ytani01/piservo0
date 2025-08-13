@@ -219,12 +219,14 @@ class CalibrableServo(PiServo):
         return angle
 
     def move_angle(self, deg: float | str | None = None):
-        """指定された角度にサーボモーターを移動させる。
+        """Move angle.
 
-        文字列: 'center' | 'min' | 'max'
-        None | '': 動かさない (現在角度を維持)
+        Args:
+            deg (float | str | None):
+                文字列: 'center' | 'min' | 'max'
+                None | '': 動かさない (現在角度を維持)
         """
-        self.__log.debug("deg=%s", deg)
+        self.__log.debug("pin=%s, deg=%s", self.pin, deg)
 
         if deg is None:  # None の場合は、動かさない
             deg = self.get_angle()
@@ -248,6 +250,19 @@ class CalibrableServo(PiServo):
         pulse = self.deg2pulse(float(deg))
 
         self.move_pulse(pulse)
+
+    def move_angle_relative(self, diff_deg: float):
+        """Move relative.
+
+        Args:
+            diff_deg (float): Differential degree
+        """
+        self.__log.debug("pin=%s, diff_deg=%s", self.pin, diff_deg)
+
+        _cur_angle = self.get_angle()
+        self.__log.debug("cur_angle=%s", _cur_angle)
+
+        self.move_angle(_cur_angle + diff_deg)
 
     def load_conf(self):
         """設定ファイルからこのサーボのキャリブレーション値を読み込む。"""

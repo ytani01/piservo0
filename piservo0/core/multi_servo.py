@@ -260,8 +260,7 @@ class MultiServo:
         return pulses
 
     def move_pulse(self, pulses, forced=False):
-        """
-        各サーボを指定されたパルス幅に動かす。
+        """Move all servos to `pulse`.
 
         Parameters
         ----------
@@ -274,6 +273,23 @@ class MultiServo:
         for i, s in enumerate(self.servo):
             self.__log.debug("pin=%s, pulse=%s", s.pin, pulses[i])
             s.move_pulse(pulses[i], forced)
+
+    def move_pulse_relative(self, diff_pulses, forced=False):
+        """Relative move.
+
+        Args:
+            diff_pulses (List[int]):
+        """
+        self.__log.debug("diff_pulses=%s, force=%s", diff_pulses, forced)
+
+        _cur_pulses = self.get_pulse()
+        self.__log.debug("cur_pulses=%s", _cur_pulses)
+
+        for i in range(len(self.servo)):
+            _cur_pulses[i] += diff_pulses[i]
+        self.__log.debug("cur_pulses=%s", _cur_pulses)
+
+        self.move_pulse(_cur_pulses, forced=forced)
 
     def get_angle(self):
         """
@@ -305,6 +321,23 @@ class MultiServo:
         for _i, _s in enumerate(self.servo):
             # self.__log.debug("pin=%s, angle=%s", _s.pin, target_angles[_i])
             _s.move_angle(target_angles[_i])
+
+    def move_angle_relative(self, diff_angles):
+        """Relative Move.
+
+        Args:
+            diff_angles (List[float]):
+        """
+        self.__log.debug("diff_angles=%s", diff_angles)
+
+        _cur_angles = self.get_angle()
+        self.__log.debug("cur_angles=%s", _cur_angles)
+
+        for i in range(len(self.servo)):
+            _cur_angles[i] += diff_angles[i]
+        self.__log.debug("cur_angles=%s", _cur_angles)
+
+        self.move_angle(_cur_angles)
 
     def move_angle_sync(
         self,
@@ -391,3 +424,25 @@ class MultiServo:
             #     _step_i, step_n, next_angles, _step_sec
             # )
             time.sleep(_step_sec)
+
+    def move_angle_sync_relative(
+        self,
+        diff_angles,
+        move_sec: float = DEF_MOVE_SEC,
+        step_n: int = DEF_STEP_N
+    ):
+        """Relative Move.
+        """
+        self.__log.debug(
+            "diff_angles=%s, move_sec=%s, step_n=%s",
+            diff_angles, move_sec, step_n
+        )
+
+        _cur_angles = self.get_angle()
+        self.__log.debug("cur_angles=%s", _cur_angles)
+
+        for i in range(len(self.servo)):
+            _cur_angles[i] += diff_angles[i]
+        self.__log.debug("cur_angles=%s", _cur_angles)
+
+        self.move_angle_sync(_cur_angles, move_sec, step_n)
