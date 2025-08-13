@@ -11,9 +11,9 @@ from ..utils.my_logger import get_logger
 
 
 class ThreadWorker(threading.Thread):
-    """Thred worker
+    """Thred worker.
 
-    すべてのコマンドは、キューを介して受け渡される。
+    すべてのコマンドは、JSON形式で、キューを介して受け渡される。
 
     利用者は、コマンドを`send()`したら、ブロックせずに、
     非同期に他の処理を行える。
@@ -23,6 +23,25 @@ class ThreadWorker(threading.Thread):
 
     コマンドをキャンセルしたい場合は、`clear_cmdq()`で、
     キューに溜まっているコマンドをすべてキャンセルできる。
+
+    **コマンド一覧(例)**
+    
+    {"cmd": "move_angle_sync",
+     "angles": [30, None, "center"],   # mandatory
+     "move_sec": 0.2, "step_n": 40}    # optional
+
+    {"cmd": "move",                    # "move_angle_sync"の省略形
+     "angles": [30, None, "center"],   # mandatory
+     "move_sec": 0.2, "step_n": 40}    # optional
+
+    {"cmd": "move_angle", "angles": [30, None, "center"]}
+    {"cmd": "move_pulse", "pulses": [1000, 2000, None, 0]}    
+    {"cmd": "move_sec", "sec": 1.5}
+    {"cmd": "step_n", "n": 40}
+    {"cmd": "interval", "sec": 0.5}
+    {"cmd": "sleep", "sec": 1.0}
+
+    {"cmd": "set", "servo": 1, "target": "center", "pulse": 1500}
     """
 
     DEF_RECV_TIMEOUT = 0.2  # sec
@@ -38,7 +57,7 @@ class ThreadWorker(threading.Thread):
         interval_sec: float = DEF_INTERVAL_SEC,
         debug=False,
     ):
-        """constructor"""
+        """Constructor."""
         super().__init__(daemon=True)
 
         self._debug = debug
@@ -71,6 +90,7 @@ class ThreadWorker(threading.Thread):
             "step_n": self._handle_step_n,
             "interval": self._handle_interval,
             "sleep": self._handle_sleep,
+            "set": self._handle_set,
         }
 
     def __del__(self):
@@ -93,7 +113,14 @@ class ThreadWorker(threading.Thread):
             _count += 1
             _cmd = self._cmdq.get()
             self.__log.debug("%2d:%s", _count, _cmd)
+
+        self.__log.debug("count=%s", _count)
         return _count
+
+    def cancel_cmds(self):
+        """Alias of clear_cmdq()."""
+        self.__log.debug("")
+        return self.clear_cmdq()
 
     def send(self, cmd_data):
         """send"""
@@ -125,9 +152,9 @@ class ThreadWorker(threading.Thread):
         return _cmd_data
 
     def _handle_move_angle_sync(self, cmd: dict):
-        """e.g. {
-          "cmd": "move_angle_sync",
-          "angles": [30, None, -30, 0],
+        """Handle move_angle_sync().
+
+        e.g. {"cmd": "move_angle_sync", "angles": [30, None, -30, 0],
           "move_sec": 0.2,  # optional
           "step_n": 40  # optional
         }
@@ -146,62 +173,74 @@ class ThreadWorker(threading.Thread):
         self._sleep_interval()
 
     def _handle_move_angle(self, cmd: dict):
-        """e.g. {
-          "cmd": "move_angle",
-          "angles": [30, None, -30, 0]
-        }
+        """Handle move_angle().
+
+        e.g. {"cmd": "move_angle", "angles": [30, None, -30, 0]}
         """
         _angles = cmd["angles"]
         self.mservo.move_angle(_angles)
         self._sleep_interval()
 
     def _handle_move_pulse(self, cmd: dict):
-        """e.g. {
-          "cmd": "move_pulse",
-          "pulses": [2000, 1000, None, 0]
-        }
+        """Handle move_angle().
+
+        e.g. {"cmd": "move_pulse", "pulses": [2000, 1000, None, 0]}
         """
         _pulses = cmd["pulses"]
         self.mservo.move_pulse(_pulses, forced=True)
         self._sleep_interval()
 
     def _handle_move_sec(self, cmd: dict):
-        """e.g. {
-          "cmd": "move_sec",
-          "sec": 1.5
-        }
+        """Handle move_sec.
+
+        e.g. {"cmd": "move_sec", "sec": 1.5}
         """
         self.move_sec = float(cmd["sec"])
         self.__log.debug("move_sec=%s", self.move_sec)
 
     def _handle_step_n(self, cmd: dict):
-        """e.g. {
-          "cmd": "step_n",
-          "n": 40
-        }
+        """Handle step_n.
+
+        e.g. {"cmd": "step_n", "n": 40}
         """
         self.step_n = int(cmd["n"])
         self.__log.debug("step_n=%s", self.step_n)
 
     def _handle_interval(self, cmd: dict):
-        """e.g. {
-          "cmd": "interval",
-          "sec": 0.5
-        }
+        """Handle interval.
+
+        e.g. {"cmd": "interval", "sec": 0.5}
         """
         self.interval_sec = float(cmd["sec"])
         self.__log.debug("set interval_sec=%s", self.interval_sec)
 
     def _handle_sleep(self, cmd: dict):
-        """e.g. {
-          "cmd": "sleep",
-          "sec": 1.0
-        }
+        """Handle sleep.
+
+        e.g. {"cmd": "sleep", "sec": 1.0}
         """
         _sec = float(cmd["sec"])
         self.__log.debug("sleep: %s sec", _sec)
         if _sec > 0.0:
             time.sleep(_sec)
+
+    def _handle_set(self, cmd: dict):
+        """Handle set cmd. (save calibration)
+
+        e.g. {"cmd": "set", "servo": 1, "target": "max", "pulse": 2450}
+        """
+        _servo = int(cmd["servo"])
+        _target = cmd["target"]
+        _pulse = int(cmd["pulse"])
+        self.__log.debug(
+            "set: servo[%s]:%s pulse:%s", _servo, _target, _pulse
+        )
+        if _target == "center":
+            self.mservo.set_pulse_center(_servo, _pulse)
+        if _target == "min":
+            self.mservo.set_pulse_min(_servo, _pulse)
+        if _target == "max":
+            self.mservo.set_pulse_max(_servo, _pulse)
 
     def _sleep_interval(self):
         """sleep interval"""
