@@ -301,8 +301,8 @@ piservo0 servo --help
 piservo0 servo 18 1500
 
 # サーボ‐モーターのキャリブレーション 
-piservo0 cservo --help
-piservo0 cservo 18
+piservo0 calib --help
+piservo0 calib 18
 
 # 複数サーボの同時操作
 piservo0 multi --help
@@ -314,29 +314,10 @@ piservo0 str-client 'mv:c,c,c,c'
 ```
 `str-client`の詳細は、[`docs/STR_CLIENT.md`](docs/STR_CLIENT.md) をご覧ください。
 
+
 ### === Web API
 
 Web APIを使えば、HTTP経由でリモートから制御することができます。
-
-◆◆ **`Web String API`** ◆◆
-
-ブラウザのアドレスバーや`curl`から、手軽に複数のサーボを制御できます。
-
-**サーバーの起動:**
-```bash
-uv run piservo0 web-str-api --pins 18,23,24,25
-```
-
-**クライアントからの操作例:**
-```bash
-# 4つのサーボを 90, -90, 90, -90 度に動かし、1秒待機
-curl http://<RaspberryPiのIP>:8000/cmd/mv:90,-90,90,-90%20sl:1
-
-# 中央位置に戻す
-curl http://<RaspberryPiのIP>:8000/cmd/mv:0,0,0,0
-```
-詳細は[`docs/WEB_API.md`](docs/WEB_API.md) をご覧ください。
-
 
 ◆◆ **`Web JSON API`** ◆◆
 
@@ -352,10 +333,10 @@ uv run piservo0 web-json-api 18 23 24 25
 # 複数のコマンドをJSON配列で一度に送信
 curl -X POST -H "Content-Type: application/json" \
 -d \
-'[
-    {"cmd": "move_angle_sync", "target_angles": [90, -90, 90, -90], "move_sec": 1.0},
-    {"cmd": "sleep", "sec": 0.5},
-    {"cmd": "move_angle_sync", "target_angles": [0, 0, 0, 0], "move_sec": 1.0}
+'[ \
+    {"cmd": "move_angle_sync", "target_angles": [90, -90, 90, -90], "move_sec": 1.0}, \
+    {"cmd": "sleep", "sec": 0.5}, \
+    {"cmd": "move_angle_sync", "target_angles": [0, 0, 0, 0], "move_sec": 1.0} \
 ]' \
 http://<RaspberryPiのIP>:8000/cmd
 ```
@@ -370,23 +351,23 @@ pinout
 ```
 
 ```
-   3V3  (1) (2)  5V    
- GPIO2  (3) (4)  5V    
- GPIO3  (5) (6)  GND   
+   3V3  (1) (2)  5V
+ GPIO2  (3) (4)  5V
+ GPIO3  (5) (6)  GND 
  GPIO4  (7) (8)  GPIO14
    GND  (9) (10) GPIO15
 GPIO17 (11) (12) GPIO18
-GPIO27 (13) (14) GND   
+GPIO27 (13) (14) GND
 GPIO22 (15) (16) GPIO23
    3V3 (17) (18) GPIO24
-GPIO10 (19) (20) GND   
+GPIO10 (19) (20) GND
  GPIO9 (21) (22) GPIO25
 GPIO11 (23) (24) GPIO8 
    GND (25) (26) GPIO7 
  GPIO0 (27) (28) GPIO1 
- GPIO5 (29) (30) GND   
+ GPIO5 (29) (30) GND
  GPIO6 (31) (32) GPIO12
-GPIO13 (33) (34) GND   
+GPIO13 (33) (34) GND
 GPIO19 (35) (36) GPIO16
 GPIO26 (37) (38) GPIO20
    GND (39) (40) GPIO21
