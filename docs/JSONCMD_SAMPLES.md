@@ -36,22 +36,22 @@
 
 各サーボを即座に指定の角度またはパルス幅へ移動させます。
 
-- **コマンド**: `move_angle`
+- **コマンド**: `move_all_angles`
 - **説明**: 各サーボを即座に指定の角度に移動させます。
 
 ```json
 {
-  "cmd": "move_angle",
+  "cmd": "move_all_angles",
   "angles": [-90, 90, null, 0]
 }
 ```
 
-- **コマンド**: `move_pulse`
+- **コマンド**: `move_all_pulses`
 - **説明**: 各サーボを即座に指定のパルス幅に移動させます。`0`を指定するとサーボはオフになります。
 
 ```json
 {
-  "cmd": "move_pulse",
+  "cmd": "move_all_pulses",
   "pulses": [500, 2500, 1500, 0]
 }
 ```
