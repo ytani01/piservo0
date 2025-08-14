@@ -62,7 +62,7 @@ class MultiServo:
         self.__log.debug("conf_file=%s", self.conf_file)
 
         if self.first_move:
-            self.move_angle([0] * self.servo_n)
+            self.move_all_angles([0] * self.servo_n)
 
     def __getattr__(self, name):
         """
