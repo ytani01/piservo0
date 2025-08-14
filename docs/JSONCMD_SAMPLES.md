@@ -8,8 +8,8 @@
 
 複数のサーボを指定した時間をかけて同期的に目標角度へ移動させます。
 
-- **コマンド**: `move` または `move_angle_sync`
-- **説明**: `move`は`move_angle_sync`の省略形です。`angles`配列で各サーボの目標角度を指定します。配列の要素に`None`を指定すると、そのサーボは現在の位置を維持します。
+- **コマンド**: `move` または `move_all_angles_sync`
+- **説明**: `move`は`move_all_angles_sync`の省略形です。`angles`配列で各サーボの目標角度を指定します。配列の要素に`None`を指定すると、そのサーボは現在の位置を維持します。
 
 **基本形**
 ```json
@@ -22,7 +22,7 @@
 **オプション付き（移動時間とステップ数を指定）**
 ```json
 {
-  "cmd": "move_angle_sync",
+  "cmd": "move_all_angles_sync",
   "angles": [45, null, "center", -45],
   "move_sec": 0.5,
   "step_n": 50
@@ -60,7 +60,7 @@
 
 #### 3. 動作パラメータの設定
 
-同期移動 (`move`/`move_angle_sync`) のデフォルト動作や、コマンド間のインターバルを設定します。
+同期移動 (`move`/`move_all_angles_sync`) のデフォルト動作や、コマンド間のインターバルを設定します。
 
 - **コマンド**: `move_sec`
 - **説明**: 同期移動のデフォルトの移動時間を秒単位で設定します。
@@ -121,37 +121,47 @@
 
 #### 5. キャリブレーション設定の保存
 
-サーボの可動域（最小、最大、中央）のパルス幅を設定し、保存します。
+位置の調整
+
+- **コマンド**: `move_pulse_relative`
+- **説明**: 特定のサーボを相対的に動かす。キャリブレーション位置の調整用。
+
+```json
+{
+  "cmd": "move_pulse_relative",
+  "servo": 0,
+  "pulse_diff": -20
+}
+```
+
+現在のパルス値を 'center' | 'min' | 'max' として保存。
 
 - **コマンド**: `set`
 - **説明**: 特定のサーボのキャリブレーション値を設定します。
 
-**中央位置の設定**
+**中央位置(center)の設定**
 ```json
 {
   "cmd": "set",
   "servo": 0,
-  "target": "center",
-  "pulse": 1550
+  "target": "center"
 }
 ```
 
-**最小位置（min）の設定**
+**最小位置(min)の設定**
 ```json
 {
   "cmd": "set",
   "servo": 1,
-  "target": "min",
-  "pulse": 600
+  "target": "min"
 }
 ```
 
-**最大位置（max）の設定**
+**最大位置(max)の設定**
 ```json
 {
   "cmd": "set",
   "servo": 2,
-  "target": "max",
-  "pulse": 2400
+  "target": "max"
 }
 ```

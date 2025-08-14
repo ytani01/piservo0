@@ -72,15 +72,15 @@ class PiServo:
 
         self.pi.set_servo_pulsewidth(self.pin, pulse)
 
-    def move_pulse_relative(self, diff_pulse):
+    def move_pulse_relative(self, pulse_diff):
         """Move relative.
 
         もし、現在のパルスが、0(off)の場合は、動かさない。
 
         Args:
-            diff_pulse (int): Differential Pulse
+            pulse_diff (int): Differential Pulse
         """
-        self.__log.debug("pin=%s, diff_pulse=%s", self.pin, diff_pulse)
+        self.__log.debug("pin=%s, pulse_diff=%s", self.pin, pulse_diff)
 
         _cur_pulse = self.get_pulse()
         self.__log.debug("cur_pulse=%s", _cur_pulse)
@@ -88,7 +88,7 @@ class PiServo:
         if _cur_pulse == 0:
             return
 
-        self.move_pulse(_cur_pulse + diff_pulse)
+        self.move_pulse(_cur_pulse + pulse_diff)
 
     def move_min(self):
         """サーボモーターを最小位置に移動させる。

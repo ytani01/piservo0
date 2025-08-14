@@ -35,13 +35,16 @@ class ThreadWorker(threading.Thread):
      "move_sec": 0.2, "step_n": 40}    # optional
 
     {"cmd": "move_all_angles", "angles": [30, None, "center"]}
-    {"cmd": "move_all_pulses", "pulses": [1000, 2000, None, 0]}    
+    {"cmd": "move_all_pulses", "pulses": [1000, 2000, None, 0]}
+
     {"cmd": "move_sec", "sec": 1.5}
     {"cmd": "step_n", "n": 40}
     {"cmd": "interval", "sec": 0.5}
     {"cmd": "sleep", "sec": 1.0}
 
-    {"cmd": "set", "servo": 1, "target": "center", "pulse": 1500}
+    # for calibration
+    {"cmd": "move_pulse_relative", "servo": 2, "pulse_diff": -20}
+    {"cmd": "set", "servo": 1, "target": "center"}
     """
 
     DEF_RECV_TIMEOUT = 0.2  # sec
@@ -90,6 +93,7 @@ class ThreadWorker(threading.Thread):
             "step_n": self._handle_step_n,
             "interval": self._handle_interval,
             "sleep": self._handle_sleep,
+            "move_pulse_relative": self._handle_move_pulse_relative,
             "set": self._handle_set,
         }
 
@@ -224,34 +228,46 @@ class ThreadWorker(threading.Thread):
         if _sec > 0.0:
             time.sleep(_sec)
 
-    def _handle_set(self, cmd: dict):
-        """Handle set cmd. (save calibration)
-
-        e.g. {"cmd": "set", "servo": 1, "target": "max", "pulse": 2450}
-        """
-        _servo = int(cmd["servo"])
-        _target = cmd["target"]
-        _pulse = int(cmd["pulse"])
-        self.__log.debug(
-            "set: servo[%s]:%s pulse:%s", _servo, _target, _pulse
-        )
-        if _target == "center":
-            self.mservo.set_pulse_center(_servo, _pulse)
-        elif _target == "min":
-            self.mservo.set_pulse_min(_servo, _pulse)
-        elif _target == "max":
-            self.mservo.set_pulse_max(_servo, _pulse)
-        else:
-            self.__log.warning("Invalid target: %s", _target)
-
     def _sleep_interval(self):
         """sleep interval"""
         if self.interval_sec > 0:
             self.__log.debug("sleep interval_sec: %s sec", self.interval_sec)
             time.sleep(self.interval_sec)
 
+    def _handle_move_pulse_relative(self, cmd: dict):
+        """Handle move pulse relative.
+
+        e.g. {"cmd": "move_pulse_relative", "servo": 2, "pulse_diff": -20}
+        """
+        servo = int(cmd["servo"])
+        pulse_diff = int(cmd["pulse_diff"])
+        self.__log.debug("servo=%s, pulse_diff=%s", servo, pulse_diff)
+
+        self.mservo.move_pulse_relative(servo, pulse_diff, forced=True)
+
+    def _handle_set(self, cmd: dict):
+        """Handle set cmd. (save calibration)
+
+        e.g. {"cmd": "set", "servo": 1, "target": "max"}
+
+        * pulse is current value.
+        """
+        _servo = int(cmd["servo"])
+        _target = cmd["target"]
+        
+        self.__log.debug("set: servo:%s", _servo)
+ 
+        if _target == "center":
+            self.mservo.set_pulse_center(_servo)
+        elif _target == "min":
+            self.mservo.set_pulse_min(_servo)
+        elif _target == "max":
+            self.mservo.set_pulse_max(_servo)
+        else:
+            self.__log.warning("Invalid target: %s", _target)
+
     def _dispatch_cmd(self, cmd_data: dict):
-        """dispatch command"""
+        """Dispatch command."""
         self.__log.debug("cmd_data=%a", cmd_data)
 
         _cmd_str = cmd_data.get("cmd")

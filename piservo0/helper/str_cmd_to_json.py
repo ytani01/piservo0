@@ -13,11 +13,19 @@ class StrCmdToJson:
     
     # コマンド文字列とJSONコマンド名のマッピング
     COMMAND_MAP: Dict[str, str] = {
-        "mv": "move_angle_sync",
+        # main move command
+        "mv": "move_all_angles_sync",
+        # move paramters
         "sl": "sleep",
         "ms": "move_sec",
         "st": "step_n",
         "is": "interval",
+        # for calibration
+        "mp": "move_pulse_diff",
+        "sc": "set",  # set center
+        "sn": "set",  # set min
+        "sx": "set",  # set max
+        # cancel
         "ca": "cancel",
         "zz": "cancel",
     }
@@ -27,6 +35,13 @@ class StrCmdToJson:
         "x": "max",
         "n": "min",
         "c": "center",
+    }
+
+    # setコマンドのコマンドメイト`target`の対応
+    SET_TARGET: Dict[str, str] = {
+        "sc": "center",
+        "sn": "min",
+        "sx": "max",
     }
 
     def __init__(self, angle_factor: List =[], debug=False):
@@ -143,6 +158,7 @@ class StrCmdToJson:
             return self._create_error_json(strcmd)
 
         _cmd_name = self.COMMAND_MAP[_cmd_key]
+
         _json: Dict[str, Any] = {"cmd": _cmd_name}
 
         if _cmd_key == "mv":
@@ -178,10 +194,32 @@ class StrCmdToJson:
             except (ValueError, TypeError):
                 return self._create_error_json(strcmd)
 
+        elif _cmd_key == "mp":
+            try:
+                servo, pulse_diff = [
+                    int(s) for s in _param_str.split(",", 1)
+                ]
+                self.__log.debug("servo=%s, pulse_diff=%s", servo, pulse_diff)
+
+                _json["servo"] = servo
+                _json["pulse_diff"] = pulse_diff
+
+            except (ValueError, TypeError):
+                return self._create_error_json(strcmd)
+
+        elif _cmd_key in ("sc", "sn", "sx"):
+            try:
+                _json["servo"] = int(_param_str)
+                _json["target"] = self.SET_TARGET[_cmd_key]
+
+            except (ValueError, TypeError):
+                return self._create_error_json(strcmd)                
+
         elif _cmd_key in ["ca", "zz"]:
             if _param_str:  # パラメータがあってはならない
                 return self._create_error_json(strcmd)
 
+        self.__log.debug("json=%s", _json)
         return _json
 
     def jsonstr(self, strcmd: str) -> str:

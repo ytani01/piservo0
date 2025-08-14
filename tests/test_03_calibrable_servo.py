@@ -1,161 +1,196 @@
-#
 # (c) 2025 Yoichi Tanibayashi
 #
 """
-Test for CalibrableServo
+tests/test_03_calibrable_servo.py
 """
+import pytest
+from unittest.mock import MagicMock, patch, mock_open
+from piservo0.core.calibrable_servo import CalibrableServo
+from piservo0.core.piservo import PiServo
+from piservo0.utils.servo_config_manager import ServoConfigManager
 import json
 
-import pytest
-
-from piservo0.core.calibrable_servo import CalibrableServo
-
-TEST_PIN = 17
-TEST_CONF_FILENAME = "test_servo_conf.json"
+PIN = 18
+CONF_FILE = "test_servo_conf.json"
 
 
 @pytest.fixture
-def calib_servo(mocker_pigpio, tmp_path, monkeypatch):
-    """
-    CalibrableServoのテスト用フィクスチャ。
-    モック化されたpigpioと、ファイル検索ロジックを考慮した
-    一時的な設定ファイルを使用する。
-    """
-    # 一時的なカレントディレクトリを作成し、移動
-    test_cwd = tmp_path / "cwd"
-    test_cwd.mkdir()
-    monkeypatch.chdir(test_cwd)
+def mock_config_manager():
+    """ServoConfigManagerのモックを返すフィクスチャ"""
+    with patch("piservo0.core.calibrable_servo.ServoConfigManager") as mock_scm:
+        instance = mock_scm.return_value
+        instance.get_config.return_value = None  # デフォルトでは設定なし
+        instance.conf_file = CONF_FILE
+        yield instance
 
-    # モック化されたpiインスタンスを取得
+
+@pytest.fixture
+def calibrable_servo(mocker_pigpio, mock_config_manager):
+    """CalibrableServoのテスト用インスタンスを生成するフィクスチャ"""
     pi = mocker_pigpio()
-
-    # テスト対象のCalibrableServoオブジェクトを作成
-    # ServoConfigManagerのファイル検索ロジックが働くようにファイル名のみ渡す
-    servo = CalibrableServo(
-        pi, TEST_PIN, conf_file=TEST_CONF_FILENAME, debug=True
-    )
-
-    # 期待される設定ファイルのフルパスも返す
-    yield pi, servo, str(test_cwd / TEST_CONF_FILENAME)
+    servo = CalibrableServo(pi, PIN, conf_file=CONF_FILE, debug=True)
+    pi.reset_mock()
+    return servo
 
 
-def test_initial_config_creation(calib_servo):
-    """
-    初期化時に設定ファイルが存在しない場合、
-    デフォルト値で設定ファイルが自動的に作成されるかをテストする。
-    """
-    _, _, conf_file = calib_servo
+class TestCalibrableServo:
+    """CalibrableServoクラスのテスト"""
 
-    with open(conf_file, "r") as f:
-        config = json.load(f)
+    def test_init_no_config(self, calibrable_servo, mock_config_manager):
+        """初期化のテスト（設定ファイルなし）"""
+        assert calibrable_servo.pin == PIN
+        assert calibrable_servo.pulse_min == PiServo.MIN
+        assert calibrable_servo.pulse_center == PiServo.CENTER
+        assert calibrable_servo.pulse_max == PiServo.MAX
+        # 設定がない場合、デフォルト値でsave_confが呼ばれることを確認
+        mock_config_manager.save_config.assert_called()
 
-    assert len(config) == 1
-    pindata = config[0]
-    assert pindata["pin"] == TEST_PIN
-    assert pindata["min"] == CalibrableServo.MIN
-    assert pindata["center"] == CalibrableServo.CENTER
-    assert pindata["max"] == CalibrableServo.MAX
+    def test_init_with_config(self, mocker_pigpio):
+        """初期化のテスト（設定ファイルあり）"""
+        # Arrange
+        config_data = {
+            "pin": PIN,
+            "min": 600,
+            "center": 1550,
+            "max": 2450
+        }
+        # ServoConfigManagerのモックを作成し、get_configが設定を返すようにする
+        with patch("piservo0.core.calibrable_servo.ServoConfigManager") as mock_scm:
+            instance = mock_scm.return_value
+            instance.get_config.return_value = config_data
+            instance.conf_file = CONF_FILE
 
+            # Act
+            pi = mocker_pigpio()
+            servo = CalibrableServo(pi, PIN, conf_file=CONF_FILE, debug=True)
 
-def test_set_and_load_calibration(mocker_pigpio, tmp_path, monkeypatch):
-    """
-    キャリブレーション値を設定・保存し、新しいインスタンスで正しく読み込むか。
-    """
-    # CalibrableServoは内部でServoConfigManagerを使うため、
-    # そのファイル検索ロジックも考慮したセットアップを行う
-    test_cwd = tmp_path / "cwd"
-    test_cwd.mkdir()
-    monkeypatch.chdir(test_cwd)
-    conf_file_path = test_cwd / TEST_CONF_FILENAME
+            # Assert
+            assert servo.pulse_min == config_data["min"]
+            assert servo.pulse_center == config_data["center"]
+            assert servo.pulse_max == config_data["max"]
+            # 既存設定があるので、saveは呼ばれない
+            instance.save_config.assert_not_called()
 
-    pi = mocker_pigpio()
+    def test_pulse_setters(self, calibrable_servo, mock_config_manager):
+        """パルス幅セッターのテスト"""
+        # pulse_min
+        calibrable_servo.pulse_min = 700
+        assert calibrable_servo.pulse_min == 700
+        mock_config_manager.save_config.assert_called()
 
-    # 1. 最初のインスタンスで値を設定・保存
-    servo1 = CalibrableServo(pi, TEST_PIN, conf_file=str(conf_file_path))
-    new_min, new_center, new_max = 1000, 1600, 2200
+        # pulse_max
+        calibrable_servo.pulse_max = 2300
+        assert calibrable_servo.pulse_max == 2300
+        mock_config_manager.save_config.assert_called()
 
-    # get_pulse()が返す値を設定して、setterがその値を使うようにする
-    pi.get_servo_pulsewidth.return_value = new_min
-    servo1.pulse_min = new_min
-    pi.get_servo_pulsewidth.return_value = new_center
-    servo1.pulse_center = new_center
-    pi.get_servo_pulsewidth.return_value = new_max
-    servo1.pulse_max = new_max
+        # pulse_center
+        calibrable_servo.pulse_center = 1600
+        assert calibrable_servo.pulse_center == 1600
+        mock_config_manager.save_config.assert_called()
 
-    # 2. 新しいインスタンスを作成して、値が読み込まれるか確認
-    # ここでもファイル名のみを渡して、検索ロジックを動作させる
-    servo2 = CalibrableServo(pi, TEST_PIN, conf_file=TEST_CONF_FILENAME)
-    assert servo2.pulse_min == new_min
-    assert servo2.pulse_center == new_center
-    assert servo2.pulse_max == new_max
+    def test_pulse_setter_constraints(self, calibrable_servo):
+        """パルス幅セッターの制約テスト"""
+        # centerをminより小さくしようとしてもminに補正される
+        calibrable_servo.pulse_center = calibrable_servo.pulse_min - 100
+        assert calibrable_servo.pulse_center == calibrable_servo.pulse_min
 
+        # centerをmaxより大きくしようとしてもmaxに補正される
+        calibrable_servo.pulse_center = calibrable_servo.pulse_max + 100
+        assert calibrable_servo.pulse_center == calibrable_servo.pulse_max
 
-@pytest.mark.parametrize(
-    "angle, expected_pulse",
-    [
-        (0, 1500),
-        (90, 2500),
-        (-90, 500),
-        (45, 2000),
-        (-45, 1000),
-    ],
-)
-def test_deg_pulse_conversion(calib_servo, angle, expected_pulse):
-    """
-    角度とパルス幅の相互変換が正しく行われるか（デフォルト設定）。
-    """
-    _, servo, _ = calib_servo
-    assert servo.deg2pulse(angle) == expected_pulse
-    assert servo.pulse2deg(expected_pulse) == pytest.approx(angle)
+        # minをcenterより大きくしようとしてもcenterに補正される
+        calibrable_servo.pulse_min = calibrable_servo.pulse_center + 100
+        assert calibrable_servo.pulse_min == calibrable_servo.pulse_center
 
+        # maxをcenterより小さくしようとしてもcenterに補正される
+        calibrable_servo.pulse_max = calibrable_servo.pulse_center - 100
+        assert calibrable_servo.pulse_max == calibrable_servo.pulse_center
 
-@pytest.mark.parametrize(
-    "angle_or_str, expected_angle",
-    [
-        (45, 45),
-        (-90, -90),
-        (CalibrableServo.POS_CENTER, CalibrableServo.ANGLE_CENTER),
-        (CalibrableServo.POS_MIN, CalibrableServo.ANGLE_MIN),
-        (CalibrableServo.POS_MAX, CalibrableServo.ANGLE_MAX),
-        ('', CalibrableServo.ANGLE_MAX),
-        (None, CalibrableServo.ANGLE_MAX),
-    ],
-)
-def test_move_angle(calib_servo, angle_or_str, expected_angle):
-    """
-    move_angle()が数値や文字列で正しく呼び出されるか。
-    """
+    def test_deg_pulse_conversion(self, calibrable_servo):
+        """角度とパルスの変換テスト"""
+        calibrable_servo.pulse_min = 600
+        calibrable_servo.pulse_center = 1500
+        calibrable_servo.pulse_max = 2400
 
-    pi, servo, _ = calib_servo
-    pi.get_servo_pulsewidth.return_value = servo.deg2pulse(expected_angle)
+        # deg -> pulse
+        assert calibrable_servo.deg2pulse(0) == 1500
+        assert calibrable_servo.deg2pulse(90) == 2400
+        assert calibrable_servo.deg2pulse(-90) == 600
+        assert calibrable_servo.deg2pulse(45) == 1950
+        assert calibrable_servo.deg2pulse(-45) == 1050
 
-    servo.move_angle(angle_or_str)
-    expected_pulse = servo.deg2pulse(expected_angle)
-    pi.set_servo_pulsewidth.assert_called_with(TEST_PIN, expected_pulse)
+        # pulse -> deg
+        assert round(calibrable_servo.pulse2deg(1500), 1) == 0.0
+        assert round(calibrable_servo.pulse2deg(2400), 1) == 90.0
+        assert round(calibrable_servo.pulse2deg(600), 1) == -90.0
+        assert round(calibrable_servo.pulse2deg(1950), 1) == 45.0
+        assert round(calibrable_servo.pulse2deg(1050), 1) == -45.0
 
+    def test_move_angle(self, calibrable_servo):
+        """move_angleのテスト"""
+        calibrable_servo.pulse_min = 600
+        calibrable_servo.pulse_center = 1500
+        calibrable_servo.pulse_max = 2400
 
-def test_move_pulse_with_calibration(calib_servo):
-    """
-    キャリブレーション値を考慮してmove_pulseが範囲内にクリップされるか。
-    """
-    pi, servo, _ = calib_servo
+        # 数値
+        calibrable_servo.move_angle(45)
+        calibrable_servo.pi.set_servo_pulsewidth.assert_called_with(PIN, 1950)
 
-    # キャリブレーション値を設定
-    servo.pulse_min = 1000
-    servo.pulse_max = 2000
+        # 文字列
+        calibrable_servo.move_angle("min")
+        calibrable_servo.pi.set_servo_pulsewidth.assert_called_with(PIN, 600)
+        calibrable_servo.move_angle("center")
+        calibrable_servo.pi.set_servo_pulsewidth.assert_called_with(PIN, 1500)
+        calibrable_servo.move_angle("max")
+        calibrable_servo.pi.set_servo_pulsewidth.assert_called_with(PIN, 2400)
 
-    # 範囲内の値
-    servo.move_pulse(1500)
-    pi.set_servo_pulsewidth.assert_called_with(TEST_PIN, 1500)
+        # 範囲外
+        calibrable_servo.move_angle(100)
+        calibrable_servo.pi.set_servo_pulsewidth.assert_called_with(PIN, 2400) # maxにクリップ
+        calibrable_servo.move_angle(-100)
+        calibrable_servo.pi.set_servo_pulsewidth.assert_called_with(PIN, 600) # minにクリップ
 
-    # 範囲外(下) -> クリップされる
-    servo.move_pulse(900)
-    pi.set_servo_pulsewidth.assert_called_with(TEST_PIN, 1000)
+        # None (何もしない)
+        calibrable_servo.pi.get_servo_pulsewidth.return_value = 1500 # 現在位置
+        calibrable_servo.move_angle(None)
+        calibrable_servo.pi.set_servo_pulsewidth.assert_called_with(PIN, 1500) # 現在位置を維持
 
-    # 範囲外(上) -> クリップされる
-    servo.move_pulse(2100)
-    pi.set_servo_pulsewidth.assert_called_with(TEST_PIN, 2000)
+    def test_move_angle_relative(self, calibrable_servo):
+        """move_angle_relativeのテスト"""
+        calibrable_servo.pulse_min = 600
+        calibrable_servo.pulse_center = 1500
+        calibrable_servo.pulse_max = 2400
+        
+        # 現在角度を0度(1500)に設定
+        calibrable_servo.pi.get_servo_pulsewidth.return_value = 1500
 
-    # forced=True の場合はクリップされない
-    servo.move_pulse(800, forced=True)
-    pi.set_servo_pulsewidth.assert_called_with(TEST_PIN, 800)
+        calibrable_servo.move_angle_relative(20)
+        # 0度 -> 20度
+        expected_pulse = calibrable_servo.deg2pulse(20)
+        calibrable_servo.pi.set_servo_pulsewidth.assert_called_with(PIN, expected_pulse)
+
+    def test_move_pulse_calibrated(self, calibrable_servo):
+        """キャリブレーション値を考慮したmove_pulseのテスト"""
+        calibrable_servo.pulse_min = 700
+        calibrable_servo.pulse_max = 2300
+
+        # 範囲内
+        calibrable_servo.move_pulse(1500)
+        calibrable_servo.pi.set_servo_pulsewidth.assert_called_with(PIN, 1500)
+
+        # 範囲外（下限）
+        calibrable_servo.move_pulse(600)
+        calibrable_servo.pi.set_servo_pulsewidth.assert_called_with(PIN, 700)
+
+        # 範囲外（上限）
+        calibrable_servo.move_pulse(2400)
+        calibrable_servo.pi.set_servo_pulsewidth.assert_called_with(PIN, 2300)
+
+    def test_move_pulse_forced(self, calibrable_servo):
+        """forced=Trueの場合のmove_pulseテスト"""
+        calibrable_servo.pulse_min = 700
+        calibrable_servo.pulse_max = 2300
+
+        # 範囲外でも強制的に移動
+        calibrable_servo.move_pulse(600, forced=True)
+        calibrable_servo.pi.set_servo_pulsewidth.assert_called_with(PIN, 600)

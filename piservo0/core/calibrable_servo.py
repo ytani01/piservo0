@@ -231,18 +231,18 @@ class CalibrableServo(PiServo):
 
         self.move_pulse(pulse)
 
-    def move_angle_relative(self, diff_deg: float):
+    def move_angle_relative(self, deg_diff: float):
         """Move relative.
 
         Args:
-            diff_deg (float): Differential degree
+            deg_diff (float): Differential degree
         """
-        self.__log.debug("pin=%s, diff_deg=%s", self.pin, diff_deg)
+        self.__log.debug("pin=%s, deg_diff=%s", self.pin, deg_diff)
 
         _cur_angle = self.get_angle()
         self.__log.debug("cur_angle=%s", _cur_angle)
 
-        self.move_angle(_cur_angle + diff_deg)
+        self.move_angle(_cur_angle + deg_diff)
 
     def load_conf(self):
         """設定ファイルからこのサーボのキャリブレーション値を読み込む。"""
