@@ -9,7 +9,6 @@ import time
 from ..core.multi_servo import MultiServo
 from ..utils.my_logger import get_logger
 
-
 class ThreadWorker(threading.Thread):
     """Thred worker.
 

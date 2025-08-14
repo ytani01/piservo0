@@ -12,14 +12,13 @@ class CalibrableServo(PiServo):
     サーボモーターの制御に特化し、設定の永続化はServoConfigManagerに委任する。
 
     Attributes:
-        DEF_CONF_FILE (str): デフォルトの設定ファイル名。
         conf_file (str): 使用する設定ファイルへのパス。
         pulse_center (int): キャリブレーション後の中央位置のパルス幅。
         pulse_min (int): キャリブレーション後の最小位置のパルス幅。
         pulse_max (int): キャリブレーション後の最大位置のパルス幅。
     """
 
-    DEF_CONF_FILE = "servo.json"
+    DEF_CONF_FILE = "servo.json"  # デフォルトの設定ファイル名
 
     ANGLE_MIN = -90.0
     ANGLE_MAX = 90.0
@@ -77,14 +76,7 @@ class CalibrableServo(PiServo):
         if pulse is None:
             pulse = self.get_pulse()
 
-        if pulse < super().MIN:
-            self.__log.warning("pulse=%s < %s", pulse, super().MIN)
-            pulse = super().MIN
-
-        if pulse > super().MAX:
-            self.__log.warning("pulse=%s > %s", pulse, super().MAX)
-            pulse = super().MAX
-
+        pulse = max(min(pulse, self.MAX), self.MIN)
         return pulse
 
     @property
@@ -143,8 +135,7 @@ class CalibrableServo(PiServo):
         Parameters
         ----------
         pulse: int | None
-            パルス幅
-            `None`の場合は、動かさずに戻る
+            `None`: Do nothing
 
         forced: bool
             `True`の場合は、範囲チェックを行わない
@@ -154,37 +145,27 @@ class CalibrableServo(PiServo):
             return
 
         if not forced:
-            if pulse < self.pulse_min:
-                self.__log.warning(
-                    "pulse(%s) < pulse_min(%s)", pulse, self.pulse_min
-                )
-                pulse = self.pulse_min
-
-            if pulse > self.pulse_max:
-                self.__log.warning(
-                    "pulse(%s) > pulse_max(%s)", pulse, self.pulse_max
-                )
-                pulse = self.pulse_max
+            pulse = max(min(pulse, self.pulse_max), self.pulse_min)
 
         super().move_pulse(pulse)
 
     def move_center(self):
-        """サーボモーターをキャリブレーションされた中央位置に移動させる。"""
+        """Move center angle (0 deg)."""
         self.__log.debug("")
         self.move_pulse(self.pulse_center)
 
     def move_min(self):
-        """サーボモーターをキャリブレーションされた最小位置に移動させる。"""
+        """Move min angle (-90 deg)."""
         self.__log.debug("")
         self.move_pulse(self.pulse_min)
 
     def move_max(self):
-        """サーボモーターをキャリブレーションされた最大位置に移動させる。"""
+        """Move max angle (90 deg)."""
         self.__log.debug("")
         self.move_pulse(self.pulse_max)
 
     def deg2pulse(self, deg: float) -> int:
-        """角度をパルス幅に変換する。"""
+        """Degree to Pulse."""
         if deg >= self.ANGLE_CENTER:
             d = self.pulse_max - self.pulse_center
         else:
@@ -199,7 +180,7 @@ class CalibrableServo(PiServo):
         return pulse_int
 
     def pulse2deg(self, pulse: int) -> float:
-        """パルス幅を角度に変換する。"""
+        """Pulse to degree."""
         if pulse >= self.pulse_center:
             d = self.pulse_max - self.pulse_center
         else:
@@ -211,11 +192,10 @@ class CalibrableServo(PiServo):
         return deg
 
     def get_angle(self):
-        """現在のサーボの角度を取得する。"""
+        """Get current angle (deg)."""
         pulse = self.get_pulse()
         angle = self.pulse2deg(pulse)
         self.__log.debug("pulse=%s, angle=%s", pulse, angle)
-
         return angle
 
     def move_angle(self, deg: float | str | None = None):
@@ -274,10 +254,7 @@ class CalibrableServo(PiServo):
 
         self.__log.debug(
             "Loaded: pin=%s, min=%s, center=%s, max=%s",
-            self.pin,
-            self.pulse_min,
-            self.pulse_center,
-            self.pulse_max,
+            self.pin, self.pulse_min, self.pulse_center, self.pulse_max
         )
 
     def save_conf(self):

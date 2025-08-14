@@ -6,16 +6,9 @@ from ..utils.my_logger import get_logger
 
 
 class PiServo:
-    """Raspberry PiのGPIOピンを介してサーボモーターを制御するクラス。
+    """The most basic class for controlling servo motors.
 
-    pigpioライブラリを使用して、サーボモーターのパルス幅を設定し、
-    位置を制御する。
-
-    Attributes:
-        OFF (int): サーボをオフにするパルス幅（0）。
-        MIN (int): 最小パルス幅（500マイクロ秒）。
-        MAX (int): 最大パルス幅（2500マイクロ秒）。
-        CENTER (int): 中央位置のパルス幅（1500マイクロ秒）。
+    pigpioライブラリを利用して、より手軽にサーボモーターを制御する。
     """
 
     OFF = 0
@@ -39,9 +32,17 @@ class PiServo:
         self.__log = get_logger(self.__class__.__name__, self._debug)
         self.__log.debug("pin=%s", pin)
 
-        self.pi = pi
-        self.pin = pin
+        self._pi = pi
+        self._pin = pin
 
+    @property
+    def pi(self):
+        return self._pi
+
+    @property
+    def pin(self):
+        return self._pin
+    
     def get_pulse(self):
         """Get pulse.
 
@@ -50,7 +51,6 @@ class PiServo:
         """
         pulse = self.pi.get_servo_pulsewidth(self.pin)
         self.__log.debug("pulse=%s", pulse)
-
         return pulse
 
     def move_pulse(self, pulse):
@@ -96,7 +96,6 @@ class PiServo:
         パルス幅をMINに設定する。
         """
         self.__log.debug("pin=%s", self.pin)
-
         self.move_pulse(self.MIN)
 
     def move_max(self):
@@ -105,7 +104,6 @@ class PiServo:
         パルス幅をMAXに設定する。
         """
         self.__log.debug("pin=%s", self.pin)
-
         self.move_pulse(self.MAX)
 
     def move_center(self):
@@ -114,7 +112,6 @@ class PiServo:
         パルス幅をCENTERに設定する。
         """
         self.__log.debug("pin=%s", self.pin)
-
         self.move_pulse(self.CENTER)
 
     def off(self):
@@ -123,5 +120,4 @@ class PiServo:
         サーボモーターのパルス幅をOFF (0) に設定し、動作を停止させる。
         """
         self.__log.debug("pin=%s", self.pin)
-
         self.pi.set_servo_pulsewidth(self.pin, self.OFF)
