@@ -72,9 +72,10 @@ class ThreadMultiServo:
         return self._mservo.conf_file
 
     def end(self):
-        """
-        終了処理。ワーカースレッドを安全に停止させ、すべてのサーボをオフにします。
-        このメソッドは同期的であり、スレッドの終了を待ってからリターンします。
+        """End.
+        ワーカースレッドを安全に停止させ、
+        すべてのサーボをOFFにする。
+        スレッドの終了を待ってからリターンする。
         """
         self.__log.debug("Ending worker...")
         if self._worker and self._worker.is_alive():
@@ -89,24 +90,26 @@ class ThreadMultiServo:
         self._worker.send(cmd)
 
     def cancel_cmds(self):
-        """今まで送ったコマンドをキャンセルする"""
+        """Cancel all commands.
+        現在実行中のコマンドは、キャンセルできない。
+        """
         self.__log.debug("")
         self._worker.clear_cmdq()
 
     # --- 非同期制御メソッド ---
 
-    def move_angle(self, target_angles: list[Optional[float]]):
-        """
-        指定された角度に即座に移動するコマンドを非同期で送信します。
+    def move_all_angles(self, target_angles: list[Optional[float]]):
+        """Move all servo.
+        即座に移動する。
 
         Args:
             target_angles (list[Optional[float]]):
             各サーボの目標角度のリスト。
         """
-        cmd = {"cmd": "move_angle", "target_angles": target_angles}
+        cmd = {"cmd": "move_all_angles", "target_angles": target_angles}
         self.send_cmd(cmd)
 
-    def move_angle_sync(
+    def move_all_angles_sync(
         self,
         target_angles: list[Optional[float]],
         move_sec: Optional[float] = None,
@@ -129,7 +132,7 @@ class ThreadMultiServo:
         )
 
         cmd = {
-            "cmd": "move_angle_sync",
+            "cmd": "move_all_angles_sync",
             "target_angles": target_angles,
             "move_sec": move_sec,
             "step_n": step_n,
@@ -185,16 +188,12 @@ class ThreadMultiServo:
 
     # --- 状態取得メソッド ---
 
-    def get_pulse(self) -> list[int]:
+    def get_all_pulses(self) -> list[int]:
+        """Get all pulses.
         """
-        すべてのサーボの現在のパルス幅を取得します。
-        この値はワーカースレッドの処理状態を反映した最新の値です。
-        """
-        return self._mservo.get_pulse()
+        return self._mservo.get_all_pulses()
 
-    def get_angle(self) -> list[float]:
+    def get_all_angles(self) -> list[float]:
+        """Get all angles.
         """
-        すべてのサーボの現在の角度を取得します。
-        この値はワーカースレッドの処理状態を反映した最新の値です。
-        """
-        return self._mservo.get_angle()
+        return self._mservo.get_all_angles()

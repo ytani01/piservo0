@@ -246,9 +246,15 @@ class MultiServo:
         for s in self.servo:
             s.off()
 
-    def get_pulse(self):
+    def get_pulse(self, idx: int) -> int:
+        """Get pulse of servo[idx].
         """
-        すべてのサーボの現在のパルス幅を取得する。
+        _pulse = self.servo[idx].get_pulse()
+        self.__log.debug("idx=%s, pulse=%s", idx, _pulse)
+        return _pulse
+
+    def get_all_pulses(self):
+        """Get pulses of all servos.
 
         Returns
         -------
@@ -259,7 +265,12 @@ class MultiServo:
         self.__log.debug("pulses=%s", pulses)
         return pulses
 
-    def move_pulse(self, pulses, forced=False):
+    def move_pulse(self, idx, pulse, forced=False):
+        """Move one servo[idx].
+        """
+        self.servo[idx].move_pulse(pulse, forced)
+
+    def move_all_pulses(self, pulses, forced=False):
         """Move all servos to `pulse`.
 
         Parameters
@@ -270,28 +281,39 @@ class MultiServo:
         forced: bool
             `True`の場合、可動範囲外のパルス幅も強制的に設定する。
         """
-        for i, s in enumerate(self.servo):
-            self.__log.debug("pin=%s, pulse=%s", s.pin, pulses[i])
-            s.move_pulse(pulses[i], forced)
+        for i in range(len(self.servo)):
+            self.move_pulse(i, pulses[i], forced)
 
-    def move_pulse_relative(self, diff_pulses, forced=False):
-        """Relative move.
+    def move_pulse_relative(self, idx, diff_pulse, forced=False):
+        """Relative move one servo[idx].
+        """
+        self.__log.debug(
+            "idx=%s, diff_pulse=%s, forced=%s", idx, diff_pulse, forced
+        )
+        _new_pulse = self.get_pulse(idx) + diff_pulse
+        self.__log.debug("new_pulse=%s", _new_pulse)
+
+        self.move_pulse(idx, _new_pulse, forced)
+
+    def move_all_pulses_relative(self, diff_pulses, forced=False):
+        """Relative move all servos.
 
         Args:
             diff_pulses (List[int]):
         """
         self.__log.debug("diff_pulses=%s, force=%s", diff_pulses, forced)
 
-        _cur_pulses = self.get_pulse()
+        _cur_pulses = self.get_all_pulses()
         self.__log.debug("cur_pulses=%s", _cur_pulses)
 
-        for i in range(len(self.servo)):
-            _cur_pulses[i] += diff_pulses[i]
-        self.__log.debug("cur_pulses=%s", _cur_pulses)
+        _new_pulses = [
+            _cur_pulses[i] + diff_pulses[i] for i in range(len(self.servo))
+        ]
+        self.__log.debug("new_pulses=%s", _new_pulses)
 
-        self.move_pulse(_cur_pulses, forced=forced)
+        self.move_all_pulses(_new_pulses, forced=forced)
 
-    def get_angle(self):
+    def get_all_angles(self):
         """
         すべてのサーボの現在の角度を取得する。
 
@@ -304,7 +326,7 @@ class MultiServo:
         self.__log.debug("angles=%s", angles)
         return angles
 
-    def move_angle(self, target_angles):
+    def move_all_angles(self, target_angles):
         """
         各サーボを指定された角度に動かす。
 
@@ -339,7 +361,7 @@ class MultiServo:
 
         self.move_angle(_cur_angles)
 
-    def move_angle_sync(
+    def move_all_angles_sync(
         self,
         target_angles,
         move_sec: float = DEF_MOVE_SEC,

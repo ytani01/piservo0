@@ -9,6 +9,7 @@ import time
 from ..core.multi_servo import MultiServo
 from ..utils.my_logger import get_logger
 
+
 class ThreadWorker(threading.Thread):
     """Thred worker.
 
@@ -25,16 +26,16 @@ class ThreadWorker(threading.Thread):
 
     **コマンド一覧(例)**
     
-    {"cmd": "move_angle_sync",
+    {"cmd": "move_all_angles_sync",
      "angles": [30, None, "center"],   # mandatory
      "move_sec": 0.2, "step_n": 40}    # optional
 
-    {"cmd": "move",                    # "move_angle_sync"の省略形
+    {"cmd": "move",                    # "move_all_angles_sync"の省略形
      "angles": [30, None, "center"],   # mandatory
      "move_sec": 0.2, "step_n": 40}    # optional
 
-    {"cmd": "move_angle", "angles": [30, None, "center"]}
-    {"cmd": "move_pulse", "pulses": [1000, 2000, None, 0]}    
+    {"cmd": "move_all_angles", "angles": [30, None, "center"]}
+    {"cmd": "move_all_pulses", "pulses": [1000, 2000, None, 0]}    
     {"cmd": "move_sec", "sec": 1.5}
     {"cmd": "step_n", "n": 40}
     {"cmd": "interval", "sec": 0.5}
@@ -81,10 +82,10 @@ class ThreadWorker(threading.Thread):
         self._active = False
 
         self._command_handlers = {
-            "move": self._handle_move_angle_sync,
-            "move_angle_sync": self._handle_move_angle_sync,
-            "move_angle": self._handle_move_angle,
-            "move_pulse": self._handle_move_pulse,
+            "move": self._handle_move_all_angles_sync,
+            "move_all_angles_sync": self._handle_move_all_angles_sync,
+            "move_all_angles": self._handle_move_all_angles,
+            "move_all_pulses": self._handle_move_all_pulses,
             "move_sec": self._handle_move_sec,
             "step_n": self._handle_step_n,
             "interval": self._handle_interval,
@@ -150,10 +151,10 @@ class ThreadWorker(threading.Thread):
 
         return _cmd_data
 
-    def _handle_move_angle_sync(self, cmd: dict):
-        """Handle move_angle_sync().
+    def _handle_move_all_angles_sync(self, cmd: dict):
+        """Handle move_all_angles_sync().
 
-        e.g. {"cmd": "move_angle_sync", "angles": [30, None, -30, 0],
+        e.g. {"cmd": "move_all_angles_sync", "angles": [30, None, -30, 0],
           "move_sec": 0.2,  # optional
           "step_n": 40  # optional
         }
@@ -168,25 +169,25 @@ class ThreadWorker(threading.Thread):
         if _step_n is None:
             _step_n = self.step_n
 
-        self.mservo.move_angle_sync(_angles, _move_sec, _step_n)
+        self.mservo.move_all_angles_sync(_angles, _move_sec, _step_n)
         self._sleep_interval()
 
-    def _handle_move_angle(self, cmd: dict):
-        """Handle move_angle().
+    def _handle_move_all_angles(self, cmd: dict):
+        """Handle move_all_angles().
 
-        e.g. {"cmd": "move_angle", "angles": [30, None, -30, 0]}
+        e.g. {"cmd": "move_all_angles", "angles": [30, None, -30, 0]}
         """
         _angles = cmd["angles"]
-        self.mservo.move_angle(_angles)
+        self.mservo.move_all_angles(_angles)
         self._sleep_interval()
 
-    def _handle_move_pulse(self, cmd: dict):
-        """Handle move_angle().
+    def _handle_move_all_pulses(self, cmd: dict):
+        """Handle move_all_angles().
 
-        e.g. {"cmd": "move_pulse", "pulses": [2000, 1000, None, 0]}
+        e.g. {"cmd": "move_all_pulses", "pulses": [2000, 1000, None, 0]}
         """
         _pulses = cmd["pulses"]
-        self.mservo.move_pulse(_pulses, forced=True)
+        self.mservo.move_all_pulses(_pulses, forced=True)
         self._sleep_interval()
 
     def _handle_move_sec(self, cmd: dict):
@@ -236,10 +237,12 @@ class ThreadWorker(threading.Thread):
         )
         if _target == "center":
             self.mservo.set_pulse_center(_servo, _pulse)
-        if _target == "min":
+        elif _target == "min":
             self.mservo.set_pulse_min(_servo, _pulse)
-        if _target == "max":
+        elif _target == "max":
             self.mservo.set_pulse_max(_servo, _pulse)
+        else:
+            self.__log.warning("Invalid target: %s", _target)
 
     def _sleep_interval(self):
         """sleep interval"""
