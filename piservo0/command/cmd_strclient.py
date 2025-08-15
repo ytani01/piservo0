@@ -21,10 +21,10 @@ class CmdStrClient(CmdApiClient):
             "cmd_name=%s, angle_factor=%s", cmd_name, angle_factor
         )
 
-        self.angle_factor = angle_factor
+        self._angle_factor = angle_factor
 
-        self.parser = StrCmdToJson(self.angle_factor, debug=self._debug)
-        
+        self.parser = StrCmdToJson(self._angle_factor, debug=self._debug)
+
     def parse_cmdline(self, cmdline):
         """parse string command to json."""
         self.__log.debug("cmdline=%s", cmdline)

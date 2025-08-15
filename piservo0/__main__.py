@@ -161,8 +161,8 @@ JSON API Server
 )
 @click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
 @click.pass_context
-def web_json_api(ctx, pins, server_host, port, debug):
-    """Web JSON API Server."""
+def api_server(ctx, pins, server_host, port, debug):
+    """API (JSON) Server ."""
     cmd_name = ctx.command.name
 
     _log = get_logger(__name__, debug)
@@ -264,8 +264,7 @@ def str_client(ctx, cmdline, url, history_file, angle_factor, debug):
         cmd_name, url, history_file, angle_factor
     )
 
-    cmdline = " ".join(cmdline)
-    _log.debug("cmdline=%a", cmdline)
+    _log.debug("cmdline=%s", cmdline)
 
     af_list = [int(i) for i in angle_factor.split(',')]
     _log.debug("af_list=%s", af_list)

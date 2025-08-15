@@ -35,7 +35,7 @@ class CmdApiClient:
 
     def print_response(self, _res):
         """print response in json format"""
-        print(f"{self.url}> {_res.json()}")
+        print(f"* {self.url}> {_res.json()}")
 
     def parse_cmdline(self, cmdline):
         """parse command line string to json
@@ -89,13 +89,11 @@ class CmdApiClient:
             except (KeyboardInterrupt, EOFError):
                 break
 
-            for _l in _line.split():
-                self.__log.debug("_l=%s", _l)
-                _parsed_line = self.parse_cmdline(_l)
-                _res = requests.post(
-                    self.url, data=_parsed_line, headers=self.HEADERS
-                )
-                self.print_response(_res)
+            _parsed_line = self.parse_cmdline(_line)
+            _res = requests.post(
+                self.url, data=_parsed_line, headers=self.HEADERS
+            )
+            self.print_response(_res)
 
     def end(self):
         """end"""

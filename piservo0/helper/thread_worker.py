@@ -87,14 +87,14 @@ class ThreadWorker(threading.Thread):
         self._command_handlers = {
             "move": self._handle_move_all_angles_sync,
             "move_all_angles_sync": self._handle_move_all_angles_sync,
-            "move_all_angles_sync_relative": self._handle_move_all_angles_sync_relative,
+            "move_all_angles_sync_relative":
+            self._handle_move_all_angles_sync_relative,
             "move_all_angles": self._handle_move_all_angles,
-            "move_all_pulses": self._handle_move_all_pulses,
+            "move_all_pulses_relative": self._handle_move_all_pulses_relative,
             "move_sec": self._handle_move_sec,
             "step_n": self._handle_step_n,
             "interval": self._handle_interval,
             "sleep": self._handle_sleep,
-            "move_pulse_relative": self._handle_move_pulse_relative,
             "set": self._handle_set,
         }
 
@@ -159,12 +159,12 @@ class ThreadWorker(threading.Thread):
     def _handle_move_all_angles_sync(self, cmd: dict):
         """Handle move_all_angles_sync().
 
-        e.g. {"cmd": "move_all_angles_sync", "target_angles": [30, None, -30, 0],
+        e.g. {"cmd": "move_all_angles_sync", "angles": [30, None, -30, 0],
           "move_sec": 0.2,  # optional
           "step_n": 40  # optional
         }
         """
-        _target_angles = cmd["target_angles"]
+        _angles = cmd["angles"]
 
         _move_sec = cmd.get("move_sec")
         if _move_sec is None:
@@ -174,13 +174,15 @@ class ThreadWorker(threading.Thread):
         if _step_n is None:
             _step_n = self.step_n
 
-        self.mservo.move_all_angles_sync(_target_angles, _move_sec, _step_n)
+        self.mservo.move_all_angles_sync(_angles, _move_sec, _step_n)
         self._sleep_interval()
 
     def _handle_move_all_angles_sync_relative(self, cmd: dict):
         """Handle move_all_angles_sync_relative().
 
-        e.g. {"cmd": "move_all_angles_sync_relative", "angle_diffs": [10, -10, 0, 0],
+        e.g. {
+          "cmd": "move_all_angles_sync_relative",
+          "angle_diffs": [10, -10, 0, 0],
           "move_sec": 0.2,  # optional
           "step_n": 40  # optional
         }
@@ -195,25 +197,30 @@ class ThreadWorker(threading.Thread):
         if _step_n is None:
             _step_n = self.step_n
 
-        self.mservo.move_all_angles_sync_relative(_angle_diffs, _move_sec, _step_n)
+        self.mservo.move_all_angles_sync_relative(
+            _angle_diffs, _move_sec, _step_n
+        )
         self._sleep_interval()
 
     def _handle_move_all_angles(self, cmd: dict):
         """Handle move_all_angles().
 
-        e.g. {"cmd": "move_all_angles", "target_angles": [30, None, -30, 0]}
+        e.g. {"cmd": "move_all_angles", "angles": [30, None, -30, 0]}
         """
-        _angles = cmd["target_angles"]
+        _angles = cmd["angles"]
         self.mservo.move_all_angles(_angles)
         self._sleep_interval()
 
-    def _handle_move_all_pulses(self, cmd: dict):
+    def _handle_move_all_pulses_relative(self, cmd: dict):
         """Handle move_all_angles().
 
-        e.g. {"cmd": "move_all_pulses", "pulses": [2000, 1000, None, 0]}
+        e.g. {
+               "cmd": "move_all_pulses_relative",
+               "pulse_diffs": [2000, 1000, None, 0]
+             }
         """
-        _pulses = cmd["pulses"]
-        self.mservo.move_all_pulses(_pulses, forced=True)
+        _pulse_diffs = cmd["pulse_diffs"]
+        self.mservo.move_all_pulses_relative(_pulse_diffs, forced=True)
         self._sleep_interval()
 
     def _handle_move_sec(self, cmd: dict):

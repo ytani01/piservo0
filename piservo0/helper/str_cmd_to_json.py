@@ -21,7 +21,7 @@ class StrCmdToJson:
         "st": "step_n",
         "is": "interval",
         # for calibration
-        "mp": "move_pulse_diff",
+        "mp": "move_all_pulses_relative",
         "sc": "set",  # set center
         "sn": "set",  # set min
         "sx": "set",  # set max
@@ -210,16 +210,13 @@ class StrCmdToJson:
                 _cmd_data["n"] = _n
 
             elif cmd_key == "mp":
-                servo, pulse_diff = [
-                    int(_s) for _s in cmd_param_str.split(",", 1)
+                pulse_diffs = [
+                    int(_s) * self.angle_factor[i]
+                    for i, _s in enumerate(cmd_param_str.split(","))
                 ]
-                pulse_diff *= self.angle_factor[servo]
-                self.__log.debug(
-                    "servo=%s, pulse_diff=%s", servo, pulse_diff
-                )
-                
-                _cmd_data["servo"] = servo
-                _cmd_data["pulse_diff"] = pulse_diff
+                self.__log.debug("pulse_diffs=%s", pulse_diffs)
+
+                _cmd_data["pulse_diffs"] = pulse_diffs
 
             elif cmd_key in ("sc", "sn", "sx"):
                 servo = int(cmd_param_str)
@@ -240,7 +237,8 @@ class StrCmdToJson:
                 if cmd_param_str:  # パラメータがあってはならない
                     return self._create_error_data(cmd_str)
 
-        except (ValueError, TypeError):
+        except (ValueError, TypeError) as _e:
+            self.__log.error("%s: %s", type(_e).__name__, _e)
             return self._create_error_data(cmd_str)                
 
         self.__log.debug("_cmd_data=%s", _cmd_data)
