@@ -1,9 +1,11 @@
 # ToDo
 
-- [ ] 相対移動: ThredWorker, etc. 
-- [ ] ドキュメントの整備
-  - [ ] README.md の最新化
-- [ ] テストプログラムの整備
+- [x] 相対移動: ThredWorker, etc. 
+- [x] ドキュメントの整備
+  - [x] README.md の最新化
+  - [x] REFERENCE.md の作成
+- [x] テストプログラムの整備
+  - [x] 相対移動のテストを追加
 
 
 # --- The following is obsoleted ---

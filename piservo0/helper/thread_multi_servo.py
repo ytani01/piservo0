@@ -139,6 +139,36 @@ class ThreadMultiServo:
         }
         self.send_cmd(cmd)
 
+    def move_all_angles_sync_relative(
+        self,
+        angle_diffs: list[Optional[float]],
+        move_sec: Optional[float] = None,
+        step_n: Optional[int] = None,
+    ):
+        """
+        現在の角度からの相対角度で、滑らかに移動するコマンドを非同期で送信します。
+
+        Args:
+            angle_diffs (list[Optional[float]]):
+                各サーボの目標相対角度のリスト。
+            move_sec (Optional[float], optional):
+                移動時間(秒)。Noneの場合は現在の設定値が使われます。
+            step_n (Optional[int], optional):
+                分割ステップ数。Noneの場合は現在の設定値が使われます。
+        """
+        self.__log.debug(
+            "angle_diffs=%s, move_sec=%s, step_n=%s",
+            angle_diffs, move_sec, step_n
+        )
+
+        cmd = {
+            "cmd": "move_all_angles_sync_relative",
+            "angle_diffs": angle_diffs,
+            "move_sec": move_sec,
+            "step_n": step_n,
+        }
+        self.send_cmd(cmd)
+
     def set_move_sec(self, sec: float):
         """
         移動時間を設定するコマンドを非同期で送信します。

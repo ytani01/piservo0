@@ -120,6 +120,23 @@ class TestThreadMultiServo:
         }
         worker.send.assert_called_with(expected_cmd)
 
+    def test_move_all_angles_sync_relative(self, thread_multi_servo):
+        """move_all_angles_sync_relativeが正しいコマンドを送信するかのテスト"""
+        tms, _, worker = thread_multi_servo
+        angle_diffs = [10, -10]
+        move_sec = 0.3
+        step_n = 10
+
+        tms.move_all_angles_sync_relative(angle_diffs, move_sec, step_n)
+
+        expected_cmd = {
+            "cmd": "move_all_angles_sync_relative",
+            "angle_diffs": angle_diffs,
+            "move_sec": move_sec,
+            "step_n": step_n,
+        }
+        worker.send.assert_called_with(expected_cmd)
+
     @pytest.mark.parametrize("sec", [0.5, 1.0])
     def test_sleep(self, thread_multi_servo, sec):
         """sleepが正しいコマンドを送信するかのテスト"""
