@@ -65,7 +65,6 @@ class ThreadWorker(threading.Thread):
 
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
-        self.__log.debug("")
 
         self.mservo = mservo
 
@@ -81,16 +80,30 @@ class ThreadWorker(threading.Thread):
 
         self.interval_sec = interval_sec
 
+        self.__log.debug(
+            "move_sec=%s, step_n=%s, interval_sec=%s",
+            move_sec, step_n, interval_sec
+        )
+
         self._cmdq: queue.Queue = queue.Queue()
         self._active = False
 
         self._command_handlers = {
-            "move": self._handle_move_all_angles_sync,
-            "move_all_angles_sync": self._handle_move_all_angles_sync,
+            "move":
+            self._handle_move_all_angles_sync,
+
+            "move_all_angles_sync":
+            self._handle_move_all_angles_sync,
+
             "move_all_angles_sync_relative":
             self._handle_move_all_angles_sync_relative,
-            "move_all_angles": self._handle_move_all_angles,
-            "move_all_pulses_relative": self._handle_move_all_pulses_relative,
+
+            "move_all_angles":
+            self._handle_move_all_angles,
+
+            "move_all_pulses_relative":
+            self._handle_move_all_pulses_relative,
+
             "move_sec": self._handle_move_sec,
             "step_n": self._handle_step_n,
             "interval": self._handle_interval,
