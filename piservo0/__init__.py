@@ -15,9 +15,11 @@ from .helper.str_cmd_to_json import StrCmdToJson
 from .helper.thread_multi_servo import ThreadMultiServo
 from .helper.thread_worker import ThreadWorker
 from .utils.my_logger import get_logger
+from .web.api_client import ApiClient
 
 __all__ = [
     "__version__",
+    "ApiClient",
     "CalibrableServo",
     "MultiServo",
     "PiServo",

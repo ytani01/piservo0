@@ -1,3 +1,4 @@
+
 #
 # (c) 2025 Yoichi Tanibayashi
 #
@@ -7,19 +8,13 @@ import readline  # input()でヒストリー機能が使える
 
 import requests
 
-from piservo0 import get_logger
+from piservo0 import ApiClient, get_logger
 
 
 class CmdApiClient:
     """CmdApiClient."""
 
     PROMPT_STR = "> "
-
-    HEADERS = {'content-type': 'application/json'}
-
-    TIMEOUT_CONN = 3.0
-    TIMEOUT_READ = 10.0
-    TIMEOUT_PARAM = (TIMEOUT_CONN, TIMEOUT_READ)
 
     def __init__(self, cmd_name, url, cmdline, history_file, debug=False):
         """constractor."""
@@ -32,6 +27,8 @@ class CmdApiClient:
         self.url = url
         self.cmdline = cmdline
         self.history_file = os.path.expanduser(history_file)
+
+        self.api_client = ApiClient(self.url, self._debug)
 
     def print_response(self, _res):
         """print response in json format"""
@@ -56,9 +53,7 @@ class CmdApiClient:
                 self.__log.debug("_l=%s", _l)
 
                 _parsed_line = self.parse_cmdline(_l)
-                _res = requests.post(
-                    self.url, data=_parsed_line, headers=self.HEADERS
-                )
+                _res = self.api_client.post(_parsed_line)
                 self.print_response(_res)
             return
 
@@ -90,9 +85,7 @@ class CmdApiClient:
                 break
 
             _parsed_line = self.parse_cmdline(_line)
-            _res = requests.post(
-                self.url, data=_parsed_line, headers=self.HEADERS
-            )
+            _res = self.api_client.post(_parsed_line)
             self.print_response(_res)
 
     def end(self):
