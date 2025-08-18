@@ -6,8 +6,6 @@
 import os
 import readline  # input()でヒストリー機能が使える
 
-import requests
-
 from piservo0 import ApiClient, get_logger
 
 

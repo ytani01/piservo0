@@ -248,7 +248,7 @@ class StrCmdToJson:
         """Dict形式をJSON文字列に変換."""
         self.__log.debug("cmd_line=%s", cmd_line)
 
-        data = self.cmd_data_list(cmd_line)
+        data: List[dict] | dict = self.cmd_data_list(cmd_line)
 
         # もし、配列要素が一つだけなら、その要素だけを取り出す。
         # XXX T.B.D. 必要か？
