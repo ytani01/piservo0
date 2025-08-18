@@ -3,7 +3,7 @@
 `piservo0` は、Raspberry Piでサーボモーターを精密に制御するためのPythonライブラリです。
 `pigpio`ライブラリを基盤とし、安価なサーボモーター(SG90など)を複数、同期させて動かすことに重点を置き、サーボモーターごとの個体差を吸収するためのキャリブレーション機能もあります。
 
-![Architecture](docs/SoftwareArchitecture.png)
+![Software Architecture](docs/SoftwareArchitecture2.png)
 
 ## 特徴
 
