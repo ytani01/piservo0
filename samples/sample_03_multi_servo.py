@@ -1,60 +1,32 @@
+#
+# MultiServoのサンプル
+#
 import time
-
 import pigpio
-
 from piservo0 import MultiServo
 
-PIN = [17, 22, 23]  # !! Ajust your configuration
+PINS = [17, 27, 22]             # 3つのサーボを使う
 
+pi = pigpio.pi()                # pigpioの初期化
+servos = MultiServo(pi, PINS)   # 全サーボの初期化
+time.sleep(1)                   # 初期化時にすべて0度に揃える
 
-pi = servo = None
-try:
-    pi = pigpio.pi()
+for angles in [                 # 各サーボの角度を連続指定
+        [  0,   0,   0],
+        [ 90,  45,  30],
+        [  0,  90,  60],
+        [-90,  45,  90],
+        [  0,   0,  60],
+        [ 90, -45,  30],
+        [  0, -90,   0],
+        [-90, -45, -30],
+        [  0,   0, -60],
+        [ 90,  45, -90],
+        [  0,  90, -60],
+        [-90,  45, -30],
+        [  0,   0,   0],
+]:
+    servos.move_all_angles_sync(angles) # すべてのサーボを同期して動かす
 
-    servo = MultiServo(pi, PIN)
-    time.sleep(2)
-
-    ###
-    print("* move_angle_sync()\n")
-    print(f" PIN = {PIN}")
-
-    for sec in [2, 1, 0.5, 0.3]:
-        print(f" sec={sec}")
-
-        servo.move_angle([-90, -90, -90])
-        time.sleep(1)
-
-        for angles in [
-            [-90, -90, -90],
-            [90, 0, -45],
-            [-90, 90, 0],
-            [90, 0, 45],
-            [-90, -90, 90],
-            [90, 0, 45],
-            [-90, 90, 0],
-            [90, 0, -45],
-            [-90, -90, -90],
-        ]:
-            print(f" angles={angles}")
-            servo.move_angle_sync(angles, sec)
-            time.sleep(0.1)
-
-        time.sleep(2)
-
-        print()
-
-except KeyboardInterrupt as e:
-    print(f"\n !! {type(e)}: {e}")
-
-except Exception as e:
-    print(f"\n !! {type(e)}: {e}")
-
-finally:
-    if servo:
-        time.sleep(1)
-        servo.move_angle([0] * len(PIN))
-        time.sleep(1)
-        servo.off()
-    if pi:
-        pi.stop()
-    print("* END\n")
+servos.off()                            # 全サーボOFF 
+pi.stop()                               # piservo 終了処理

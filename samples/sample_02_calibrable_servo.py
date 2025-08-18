@@ -1,43 +1,23 @@
+#
+# CalibrableServoのサンプル
+#
 import time
-
 import pigpio
-
 from piservo0 import CalibrableServo
 
-PIN1 = 17
-PIN2 = 22
+PIN1 = 17                         # 使用するGPIOピン番号
 
-TOTAL_ANGLE1 = 180.0
-TOTAL_ANGLE2 = 90.0
+pi = pigpio.pi()                  # pigpioの初期化
+servo = CalibrableServo(pi, PIN1) # サーボモーターの初期化
 
-LOOP_N = 10
-SLEEP_SEC = 0.06
+servo.move_angle(-60)             # 角度を(中央から)-60度に動かす
+time.sleep(0.5)                   # サーボが動くのを待つ
 
+servo.move_max()                  # 最大角度(90度)に動かす
+time.sleep(0.5)                   # サーボが動くのを待つ
 
-pi = pigpio.pi()
+servo.move_angle_relative(-60)    # 現在値から相対的に-60度動かす
+time.sleep(0.5)                   # サーボが動くのを待つ
 
-servo1 = CalibrableServo(pi, PIN1)
-servo2 = CalibrableServo(pi, PIN2)
-
-angle1 = angle2 = CalibrableServo.ANGLE_MIN
-servo1.move_angle(angle1)
-servo2.move_angle(angle2)
-time.sleep(2)
-
-time_start = time.time()
-print(f"{time.time() - time_start:.3f}: --- START ---")
-
-for i in range(LOOP_N):
-    angle1 += TOTAL_ANGLE1 / LOOP_N
-    angle2 += TOTAL_ANGLE2 / LOOP_N
-
-    servo1.move_angle(angle1)
-    servo2.move_angle(angle2)
-
-    time.sleep(SLEEP_SEC)
-
-    print(f"{time.time() - time_start:.3f}: {angle1: >6},{angle2: >6}")
-
-servo1.off()
-servo2.off()
-pi.stop()
+servo.off()                       # サーボOFF
+pi.stop()                         # pigpioの終了

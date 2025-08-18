@@ -8,6 +8,7 @@ import click
 import pigpio
 import uvicorn
 
+from . import __version__
 from .command.cmd_apiclient import CmdApiClient
 from .command.cmd_calib import CalibApp
 from .command.cmd_servo import CmdServo
