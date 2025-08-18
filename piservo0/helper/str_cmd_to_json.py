@@ -233,7 +233,7 @@ class StrCmdToJson:
 
         _cmd_data_list = []
 
-        for cmd_str in cmd_line.split(" "):
+        for cmd_str in cmd_line.split():
             _cmd_data = self.cmd_data(cmd_str)
             self.__log.debug("cmd_data=%s", _cmd_data)
 
