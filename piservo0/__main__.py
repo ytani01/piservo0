@@ -16,8 +16,6 @@ from .command.cmd_strclient import CmdStrClient
 from .core.calibrable_servo import CalibrableServo
 from .utils.my_logger import get_logger
 
-CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
-
 
 def get_pi(debug=False):
     """Initialize and return a pigpio.pi instance.
@@ -34,12 +32,14 @@ def get_pi(debug=False):
 
 
 @click.group(
-    invoke_without_command=True, context_settings=CONTEXT_SETTINGS,
+    invoke_without_command=True,
     help="""
 pyservo0 command
 """
 )
-@click.option("-d", "--debug", is_flag=True, help="debug flag")
+@click.option("--debug", "-d", is_flag=True, help="debug flag")
+@click.version_option(__version__, "--version", "-v", "-V", message='%(version)s')
+@click.help_option("--help", "-h")
 @click.pass_context
 def cli(ctx, debug):
     """CLI top."""
@@ -65,11 +65,16 @@ servo command"""
     help="sec"
 )
 @click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
+@click.version_option(__version__, "--version", "-v", "-V", message='%(version)s')
+@click.help_option("--help", "-h")
 @click.pass_context
 def servo(ctx, pin, pulse, sec, debug):
     """servo command."""
     _log = get_logger(__name__, debug)
     _log.debug('pin=%s, pulse="%s", sec=%s', pin, pulse, sec)
+
+    cmd_name = ctx.command.name
+    _log.debug("cmd_name=%s", cmd_name)
 
     pi = get_pi(debug)
     if not pi:
@@ -106,6 +111,8 @@ calibration tool
     help="Config file"
 )
 @click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
+@click.version_option(__version__, "--version", "-v", "-V", message='%(version)s')
+@click.help_option("--help", "-h")
 @click.pass_context
 def calib(ctx, pin, conf_file, debug):
     """calibration command."""
@@ -161,6 +168,8 @@ JSON API Server
     help="port number"
 )
 @click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
+@click.version_option(__version__, "--version", "-v", "-V", message='%(version)s')
+@click.help_option("--help", "-h")
 @click.pass_context
 def api_server(ctx, pins, server_host, port, debug):
     """API (JSON) Server ."""
@@ -208,6 +217,8 @@ API Client (JSON)
     help="History file"
 )
 @click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
+@click.version_option(__version__, "--version", "-v", "-V", message='%(version)s')
+@click.help_option("--help", "-h")
 @click.pass_context
 def api_client(ctx, cmdline, url, history_file, debug):
     """String API Server."""
@@ -254,6 +265,8 @@ String Command API Client
     help="Angle Factor"
 )
 @click.option("--debug", "-d", is_flag=True, default=False, help="debug flag")
+@click.version_option(__version__, "--version", "-v", "-V", message='%(version)s')
+@click.help_option("--help", "-h")
 @click.pass_context
 def str_client(ctx, cmdline, url, history_file, angle_factor, debug):
     """String Command API Client."""
