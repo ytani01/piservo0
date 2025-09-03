@@ -14,7 +14,9 @@ class CmdApiClient:
 
     PROMPT_STR = "> "
 
-    def __init__(self, cmd_name, url, cmdline, history_file, debug=False):
+    def __init__(
+            self, cmd_name, url, cmdline: tuple, history_file, debug=False
+    ) -> None:
         """constractor."""
         self._debug = debug
         self.__log = get_logger(self.__class__.__name__, self._debug)
@@ -25,6 +27,9 @@ class CmdApiClient:
         self.url = url
         self.cmdline = cmdline
         self.history_file = os.path.expanduser(history_file)
+        self.__log.debug("cmd_name=%s, url=%s", self.cmd_name, self.url)
+        self.__log.debug("cmdline=%s", self.cmdline)
+        self.__log.debug("history_file=%s", self.history_file)
 
         self.api_client = ApiClient(self.url, self._debug)
 
@@ -47,7 +52,7 @@ class CmdApiClient:
             #
             # command arguments mode
             #
-            for _l in self.cmdline.split():
+            for _l in self.cmdline:
                 self.__log.debug("_l=%s", _l)
 
                 _parsed_line = self.parse_cmdline(_l)

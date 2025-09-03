@@ -240,7 +240,7 @@ def api_client(ctx, cmdline, url, history_file, debug):
         cmd_name, url, history_file
     )
 
-    cmdline = " ".join(cmdline)
+    # cmdline = " ".join(cmdline)
     _log.debug("cmdline=%a", cmdline)
 
     _app = CmdApiClient(cmd_name, url, cmdline, history_file, debug)
@@ -289,7 +289,6 @@ def str_client(ctx, cmdline, url, history_file, angle_factor, debug):
         "cmd_name=%s, url=%s, history_file=%s, angle_factor=%s",
         cmd_name, url, history_file, angle_factor
     )
-
     _log.debug("cmdline=%s", cmdline)
 
     af_list = [int(i) for i in angle_factor.split(',')]
